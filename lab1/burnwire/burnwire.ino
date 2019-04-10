@@ -9,9 +9,11 @@ void setup() {
 }
 
 void loop() {
-  if (Serial.available() > 0) {
+  while (Serial.available() == 0) {}
+  while (Serial.available() > 0) {
     Serial.read();
-    burn_wire_on = !burn_wire_on;
-    digitalWrite(BURN_WIRE_PIN, burn_wire_on);
+    delay(10);
   }
+  burn_wire_on = !burn_wire_on;
+  digitalWrite(BURN_WIRE_PIN, burn_wire_on);
 }
