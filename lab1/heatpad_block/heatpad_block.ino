@@ -1,3 +1,9 @@
+/*
+ * For Part 2 of the lab, controlling temperature at end of aluminum block.
+ * For 2a @ 30C, kp = 600, ki = kd = 0
+ * For 2b @ 3C, kp = 600, ki = 0, kd = 200
+ */
+
 //PID constants
 double kp = 600;
 double ki = 0;
