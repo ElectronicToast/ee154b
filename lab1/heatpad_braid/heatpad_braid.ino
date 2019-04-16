@@ -1,13 +1,15 @@
 /*
  * For Part 3 of the lab, controlling temperature at end of copper braid.
+ * 3a: kp = 150, ki = kd = 0, setPoint = 33.25
+ * 3c: kp = 450, ki = 0, kd = 200, setPoint = 4.0
  */
 
 //PID constants
-double kp = 150;
+double kp = 450;
 double ki = 0;
-double kd = 0;
+double kd = 200;
 // desired temperature in celsius
-double setPoint = 33.25;
+double setPoint = 4.0;
 
 unsigned long currentTime, previousTime;
 double elapsedTime;
