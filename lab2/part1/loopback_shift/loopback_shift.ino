@@ -22,7 +22,7 @@ void setup() {
 
 void loop() {
     if (Serial.available()) {
-        char c_rx = (char) Serial.read();
+        c_rx = Serial.read();
         Serial.print(shift(c_rx));
     }
 }
