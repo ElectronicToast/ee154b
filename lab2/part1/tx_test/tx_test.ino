@@ -6,6 +6,8 @@
 
 #define     CHAR_A      0x41
 #define     CHAR_Z      0x5A
+#define     CHAR_a      0x61
+#define     CHAR_z      0x7A
  
 
 void setup() {
