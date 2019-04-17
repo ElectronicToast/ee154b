@@ -13,6 +13,6 @@ void setup() {
 }
 
 void loop() {
-    Serial.print(CHAR_A, HEX);
+    Serial.print('A');
     delay(1000);
 }
