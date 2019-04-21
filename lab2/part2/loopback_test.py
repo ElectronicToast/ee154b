@@ -14,10 +14,7 @@ NUM_TESTS = 1000
 
 REPITITION_N = 5
 
-def main(argv):
-
-    # parse arguments
-    args = parse_arguments(argv)
+def main(args):
 
     # configure logging:
     logging.basicConfig(
@@ -105,4 +102,5 @@ def parse_arguments(argv):
     return vars(parser.parse_args(argv))
 
 if __name__ == '__main__':
-    main(sys.argv[1:])
+    # parse arguments then pass into main
+    main(parse_arguments(sys.argv[1:]))
