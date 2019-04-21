@@ -4,7 +4,7 @@ It records the transmission error rate of single characters.
 '''
 
 from time import sleep
-import serial, random, string, sys, logging, argparse
+import serial, random, string, sys, logging, argparse, collections
 from datetime import datetime
 
 DEFAULT_BAUD_RATE = 9600
@@ -15,15 +15,7 @@ NUM_TESTS = 1000
 REPITITION_N = 5
 
 def main(args):
-
-    # configure logging:
-    logging.basicConfig(
-        format='%(levelname)s %(asctime)s %(message)s',
-        datefmt='%m/%d/%Y %I:%M:%S %p',
-        filename=args['log_filename'],
-        level=logging.DEBUG)
-
-    logging.getLogger().addHandler(logging.StreamHandler())
+    logger = config_logger(args)
 
     # Open the serial port
     ser = serial.Serial(PORT, args['baud_rate'])
@@ -33,10 +25,10 @@ def main(args):
 
     # Confirm that the connection is established
     if ser.isOpen():
-        logging.info('Serial port ' + PORT + ' opened successfully.')
+        logger.info('Serial port ' + PORT + ' opened successfully.')
 
     # Print test statement
-    logging.info('Running: ' + str(NUM_TESTS) + " tests with baud rate: " +
+    logger.info('Running: ' + str(NUM_TESTS) + " tests with baud rate: " +
         str(args['baud_rate']))
 
     # Count errors
@@ -44,26 +36,33 @@ def main(args):
 
     for i in range(NUM_TESTS):
         # send random character
-        rand = random.choice(string.ascii_letters)
-        ser.write(bytes(rand, 'utf-8'))
+        send = random.choice(string.ascii_letters)
+        original = send
+        if args['encode']:
+            send = encode(send)
+        ser.write(bytes(send, 'utf-8'))
 
         # wait for data to come in
         while ser.in_waiting == 0:
             pass
 
         # read back echo
-        out = ''
+        rec = ''
         while ser.in_waiting > 0:
-            out += ser.read(1).decode('utf-8')
-
-        # if not incremented_correctly(rand, out):
-        if i == 2:
-            logging.error(rand + " ------> " + out)
+            rec += ser.read(1).decode('utf-8')
+        
+        original_rec = rec
+        
+        if args['encode']:
+            rec = decode(rec)
+        
+        if not incremented_correctly(original, rec):
+            logger.error(send + " ------> " + original_rec)
             errors += 1
         else:
-            logging.debug(rand + " ------> " + out)
+            logger.debug(send + " ------> " + original_rec)
 
-    logging.info("Error rate: " + str(errors / NUM_TESTS))
+    logger.info("Error rate: " + str(errors / NUM_TESTS))
 
 def incremented_correctly(orig, inced):
     if orig == 'z':
@@ -77,8 +76,30 @@ def encode(input):
     return input * REPITITION_N
 
 def decode(input):
-    pass
-
+    return collections.Counter(input).most_common(1)[0][0]
+    
+def config_logger(args):
+    # configure logging:
+    logger = logging.getLogger('commander')
+    logger.setLevel(logging.DEBUG)
+    
+    # create formatter
+    formatter = logging.Formatter(fmt='%(levelname)s \t %(asctime)s %(message)s')
+    
+    # create console handler
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.DEBUG)
+    ch.setFormatter(formatter)
+    logger.addHandler(ch)
+    
+    # create file handler
+    fh = logging.FileHandler(args['log_filename'])
+    fh.setLevel(logging.DEBUG)
+    fh.setFormatter(formatter)
+    logger.addHandler(fh)
+    
+    return logger
+    
 def parse_arguments(argv):
     default_filename = datetime.now().strftime("%m-%d-%Y %I-%M-%S %p")+".log"
 
@@ -98,7 +119,13 @@ def parse_arguments(argv):
         default=DEFAULT_BAUD_RATE,
         help='serial baud rate'
         )
-
+    
+    parser.add_argument('-e',
+        dest='encode',
+        action='store_true',
+        help='encode or not'
+        )
+        
     return vars(parser.parse_args(argv))
 
 if __name__ == '__main__':
