@@ -4,46 +4,77 @@ It records the transmission error rate of single characters.
 '''
 
 from time import sleep
-import serial
-import random
-import string
+import serial, random, string, sys, logging
+from datetime import datetime
 
-BAUDRATE = 9600
-PORT = 'COM8'
+BAUD_RATE = 4000000
+PORT = 'COM7'
 
-NUM_TESTS = 2
+NUM_TESTS = 100
+SLEEP_TIME = 0.01
+
+REPITITION_N = 5
 
 def main():
-    # Open the serial port
-    ser = serial.Serial(PORT, BAUDRATE)
+    # configure logging:
+    logging.basicConfig(
+        format='%(asctime)s %(message)s', 
+        datefmt='%m/%d/%Y %I:%M:%S %p',
+        filename=datetime.now().strftime("%m-%d-%Y %I-%M-%S %p")+".log",
+        level=logging.DEBUG)
+    
+    logging.getLogger().addHandler(logging.StreamHandler())
+    
 
+    # Open the serial port
+    ser = serial.Serial(PORT, BAUD_RATE)
+    sleep(2)
+    
     # Confirm that the connection is established
     if ser.isOpen():
-        print('Serial port opened successfully.')
-    
+        logging.debug('Serial port ' + PORT + ' opened successfully.')
+
+    logging.debug('Running: ' + str(NUM_TESTS) + " tests with baud rate: " + str(BAUD_RATE))
+
     errors = 0.0
- 
+
     for i in range(NUM_TESTS):
         # send random character
         rand = random.choice(string.ascii_letters)
         ser.write(bytes(rand, 'utf-8'))
-        sleep(0.1)
         
+        while(ser.in_waiting == 0):
+            sleep(0.001)
+
         # read back echo
         out = ''
         while ser.in_waiting > 0:
             out += ser.read(1).decode('utf-8')
-    
+
         # don't print empty reads
         if out != '':
-            print(out)
+            logging.debug(rand + " ------> " + out)
+            
 
-        if out != rand:
+        if not incremented_correctly(rand, out):
             errors += 1
+            logging.debug('*')
+
+    logging.debug("Error rate: " + str(errors / NUM_TESTS))
     
-    print(errors / NUM_TESTS)
+def incremented_correctly(orig, inced):
+    if orig == 'z':
+        return inced == 'a'
+    elif orig == 'Z':
+        return inced == 'A'
+    else:
+        return inced == chr(ord(orig) + 1)
+
+def encode(input):
+    return input * REPITITION_N
     
+def decode(input):
+    
+        
 if __name__ == '__main__':
     main()
-
-
