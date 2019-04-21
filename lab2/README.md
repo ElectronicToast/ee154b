@@ -1,5 +1,5 @@
 ### Usage
-Each script has usage with -h. e.g. `loopback_test.py -h'
+Each script has usage with -h. e.g. `loopback_test.py -h`
 
 ### Python
 This tool was developed in Python 3.7.2, and should be run in a virtualenv with the same version of Python interpreter.
