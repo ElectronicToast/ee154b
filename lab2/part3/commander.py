@@ -68,6 +68,7 @@ def serial_read():
     out = ''
     while ser.in_waiting > 0:
         out += ser.read(1).decode('utf-8')
+        serial_wait()
     return out
 
 def serial_wait():
