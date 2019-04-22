@@ -3,7 +3,7 @@ import serial, random, string, sys, logging, argparse
 from datetime import datetime
 
 DEFAULT_BAUD_RATE = 9600
-PORT = 'COM3'
+DEFAULT_SERIAL_PORT = 'COM3'
 TIME_OUT = 5
 
 ser = None
@@ -21,28 +21,33 @@ menu_items = [
 
 def main(args):
     logger = config_logger(args)
-    
+
     # Open the serial port
     global ser
-    ser = serial.Serial(PORT, args['baud_rate'])
+    try:
+        ser = serial.Serial(args['serial_port'], args['baud_rate'])
+    except serial.serialutil.SerialException:
+        logger.error('Serial port ' + args['serial_port'] + ' in use or incorrect.')
+        logger.info('Program terminated.')
+        sys.exit()
 
     # Wait 2 seconds before sending characters
     sleep(2)
 
     # Confirm that the connection is established
     if ser.isOpen():
-        logger.info('Serial port ' + PORT + ' opened successfully.')
+        logger.info('Serial port ' + args['serial_port'] + ' opened successfully.')
 
     while True:
         print_menu()
         i = input('>>')
-        
+
         if i == 'q':
             logger.info('Program terminated.')
             break
         elif i.isdigit() and int(i) >= 0 and int(i) < len(menu_items):
             logger.info('Command: ' + str(i) + ' | ' + menu_items[int(i)])
-            
+
             if i == '0' or i == '1':
                 body = input('Payload string >> ')
                 logger.info('Sending... ' + i + body)
@@ -85,6 +90,7 @@ def parse_arguments(argv):
 
     parser = argparse.ArgumentParser()
 
+    # filename handling
     parser.add_argument('-l',
         nargs='?',
         dest='log_filename',
@@ -92,13 +98,21 @@ def parse_arguments(argv):
         default=default_filename,
         help='log filename')
 
+    # baud rate handling
     parser.add_argument('-R',
         nargs='?',
         dest='baud_rate',
         const=DEFAULT_BAUD_RATE,
         default=DEFAULT_BAUD_RATE,
-        help='serial baud rate'
-        )
+        help='serial baud rate')
+    
+    # serial port handling
+    parser.add_argument('-p',
+        nargs='?',
+        dest='serial_port',
+        const=DEFAULT_SERIAL_PORT,
+        default=DEFAULT_SERIAL_PORT,
+        help='serial port name e.g. COM3')
 
     return vars(parser.parse_args(argv))
 
@@ -106,23 +120,23 @@ def config_logger(args):
     # configure logging:
     logger = logging.getLogger('commander')
     logger.setLevel(logging.DEBUG)
-    
+
     # create formatter
     formatter = logging.Formatter(fmt='%(levelname)s \t %(asctime)s %(message)s')
-    
+
     # create console handler
     ch = logging.StreamHandler()
     ch.setLevel(logging.DEBUG)
     #ch.setFormatter(formatter)
     logger.addHandler(ch)
-    
+
     # create file handler
     fh = logging.FileHandler(args['log_filename'])
     fh.setLevel(logging.DEBUG)
     fh.setFormatter(formatter)
     logger.addHandler(fh)
-    
+
     return logger
-    
+
 if __name__ == '__main__':
     main(parse_arguments(sys.argv[1:]))
