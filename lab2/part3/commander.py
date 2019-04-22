@@ -4,9 +4,10 @@ from datetime import datetime
 
 DEFAULT_BAUD_RATE = 9600
 DEFAULT_SERIAL_PORT = 'COM3'
-TIME_OUT = 5
+DEFAULT_LOGGING_LEVEL = 'DEBUG'
 
 ser = None
+logger = None
 
 menu_items = [
     'Increment a payload string by one character.',
@@ -20,6 +21,7 @@ menu_items = [
     'Readback every other time / temperature from EEPROM memory.']
 
 def main(args):
+    global logger
     logger = config_logger(args)
 
     # Open the serial port
@@ -52,11 +54,9 @@ def main(args):
                 body = input('Payload string >> ')
                 logger.info('Sending... ' + i + body)
                 serial_send(i + body)
-                serial_wait()
                 logger.info('Recieved... ' + serial_read())
             else:
                 serial_send(i)
-                serial_wait()
                 logger.info('Recieved... ' + serial_read())
         else:
             logger.info('Command not recognized.')
@@ -65,10 +65,11 @@ def serial_send(msg):
     ser.write(bytes(msg, 'utf-8'))
 
 def serial_read():
+    serial_wait()
     out = ''
     while ser.in_waiting > 0:
         out += ser.read(1).decode('utf-8')
-        serial_wait()
+        sleep(0.01)
     return out
 
 def serial_wait():
@@ -97,7 +98,7 @@ def parse_arguments(argv):
         dest='log_filename',
         const=default_filename,
         default=default_filename,
-        help='log filename')
+        help='set custom log filename. default: m-d-Y I-M-S p.log')
 
     # baud rate handling
     parser.add_argument('-R',
@@ -105,7 +106,7 @@ def parse_arguments(argv):
         dest='baud_rate',
         const=DEFAULT_BAUD_RATE,
         default=DEFAULT_BAUD_RATE,
-        help='serial baud rate')
+        help='set custom serial baud rate. default: 9600')
     
     # serial port handling
     parser.add_argument('-p',
@@ -113,29 +114,57 @@ def parse_arguments(argv):
         dest='serial_port',
         const=DEFAULT_SERIAL_PORT,
         default=DEFAULT_SERIAL_PORT,
-        help='serial port name e.g. COM3')
+        help='set serial port name. default: COM3')
 
+    # suppress logging
+    parser.add_argument('-D',
+        dest='debug_mode',
+        action='store_true',
+        help='enable debug mode, suppresses file logging')
+    
+    # set logging level
+    parser.add_argument('-L',
+        nargs='?',
+        dest='logging_level',
+        const=DEFAULT_LOGGING_LEVEL,
+        default=DEFAULT_LOGGING_LEVEL,
+        help='set logging level. default: DEBUG')
+        
     return vars(parser.parse_args(argv))
 
-def config_logger(args):
+def config_logger(args):  
+    # get logging level
+    level = args['logging_level'].upper()    
+    if level == 'CRITICAL':
+        level = logging.CRITICAL
+    elif level == 'ERROR':
+        level = logging.ERROR
+    elif level == 'WARNING':
+        level = logging.WARNING
+    elif level == 'INFO':
+        level = logging.INFO
+    else:
+        level = logging.DEBUG
+    
     # configure logging:
     logger = logging.getLogger('commander')
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel(level)
 
     # create formatter
     formatter = logging.Formatter(fmt='%(levelname)s \t %(asctime)s %(message)s')
 
     # create console handler
     ch = logging.StreamHandler()
-    ch.setLevel(logging.DEBUG)
+    ch.setLevel(level)
     #ch.setFormatter(formatter)
     logger.addHandler(ch)
-
-    # create file handler
-    fh = logging.FileHandler(args['log_filename'])
-    fh.setLevel(logging.DEBUG)
-    fh.setFormatter(formatter)
-    logger.addHandler(fh)
+    
+    if not args['debug_mode']:
+        # create file handler
+        fh = logging.FileHandler(args['log_filename'])
+        fh.setLevel(level)
+        fh.setFormatter(formatter)
+        logger.addHandler(fh)
 
     return logger
 
