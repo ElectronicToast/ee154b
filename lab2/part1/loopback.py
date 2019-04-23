@@ -4,10 +4,10 @@ then prints what the Arduino sends back.
 '''
 
 from time import sleep
-import 
+import serial
 
 BAUDRATE = 9600
-PORT = 'COM8'
+PORT = 'COM10'
 
 def main():
     # Open the serial port
@@ -19,22 +19,22 @@ def main():
 
     # Continuously ask for input
     while True:
-    i = input(">> ")
-    if i == 'quit':
-        ser.close()
-        exit()
-    else:
-        out = ''
-        ser.write(bytes(i,'utf-8'))
-        sleep(0.1)
+        i = input(">> ")
+        if i == 'quit' or i == 'q' or i == 'Q':
+            ser.close()
+            exit()
+        else:
+            ser.write(bytes(i,'utf-8'))
+            sleep(0.1)
+            out = ''            
 
-    # in case there is more than 1 byte waiting for us, read all of them
-    while ser.in_waiting > 0:
-        out += str(ser.read(1))
+            # in case there is more than 1 byte waiting for us, read all of them
+            while ser.in_waiting > 0:
+                out += ser.read(1).decode('utf-8')
 
-    # don't print empty reads
-    if out != '':
-        print(out)
+            # don't print empty reads
+            if out != '':
+                print(out)
 
 if __name__ == '__main__':
     main()
