@@ -2,9 +2,15 @@ from time import sleep
 import serial, random, string, sys, logging, argparse
 from datetime import datetime
 
+# Constants
 DEFAULT_BAUD_RATE = 9600
 DEFAULT_SERIAL_PORT = 'COM3'
 DEFAULT_LOGGING_LEVEL = 'DEBUG'
+RECORD_TEMP_START = '$'
+RECORD_TEMP_STOP = '%'
+EOM_CHAR = '#'
+TIME_TEMP_DELIM = ','
+TIME_OUT = 5    # time to wait for a response in seconds
 
 ser = None
 logger = None
@@ -21,8 +27,7 @@ menu_items = [
     'Readback every other time / temperature from EEPROM memory.']
 
 def main(args):
-    global logger
-    logger = config_logger(args)
+    config_logger(args)
 
     # Open the serial port
     global ser
@@ -44,7 +49,7 @@ def main(args):
         print_menu()
         i = input('>>')
 
-        if i == 'q':
+        if i.lower() == 'q' or i.lower() == 'quit':
             logger.info('Program terminated.')
             break
         elif i.isdigit() and int(i) >= 0 and int(i) < len(menu_items):
@@ -55,11 +60,28 @@ def main(args):
                 logger.info('Sending... ' + i + body)
                 serial_send(i + body)
                 logger.info('Recieved... ' + serial_read())
+            elif i == '5':
+                serial_send(i)
+                if serial_read() == RECORD_TEMP_START:
+                    logger.info('Temperature logging started.')
+                else:
+                    logger.info('Start temperature logging failed.')
+            elif i == '6':
+                serial_send(i)
+                if serial_read() == RECORD_TEMP_STOP:
+                    logger.info('Temperature logging stopped.')
+                else:
+                    logger.info('Stop temperature logging failed.')
+            elif i == '7' or i == '8':
+                serial_send(i)
+                logger.info('Reading saved (time, thermistor) values...')
+                count = temperature_read()
+                logger.info('Done reading ' + str(count) + ' values.')
             else:
                 serial_send(i)
                 logger.info('Recieved... ' + serial_read())
         else:
-            logger.info('Command not recognized.')
+            logger.info('Command "' + i + '" not recognized.')
 
 def serial_send(msg):
     ser.write(bytes(msg, 'utf-8'))
@@ -72,12 +94,34 @@ def serial_read():
         sleep(0.01)
     return out
 
+def temperature_read():
+    serial_wait()
+    out = ''
+    count = 0
+    while ser.in_waiting > 0:
+        serial_wait()
+        c = ser.read(1).decode('utf-8')
+        if c == TIME_TEMP_DELIM:
+            count += 1
+            if count % 2 == 1:
+                out += ', '
+            else:
+                logger.info(out)
+                out = ''
+        elif c == EOM_CHAR:
+            break
+        else:
+            out += c
+        sleep(0.01)
+
+    return int(count / 2)
+
 def serial_wait():
     # wait for data to come in
     start = datetime.now().second
     while ser.in_waiting == 0:
         if datetime.now().second - start > TIME_OUT:
-            logging.getLogger('commander').error('Timeout!!!!')
+            logger.error('Read timeout!!!!')
             break
         pass
 
@@ -85,6 +129,7 @@ def print_menu():
     print('--------------------------------------------------------')
     for i in range(len(menu_items)):
         print('\t' + str(i) + ': ' + menu_items[i])
+    print('\t' + '"Q": Quit program.')
     print('--------------------------------------------------------')
 
 def parse_arguments(argv):
@@ -147,6 +192,7 @@ def config_logger(args):
         level = logging.DEBUG
     
     # configure logging:
+    global logger
     logger = logging.getLogger('commander')
     logger.setLevel(level)
 
@@ -165,8 +211,6 @@ def config_logger(args):
         fh.setLevel(level)
         fh.setFormatter(formatter)
         logger.addHandler(fh)
-
-    return logger
 
 if __name__ == '__main__':
     main(parse_arguments(sys.argv[1:]))
