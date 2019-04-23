@@ -131,4 +131,5 @@ char shiftdown (char c) {
 double calibrated(double x){
       double r = 10000.0 * x / (ADC_RES - x);
       double calibrated = TMST_LOG_SLOPE * log(r) + TMST_LOG_INT;
+      return calibrated;
 }
