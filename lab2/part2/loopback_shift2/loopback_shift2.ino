@@ -31,6 +31,8 @@ void loop() {
         c_rx = Serial.read();
         if (inRange(c_rx))
             Serial.print(shift(c_rx));
+        else
+            Serial.print("!");
     }
 }
 

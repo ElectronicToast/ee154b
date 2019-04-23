@@ -27,7 +27,10 @@ void setup() {
 void loop() {
     if (Serial.available()) {
         c_rx = Serial.read();
-        Serial.print(shift(c_rx));
+        if(inRange(c_rx))
+            Serial.print(shift(c_rx));
+        else
+            Serial.print("!");
     }
 }
 
@@ -38,4 +41,12 @@ char shift (char c) {
     else if (c_shift == CHAR_zp)
         c_shift = CHAR_a;
     return c_shift;
+}
+
+bool inRange (char c) {
+    if ( (c >= CHAR_A) && (c <= CHAR_Z) )
+        return true;
+    if ( (c >= CHAR_a) && (c <= CHAR_z) )
+        return true;
+    return false;
 }
