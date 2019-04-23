@@ -19,6 +19,19 @@
  *      - 7     read back logged times and temperatures
  *      - 8     read back every other time, temperature 
  *      - !     reset reset count in EEPROM 
+ *
+ * The Arduino is reset by software, setting the program counter to address 0.
+ *
+ * The 1024 bytes of EEPROM on the Arduino Uno are organized as follows 
+ *
+ *      | 0      1 | 2                                    1021 | 1022 1023 |
+ *        # resets     6-byte wide time, temp readings       addr of last read
+ *
+ * This permits 170 time-tagged readings to be stored. If more readings than
+ * available EEPROM space is collected, they are not stored.
+ *
+ * The thermistor is connected between Arduino analog pin 0 and ground, with a 
+ * 10k resistor pullup to 5V.
  */
 
 
@@ -33,40 +46,43 @@
 
 
 // System constants
-#define     BAUDRATE    9600
-#define THIRTY_S_MS     30000
+#define     BAUDRATE        9600
+#define     THIRTY_S_MS     30000
 
 
 // Logarithmic Thermistor calibration
-#define TMST_LOG_SLOPE  -22.025
-#define TMST_LOG_INT    228.406
+#define     TMST_LOG_SLOPE  -22.025
+#define     TMST_LOG_INT    228.406
 
 // ADC Resolution
 const double ADC_RES = 1024.0;
 
 
 // EEPROM constants
-#define INT_SIZE          2
+#define     INT_SIZE            2
 // Size (bytes) of block of EEPROM for storing each temp reading
-#define TEMP_BLOCK_SIZE   6
-#define TEMP_2BLOCK_SIZE  12
+#define     TEMP_BLOCK_START    2
+#define     TEMP_BLOCK_SIZE     6
+#define     TEMP_2BLOCK_SIZE    12
 
 // Temperature logging constants
-#define TEMP_LOG_START_CHAR     '$'     // Logging start indicator
-#define TEMP_LOG_END_CHAR       '%'     // Logging end indicator
+#define     TEMP_LOG_START_CHAR     '$'     // Logging start indicator
+#define     TEMP_LOG_END_CHAR       '%'     // Logging end indicator
 
 // Temperature readback constants
-#define TEMP_SEP_CHAR     ','     // Value separator
-#define TEMP_EOM_CHAR     '#'     // Readback terminator
+#define     TEMP_SEP_CHAR     ','           // Value separator
+#define     TEMP_EOM_CHAR     '#'           // Readback terminator
 
 
+// Thermistor analog input pin
 const int TMST_PIN = 0;
+
+
 char c_rx;
 
 const int resetaddr = 0;          // Reset stored at address 0
-#define TEMP_BLOCK_START      2
 int tempaddr = 2;                 // Blocks start at address 2
-const int lengthaddr = 510;       // Most recent block address stored at 511|510
+const int lengthaddr = 1022;      // Most recent block address location
 
 char input;
 
@@ -111,92 +127,112 @@ void loop() {
                 delay(5);
             }
         }
-         //***************************  
-         // Read thermistor in deg C
-         else if(input == '2'){ 
+        //***************************  
+        // Read thermistor in deg C
+        else if(input == '2'){ 
             double tmst_1_raw = (double) analogRead(TMST_PIN);
             double tempc = calibrated(tmst_1_raw);
             Serial.print(tempc);
         }
         //***************************  
-        else if(input == '3'){ //read thermistor in deg F
+        // Read thermistor in deg F
+        else if(input == '3'){
             double tmst_1_raw = (double) analogRead(TMST_PIN);
             double tempc = calibrated(tmst_1_raw); 
             double tempf = tempc * (9/5) + 32;
             Serial.print(tempf);    
         }
         //***************************  
-        else if(input == '4'){ //do a reset
+        // Reset the Arduino and keep track of # resets in low 2 bytes of 
+        // EEPROM
+        else if(input == '4'){
             EEPROM.get(resetaddr, resetcount);
             EEPROM.write(resetaddr, resetcount + 1);
             Serial.print(resetcount);     // Print current # resets
-            delay(5);     //prevent transmission corruption
-            resetFunc();  //call reset
+            delay(5);                     // Prevent transmission corruption
+            resetFunc();                  // Call reset
         }
-         //*************************** 
-         else if(input == '5'){ //record timestamp and temp in EEPROM every 30 s
+        //*************************** 
+        // Record timestamp and temp in EEPROM every 30 s
+        else if(input == '5'){ 
             // Send start indicator
             Serial.print(TEMP_LOG_START_CHAR);
             
+            // Stop reading if stop character received
             while(Serial.read()!='6'){
+                // Read current time and temperature in Celsius
                 int t = millis();
                 double tmst_1_raw = (double) analogRead(TMST_PIN);
                 double tempc = calibrated(tmst_1_raw);
-                int writeaddr = tempaddr;
+                
+                int writeaddr = tempaddr;       // Current write address
                 
                 // While in block range
-                //    If all of EEPROM is used, not stored
+                //    If all of EEPROM is used, don't store
                 if (writeaddr <= lengthaddr - TEMP_BLOCK_SIZE) {
                     EEPROM.put(writeaddr, t);       
                     EEPROM.put(writeaddr + INT_SIZE, tempc);
                     EEPROM.put(lengthaddr, writeaddr);
-                    tempaddr += TEMP_BLOCK_SIZE;      // Advance to next address
+                    
+                    tempaddr += TEMP_BLOCK_SIZE;      // Advance to next block
                 }
                 
-                delay(1000);
-                //delay(THIRTY_S_MS);  
+                delay(THIRTY_S_MS);  
             }    
             // Send end indicator
             Serial.print(TEMP_LOG_END_CHAR);
         }
-         //***************************
-        else if(input == '7'){ //read timestamp and temp
-            int ptr = TEMP_BLOCK_START;
+        //***************************
+        // Readback all timestamps and temperature readings
+        else if(input == '7'){
+            int ptr = TEMP_BLOCK_START;     // Init pointer at start of blocks
             int writeaddr;
+            
+            // Fetch most recently used block
             EEPROM.get(lengthaddr, writeaddr);
+            
             while(ptr <= writeaddr){
+                // Read the time and temperature of the current block
                 int t;
                 double temp;
                 EEPROM.get(ptr, t);
                 EEPROM.get(ptr + INT_SIZE, temp);
                 
+                // Send the values over UART with appropriate separtion
                 Serial.print(t);
                 Serial.print(TEMP_SEP_CHAR);
                 Serial.print(temp);
                 Serial.print(TEMP_SEP_CHAR);
                 
-                ptr += TEMP_BLOCK_SIZE;           // Increment by block size
+                ptr += TEMP_BLOCK_SIZE;     // Go to next block
             }    
-            Serial.print(TEMP_EOM_CHAR);
+            Serial.print(TEMP_EOM_CHAR);    // Send end of read character
         }
         //***************************
-        else if(input == '8'){ //read every other timestamp and temp
-            int ptr = TEMP_BLOCK_START;
-            int writeaddr = EEPROM.read(lengthaddr);
+        // Readback every other all timestamps and temperature readings
+        else if(input == '8'){ 
+            int ptr = TEMP_BLOCK_START;     // Init pointer at start of blocks
+            int writeaddr;
+            
+            // Fetch most recently used block
+            EEPROM.get(lengthaddr, writeaddr);
+            
             while(ptr <= writeaddr){
+                // Read the time and temperature of the current block
                 int t;
                 double temp;
                 EEPROM.get(ptr, t);
                 EEPROM.get(ptr + INT_SIZE, temp);
                 
+                // Send the values over UART with appropriate separtion
                 Serial.print(t);
                 Serial.print(TEMP_SEP_CHAR);
                 Serial.print(temp);
                 Serial.print(TEMP_SEP_CHAR);
                 
-                ptr += TEMP_2BLOCK_SIZE;    // Increment by twice block size
+                ptr += TEMP_2BLOCK_SIZE;    // Go to every other block
             }  
-            Serial.print(TEMP_EOM_CHAR);
+            Serial.print(TEMP_EOM_CHAR);    // Send end of read character
         }
     //***************************
     }
