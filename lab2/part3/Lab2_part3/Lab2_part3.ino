@@ -147,7 +147,7 @@ void loop() {
         // EEPROM
         else if(input == '4'){
             EEPROM.get(resetaddr, resetcount);
-            EEPROM.write(resetaddr, resetcount++);
+            EEPROM.write(resetaddr, ++resetcount);
             Serial.print(resetcount);     // Print current # resets
             delay(5);                     // Prevent transmission corruption
             resetFunc();                  // Call reset
