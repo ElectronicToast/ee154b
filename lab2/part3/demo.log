@@ -1,0 +1,36 @@
+INFO 	 2019-04-22 23:15:17,676 Serial port COM7 opened successfully.
+INFO 	 2019-04-22 23:15:18,663 Command: 0 | Increment a payload string by one character.
+INFO 	 2019-04-22 23:15:20,670 Sending... 0anmz
+INFO 	 2019-04-22 23:15:20,755 Recieved... bona
+INFO 	 2019-04-22 23:15:31,170 Command: 1 | Decrement a payload string by one character.
+INFO 	 2019-04-22 23:15:32,575 Sending... 1anmz
+INFO 	 2019-04-22 23:15:32,664 Recieved... zmly
+INFO 	 2019-04-22 23:15:35,447 Command: 2 | Read a thermistor and transmit room temperature in Celsius.
+INFO 	 2019-04-22 23:15:35,547 Recieved... 22.62
+INFO 	 2019-04-22 23:15:37,454 Command: 3 | Read a thermistor and transmit room temperature in Fahrenheit.
+INFO 	 2019-04-22 23:15:37,554 Recieved... 54.71
+INFO 	 2019-04-22 23:15:40,112 Command: 4 | Reset the Arduino and return the number of resets stored by the Arduino EEPROM.
+INFO 	 2019-04-22 23:15:40,154 Recieved... 14
+INFO 	 2019-04-22 23:15:41,120 Command: 4 | Reset the Arduino and return the number of resets stored by the Arduino EEPROM.
+INFO 	 2019-04-22 23:15:41,167 Recieved... 15
+INFO 	 2019-04-22 23:15:41,769 Command: 4 | Reset the Arduino and return the number of resets stored by the Arduino EEPROM.
+INFO 	 2019-04-22 23:15:41,822 Recieved... 16
+INFO 	 2019-04-22 23:15:43,945 Command: 5 | Begin recording time-tagged thermistor temperature to EEPROM every 30 seconds.
+INFO 	 2019-04-22 23:15:43,977 Temperature logging started.
+INFO 	 2019-04-22 23:15:48,891 Command: 6 | Stop recording thermistor temperature to EEPROM.
+INFO 	 2019-04-22 23:15:49,029 Temperature logging stopped.
+INFO 	 2019-04-22 23:15:52,788 Command: 7 | Readback times and temperatures from EEPROM memory.
+INFO 	 2019-04-22 23:15:52,788 Reading saved (time, thermistor) values...
+INFO 	 2019-04-22 23:15:52,942 162, 22.71
+INFO 	 2019-04-22 23:15:53,104 3173, 22.71
+INFO 	 2019-04-22 23:15:53,270 4183, 22.71
+INFO 	 2019-04-22 23:15:53,459 5193, 22.71
+INFO 	 2019-04-22 23:15:53,644 6204, 22.71
+INFO 	 2019-04-22 23:15:53,660 Done reading 5 values.
+INFO 	 2019-04-22 23:17:36,247 Command: 8 | Readback every other time / temperature from EEPROM memory.
+INFO 	 2019-04-22 23:17:36,249 Reading saved (time, thermistor) values...
+INFO 	 2019-04-22 23:17:36,433 2162, 22.71
+INFO 	 2019-04-22 23:17:36,611 4183, 22.71
+INFO 	 2019-04-22 23:17:36,796 6204, 22.71
+INFO 	 2019-04-22 23:17:36,812 Done reading 3 values.
+INFO 	 2019-04-22 23:17:41,765 Program terminated.
