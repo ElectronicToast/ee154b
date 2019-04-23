@@ -1,21 +1,48 @@
+'''
+This command module allows commands and messages to be sent and recieved by
+an Arduino Uno over UART serial. Usage of the program is as follows:
+
+usage: commander.py [-h] [-l [LOG_FILENAME]] [-R [BAUD_RATE]]
+                    [-p [SERIAL_PORT]] [-D] [-L [LOGGING_LEVEL]]
+
+optional arguments:
+  -h, --help          show this help message and exit
+  -l [LOG_FILENAME]   set custom log filename. default: m-d-Y I-M-S p.log
+  -R [BAUD_RATE]      set custom serial baud rate. default: 9600
+  -p [SERIAL_PORT]    set serial port name. default: COM3
+  -D                  enable debug mode, suppresses file logging
+  -L [LOGGING_LEVEL]  set logging level. default: DEBUG
+
+Possible commands are:
+    0: Increment a payload string by one character.
+    1: Decrement a payload string by one character.
+    2: Read a thermistor and transmit room temperature in Celsius.
+    3: Read a thermistor and transmit room temperature in Fahrenheit.
+    4: Reset the Arduino and return the number of resets stored by the Arduino EEPROM.
+    5: Begin recording time-tagged thermistor temperature to EEPROM every 30 seconds.
+    6: Stop recording thermistor temperature to EEPROM.
+    7: Readback times and temperatures from EEPROM memory.
+    8: Readback every other time / temperature from EEPROM memory.
+'''
+
 from time import sleep
 import serial, random, string, sys, logging, argparse
 from datetime import datetime
 
 # Constants
 DEFAULT_BAUD_RATE = 9600
-DEFAULT_SERIAL_PORT = 'COM3'
+DEFAULT_SERIAL_PORT = 'COM3' # on windows
 DEFAULT_LOGGING_LEVEL = 'DEBUG'
-RECORD_TEMP_START = '$'
-RECORD_TEMP_STOP = '%'
-EOM_CHAR = '#'
-TIME_TEMP_DELIM = ','
+RECORD_TEMP_START = '$' # the character sent back from Arduino if successful
+RECORD_TEMP_STOP = '%' # the character sent back from Arduino if successful
+EOM_CHAR = '#' # marks end of time temperature data
+TIME_TEMP_DELIM = ',' # delimits time from temperature
 TIME_OUT = 5    # time to wait for a response in seconds
 
 ser = None
 logger = None
 
-menu_items = [
+MENU_ITEMS = [
     'Increment a payload string by one character.',
     'Decrement a payload string by one character.',
     'Read a thermistor and transmit room temperature in Celsius.',
@@ -38,8 +65,8 @@ def main(args):
         logger.info('Program terminated.')
         sys.exit()
 
-    # Wait 2 seconds before sending characters
-    sleep(2)
+    # Wait 1 second before sending characters
+    sleep(1)
 
     # Confirm that the connection is established
     if ser.isOpen():
@@ -47,13 +74,13 @@ def main(args):
 
     while True:
         print_menu()
-        i = input('>>')
+        i = input('>> ')
 
         if i.lower() == 'q' or i.lower() == 'quit':
             logger.info('Program terminated.')
             break
-        elif i.isdigit() and int(i) >= 0 and int(i) < len(menu_items):
-            logger.info('Command: ' + str(i) + ' | ' + menu_items[int(i)])
+        elif i.isdigit() and int(i) >= 0 and int(i) < len(MENU_ITEMS):
+            logger.info('Command: ' + str(i) + ' | ' + MENU_ITEMS[int(i)])
 
             if i == '0' or i == '1':
                 body = input('Payload string >> ')
@@ -77,15 +104,17 @@ def main(args):
                 logger.info('Reading saved (time, thermistor) values...')
                 count = temperature_read()
                 logger.info('Done reading ' + str(count) + ' values.')
-            else:
+            else: # commands 2,3,4
                 serial_send(i)
                 logger.info('Recieved... ' + serial_read())
         else:
             logger.info('Command "' + i + '" not recognized.')
 
+# encodes a message using utf-8 and sends over serial
 def serial_send(msg):
     ser.write(bytes(msg, 'utf-8'))
 
+# waits for data to come in buffer, then read all data
 def serial_read():
     serial_wait()
     out = ''
@@ -94,6 +123,7 @@ def serial_read():
         sleep(0.01)
     return out
 
+# reads and logs sets of (time, temperature) data
 def temperature_read():
     serial_wait()
     out = ''
@@ -116,6 +146,7 @@ def temperature_read():
 
     return int(count / 2)
 
+# hangs until data comes into the buffer
 def serial_wait():
     # wait for data to come in
     start = datetime.now().second
@@ -125,13 +156,15 @@ def serial_wait():
             break
         pass
 
+# prints all menu items (printed only to stdout, not to log file)
 def print_menu():
     print('--------------------------------------------------------')
-    for i in range(len(menu_items)):
-        print('\t' + str(i) + ': ' + menu_items[i])
+    for i in range(len(MENU_ITEMS)):
+        print('\t' + str(i) + ': ' + MENU_ITEMS[i])
     print('\t' + '"Q": Quit program.')
     print('--------------------------------------------------------')
 
+# parses command line arguments
 def parse_arguments(argv):
     default_filename = datetime.now().strftime("%m-%d-%Y %I-%M-%S %p")+".log"
 
@@ -177,6 +210,7 @@ def parse_arguments(argv):
         
     return vars(parser.parse_args(argv))
 
+# configures logging
 def config_logger(args):  
     # get logging level
     level = args['logging_level'].upper()    
@@ -202,9 +236,9 @@ def config_logger(args):
     # create console handler
     ch = logging.StreamHandler()
     ch.setLevel(level)
-    #ch.setFormatter(formatter)
+    #ch.setFormatter(formatter) # commented out to avoid cluttering of console
     logger.addHandler(ch)
-    
+
     if not args['debug_mode']:
         # create file handler
         fh = logging.FileHandler(args['log_filename'])
