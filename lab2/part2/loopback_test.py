@@ -8,7 +8,7 @@ import serial, random, string, sys, logging, argparse, collections
 from datetime import datetime
 
 DEFAULT_BAUD_RATE = 9600
-PORT = 'COM3'
+DEFAULT_SERIAL_PORT = 'COM10'
 
 NUM_TESTS = 1000
 
@@ -18,14 +18,14 @@ def main(args):
     logger = config_logger(args)
 
     # Open the serial port
-    ser = serial.Serial(PORT, args['baud_rate'])
+    ser = serial.Serial(args['serial_port'], args['baud_rate'])
 
     # Wait 2 seconds before sending characters
     sleep(2)
 
     # Confirm that the connection is established
     if ser.isOpen():
-        logger.info('Serial port ' + PORT + ' opened successfully.')
+        logger.info('Serial port ' + args['serial_port'] + ' opened successfully.')
 
     # Print test statement
     logger.info('Running: ' + str(NUM_TESTS) + " tests with baud rate: " +
@@ -125,7 +125,15 @@ def parse_arguments(argv):
         action='store_true',
         help='encode or not'
         )
-        
+
+    # serial port handling
+    parser.add_argument('-p',
+        nargs='?',
+        dest='serial_port',
+        const=DEFAULT_SERIAL_PORT,
+        default=DEFAULT_SERIAL_PORT,
+        help='set serial port name. default: COM3')
+
     return vars(parser.parse_args(argv))
 
 if __name__ == '__main__':
