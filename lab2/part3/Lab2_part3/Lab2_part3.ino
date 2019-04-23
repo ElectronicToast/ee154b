@@ -1,14 +1,35 @@
 #include <EEPROM.h>
 
+/**
+ * This Arduino sketch allows an external "commander" - a laptop with a UI 
+ * program - to command various actions including UART loopback tests,
+ * thermistor reading/logging, and EEPROM storage, by the UART interface
+ * to an Arduino Uno.
+ * 
+ * The following actions may be commanded by sending the respective 
+ * character to the Arduino over UART:
+ *      - 0     increment a payload string (shift characters up)
+ *      - 1     decrement a payload string (shift characters down)
+ *      - 2     read a thermistor in Celsius
+ *      - 3     read a thermistor in Farenheit
+ *      - 4     reset the Arduino (software based) and send number of resets 
+ *      - 5     begin logging time-tagged thermistor values per 30 seconds
+ *              to Arduino EEPROM, in Celsius
+ *      - 6     stop logging 
+ *      - 7     read back logged times and temperatures
+ *      - 8     read back every other time, temperature 
+ *      - !     reset reset count in EEPROM 
+ */
+
 
 // Character constants
-#define     CHAR_NRST_RESET   '1'
-#define     CHAR_A      0x41
-#define     CHAR_Z      0x5A
-#define     CHAR_Zp     0x5B
-#define     CHAR_a      0x61
-#define     CHAR_z      0x7A
-#define     CHAR_zp     0x7B
+#define     CHAR_NRST_RESET     '!'
+#define     CHAR_A              0x41
+#define     CHAR_Z              0x5A
+#define     CHAR_Zp             0x5B
+#define     CHAR_a              0x61
+#define     CHAR_z              0x7A
+#define     CHAR_zp             0x7B
 
 
 // System constants
@@ -17,8 +38,8 @@
 
 
 // Logarithmic Thermistor calibration
-#define TMST_LOG_SLOPE -22.025
-#define TMST_LOG_INT 228.406
+#define TMST_LOG_SLOPE  -22.025
+#define TMST_LOG_INT    228.406
 
 // ADC Resolution
 const double ADC_RES = 1024.0;
@@ -45,11 +66,11 @@ char c_rx;
 const int resetaddr = 0;          // Reset stored at address 0
 #define TEMP_BLOCK_START      2
 int tempaddr = 2;                 // Blocks start at address 2
-const int lengthaddr = 510;       // Most recent block address stored at 511 | 510
+const int lengthaddr = 510;       // Most recent block address stored at 511|510
 
 char input;
 
-unsigned int resetcount;          // EEROM #resets
+unsigned int resetcount;          // EEPROM #resets
 
 
 void setup() {
@@ -73,7 +94,8 @@ void loop() {
             EEPROM.write(resetaddr + 1, 0);
         }
         //****************************   
-        else if(input == '0'){ //increment string
+        // Increment string
+        else if(input == '0'){
             while(Serial.available()>0){
                 c_rx = Serial.read(); //next character
                 Serial.print(shiftup(c_rx));
@@ -81,7 +103,8 @@ void loop() {
             }
         }
         //***************************  
-        else if(input == '1'){ //decrement string
+        // Decrement string
+        else if(input == '1'){
             while(Serial.available()>0){
                 c_rx = Serial.read(); //next character
                 Serial.print(shiftdown(c_rx));
@@ -89,7 +112,8 @@ void loop() {
             }
         }
          //***************************  
-         else if(input == '2'){ //read thermistor in deg C
+         // Read thermistor in deg C
+         else if(input == '2'){ 
             double tmst_1_raw = (double) analogRead(TMST_PIN);
             double tempc = calibrated(tmst_1_raw);
             Serial.print(tempc);
@@ -111,14 +135,14 @@ void loop() {
         }
          //*************************** 
          else if(input == '5'){ //record timestamp and temp in EEPROM every 30 s
+            // Send start indicator
+            Serial.print(TEMP_LOG_START_CHAR);
+            
             while(Serial.read()!='6'){
                 int t = millis();
                 double tmst_1_raw = (double) analogRead(TMST_PIN);
                 double tempc = calibrated(tmst_1_raw);
                 int writeaddr = tempaddr;
-
-                // Send start indicator
-                Serial.print(TEMP_LOG_START_CHAR);
                 
                 // While in block range
                 //    If all of EEPROM is used, not stored
@@ -133,7 +157,7 @@ void loop() {
                 //delay(THIRTY_S_MS);  
             }    
             // Send end indicator
-            Serial.print(TEMP_LOG_START_CHAR);
+            Serial.print(TEMP_LOG_END_CHAR);
         }
          //***************************
         else if(input == '7'){ //read timestamp and temp
@@ -178,6 +202,9 @@ void loop() {
     }
 }
 
+/* This function shifts a character 'c' "up" by one (e.g. a -> b, Z -> A).
+ * Valid character input 'c' is assumed.
+ */
 char shiftup (char c) {
     char c_shift = c + 1;
     if (c == CHAR_Z)
@@ -187,6 +214,9 @@ char shiftup (char c) {
     return c_shift;
 }
 
+/* This function shifts a character 'c' "down" by one (e.g. a -> z, Z -> Y).
+ * Valid character input 'c' is assumed.
+ */
 char shiftdown (char c) {
     char c_shift = c - 1;
     if (c == CHAR_A)
@@ -196,6 +226,9 @@ char shiftdown (char c) {
     return c_shift;
 }
 
+/* Given a raw thermistor reading 'x' in double format, this function 
+ * computes the temperature in Celsius based on a log calibration curve.
+ */
 double calibrated(double x){
     double r = 10000.0 * x / (ADC_RES - x);
     double calibrated = TMST_LOG_SLOPE * log(r) + TMST_LOG_INT;
