@@ -86,7 +86,7 @@ def main(args):
                 body = input('Payload string >> ')
                 logger.info('Sending... ' + i + body)
                 serial_send(i + body)
-                logger.info('Recieved... ' + serial_read())
+                logger.info('Received... ' + serial_read())
             elif i == '5':
                 serial_send(i)
                 if serial_read() == RECORD_TEMP_START:
@@ -106,7 +106,7 @@ def main(args):
                 logger.info('Done reading ' + str(count) + ' values.')
             else: # commands 2,3,4
                 serial_send(i)
-                logger.info('Recieved... ' + serial_read())
+                logger.info('Received... ' + serial_read())
         else:
             logger.info('Command "' + i + '" not recognized.')
 
