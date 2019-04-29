@@ -5,6 +5,7 @@
 */
 int incomingByte = 0;
 int i;
+int expectedval = 0;
 int majoritynum;
 int errors = 0;
 int nums[3];
@@ -13,34 +14,38 @@ void setup() {
   Serial.begin(2400);
 }
 void loop() {
-  // read in values, debug to computer
-  // int j = 1;          // j is our expected value.
-  // while (j <= 1000) { //we are assuming that we will be sent numbers 1 through 1000
-  if(Serial.available()>0){
-      for (i = 0; i < 3; i++) {
+  i = 0;
+  if (Serial.available()>0 && Serial.available()%3 == 0 && expectedval<=1000) {
+    
+    expectedval = expectedval+1;
+    //Serial.println(expectedval);
     while (Serial.available() > 0) {
-
       int x = 0;
       char checkbyte = Serial.read();
       if (checkbyte != ',') {
         int digits = checkbyte - '0';
         x = x * 10 + digits;
       }
-      //Serial.println(x);
+      Serial.println(x);
+      Serial.println();
       nums[i] = x;
+      i = i + 1;
     }
-  }
-    majoritynum = floor((nums[0] + nums[1] + nums[2]) / 2);
-    Serial.println(majoritynum);
-
-
-  //      j = j + 1;
-       if (1 != majoritynum) {
+    if (Serial.available() <= 0) {
+      if(nums[0] == nums[1] || nums[0] == nums[2]){
+        majoritynum = nums[0];
+      }
+      else if(nums[1] == nums[2]){
+        majoritynum = nums[1];
+      }
+      else{
+        majoritynum = 0; 
+      }
+      if (expectedval != majoritynum) {
         errors = errors + 1;
- // Serial.println(errors);
-  }
-
-  }
+        //Serial.println(errors);
+      }
+    }
+}
 
 }
-//}
