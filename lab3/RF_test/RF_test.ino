@@ -13,11 +13,12 @@ Serial1 RX: RLP 434
 */
 
 int counter;
+int errors;
 #define RF_BAUD 2400
 #define USB_BAUD 9600
 #define CHAR_0 48
 #define CHAR_9 57
-#define REPEAT_RATE 5
+#define REPEAT_RATE 20
 
 void setup()
 {
@@ -26,7 +27,10 @@ void setup()
     // initialize communication with RF modules 
     Serial1.begin(RF_BAUD);
     // initialize counter that we are sending over RF
-    counter = 0;
+    // we know transmission under 100 are going to be garbage with our
+    // decoding scheme, so start at 100
+    counter = 100;
+    errors = 99;
 }
 
 void loop()
@@ -36,35 +40,44 @@ void loop()
     {
         Serial1.print(repeat(counter++));
     }
+    else
+    {
+        Serial.print("Error rate: ");
+        Serial.print((double) errors / 10);
+        Serial.print("%");
+        while(1){}
+    }
     // read number back
     if (Serial1.available() > 0)
     {
         char c;
+        String encoded = "#";
         while (Serial1.available() > 0)
         {
             c = Serial1.read();
-            // if reached end of transmission, next line
-            if (c == ',')
+            if (isDigit(c))
             {
-                Serial.println();
+                encoded += c;
             }
-            // otherwise still receiving data from transmission, so print
-            else
+        }
+        // reach end of transmission
+        {
+            int decoded = decode(encoded);
+            if (decoded != counter)
             {
-                // the below isDigit() check is our funky way of filtering out
-                // lots of noise (in between?) transmissions. Try printing c 
-                // without the isDigit() check to get a feel of how much garbage
-                // there is. - Evan
-                if (isDigit(c))
-                {
-                    Serial.print(c);
-                }
+                errors++;
             }
+            Serial.print(counter);
+            Serial.print(" ---> ");
+            Serial.print(decoded);
+            Serial.print("\t Error rate (%): ");
+            Serial.print((double) errors / 10);
+            Serial.println();
         }
     }
 
     // wait a second before next round to avoid crowding the serial monitor
-    delay(1000);
+    delay(500);
 }
 
 // returns an input repeated REPEAT_RATE times, ended with a comma
@@ -84,4 +97,15 @@ bool isDigit(char c)
     if ((c >= CHAR_0) && (c <= CHAR_9))
         return true;
     return false;
+}
+
+// decodes the message by taking the last 3 digits and somehow offsetting
+// by 2
+int decode(String encoded)
+{
+    if (encoded.length() >= 3)
+    {
+        return encoded.substring(encoded.length() - 3).toInt() + 2;
+    }
+    return 0;
 }
