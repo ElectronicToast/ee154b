@@ -19,17 +19,29 @@
 int counter;
 int errors;
 
-#define     XTD_BAUD    2400           // Configure to match XTEND baudrate
-#define     USB_BAUD    9600           // Configure to match client baudrate
+#define     XTD_BAUD    2400            // Configure to match XTEND baudrate
+#define     USB_BAUD    9600            // Configure to match client baudrate
 
 #define     RSSI_PIN        7
-#define     RSSI_PERIOD_US  8320   
+#define     RSSI_NREADS     8           // # of reads to average for RSSI 
+#define     RSSI_PERIOD_US  8320        // PWM period in us, p.47 of datasheet
 #define     RSSI_TIMEOUT_US 20000   
 
-#define     RSSI_START      '#'
+#define     RSSI_START      '#'         // Delimiter serial characters
 #define     RSSI_END        '#'
 
 #define     STARTUP_DEL     2000
+
+
+float computePWM(int pin, int nTrials){
+    // Averages high-pulse lengths over RSSI_NREADS reads
+    float pulseSum = 0.0;
+    for(int i = 0; i < nTrials - 1; i++){
+        pulseSum += pulseIn(pin, HIGH, RSSI_PERIOD_US);
+    }
+    return pulseSum / nTrials / RSSI_PERIOD_US;
+}
+
 
 void setup()
 {
@@ -41,18 +53,18 @@ void setup()
     delay(STARTUP_DEL);
 }
 
+
 void loop()
 { 
     // Read client command 
     if (Serial.available() > 0) {
         // Read the RSSI pin pulse high time 
-        int rssi_raw = pulseIn(RSSI_PIN, HIGH, RSSI_TIMEOUT_US);
-        float rssi_percent = ( (float) rssi_raw) / RSSI_PERIOD_US;
+        float rssi_frac =  computePWM(RSSI_PIN, RSSI_NREADS);
         
         /* Rough gain scale
          * 10 dB (30%), 20 dB (45%), 30 dB (60%)
          */
-        int rssi_db = rssi_percent * (200/3) - 10;
+        int rssi_db = rssi_frac * (200/3) - 10;
         
         // Send the RSSI value
         Serial.print(RSSI_START);
@@ -61,13 +73,13 @@ void loop()
         
         // Relay to XTEND
         while (Serial.available() > 0) {
-            Serial1.print(Seria.read());
+            Serial1.print(Serial.read());
         }            
     }
     
     // Read back received data 
     if (Serial1.available() > 0) {
-        while (Seria.available() > 0) {
+        while (Serial.available() > 0) {
             Serial.print(Serial.read());
         }   
     }
