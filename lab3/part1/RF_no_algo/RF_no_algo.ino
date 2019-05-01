@@ -51,26 +51,21 @@ void loop()
     if (Serial1.available() > 0)
     {
         char c;
-        String encoded = "";
+        String in = "";
         while (Serial1.available() > 0)
         {
             c = Serial1.read();
-            if (isDigit(c))
-            {
-                encoded += c;
-            }
+            in += c;
         }
         // reach end of transmission
         {
-            int decoded = encoded.toInt();
-        
-            if (decoded != counter-1)
+            if (!in.equals(String(counter-1)))
             {
                 errors++;
             }
             Serial.print(counter-1);
             Serial.print(" ---> ");
-            Serial.print(decoded);
+            Serial.print(in);
             Serial.print("\t Error rate (%): ");
             Serial.print((double) errors / 10);
             Serial.println();
