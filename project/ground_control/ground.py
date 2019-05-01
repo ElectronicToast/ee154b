@@ -109,7 +109,7 @@ def print_menu():
             ('Admin commands: ', ADMIN_MENU_ITEMS)]
 
     print('--------------------------------------------------------')
-    print('Separate command and argument with comma. e.g. PWR,ON')
+    # print('Separate command and argument with comma. e.g. PWR,ON')
     for i in range(len(menus)):
         # print submenu title
         print('\t{:20}'.format(menus[i][0]))
