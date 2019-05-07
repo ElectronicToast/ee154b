@@ -1,10 +1,19 @@
+#include <SD.h>
 #include <math.h>
 #include <SPI.h>
 #include <SD.h>
 
+#define DOOR_ALTITUDE 95
+#define TARGET_TEMP 30
+#define TEMP_TOLERANCE 1
+
 // Pins, hardware
+// Burn Door Deploy 
+int BDD = 4;
+// thermal control
+int heater = 6;
 // Chip select for SD card
-int CS = 4;
+int CS = 7;
 // Thermistors
 int therm1 = A3;
 int therm2 = A4;
@@ -31,6 +40,8 @@ bool doorDeployed = 0;
 int pacemakerPeriod = 60000;
 int groundCommPeriod = 60000;
 int doorTimeout;
+char delim = ',';
+char terminator = ';';
 
 
 void setup() {
@@ -77,51 +88,77 @@ void loop() {
     launched = true;
   }
   pacemakerIfNeeded(pacemakerPeriod);
-  burnIfNeeded(launchTime, doorTimeout);
-  controlTemps();
+  burnIfNeeded(doorTimeout);
+  controlTemps(TARGET_TEMP, TEMP_TOLERANCE);
+  handleGroundCommand();
 }
 
 
 // Helper functions
-
-void takeVitals(){
-  // THIS SHOULD NOT ACTUALLY BE VOID but I haven't figured out how to deal with the returns yet
-  // Could make it return a pointer to an array of crap?
-  // Could make a global array vitals[] and just write to that?
-  // Yike?
-  Serial.write("$STAT");
-  while(Serial.available()){
-    // We need to do something with this but I don't know what
-    Serial.read();
+void recordVitals(String event){
+  Serial.write("$STAT;");
+  String telem = "";
+  delay(100);
+  if (Serial.available()) {
+    telem = Serial.readStringUntil(terminator);
   }
-}
+  
+  // open the file.
+  File dataFile = SD.open("datalog.txt", FILE_WRITE);
 
-void pacemaker(){
-  // should this actually be void? Do we want to return a bool if it's successful?
-  // call takeVitals();
-  // writeVitals() ?
+  // if the file is available, write the time and vitals to it:
+  if (dataFile) {
+    dataFile.println(millis() + ',' + telem + ',' + event);
+    dataFile.close();
+  }
+
 }
 
 boolean pacemakerIfNeeded(int pacemakerPeriod){
   if(millis() - lastPacemaker > pacemakerPeriod){
-    pacemaker();
+    recordVitals("");
     return 1;
   }
   return 0;
 }
 
-boolean burnIfNeeded(unsigned long launchTime, int timeout){
+boolean burnIfNeeded(int timeout){
   // Only check if we need to burn if the door hasn't already been deployed
   if(! doorDeployed){
-    if(findAltitude > 100 || millis() - launchTime > timeout){
+    if(findAltitude() > DOOR_ALTITUDE || millis() - launchTime > timeout){
       burnWire();
+      doorDeployed = 1;
     }
   }
 }
 
 void burnWire(){
   // TODO
-  // Not actually even sure if this should be a void or if we can somehow return a bool to check that it was successful?
+  digitalWrite(BDD, HIGH);
+  recordVitals("Door: deployed");
+}
+
+void controlTemps(float target, float err_tolerance){
+  // TODO
+  // which temp reading am i supposed to use??? we doing temp of LKM processor?
+  float temp = readThermistor(therm1);
+  Serial.write("$TEMP;");
+  if (Serial.available()) {
+    Serial.readStringUntil(delim); // should be #TEMP,
+    temp = Serial.readStringUntil(terminator).toFloat();
+  }
+  float error = target - temp;
+  // prolly need to somehow record time elapsed between thermistor readings
+  // also need to record error into data structure 
+  // record any temperatures outside of a tolerable range
+  if (error > err_tolerance) {
+    recordVitals("WARNING: temp too low");
+  }
+  else if (error < -err_tolerance) {
+    recordVitals("WARNING: temp too high");
+  }
+  //need to tune this as well... oh boy 
+  analogWrite(heater, 255.0 / 100.0 * PID(0.5, 0.1, 0)); 
 }
 
 void handleGroundCommand(){
@@ -132,13 +169,6 @@ void handleGroundCommand(){
   // Steal the ground people's radio code for this
 }
 
-void controlTemps(){
-  // TODO
-  // Need to talk to other group about their controls, we can steal whoever's is best
-  // set warnings if we need
-  // Set duty cycle, etc
-}
-
 float findAltitude(){
   /*This is a vaguely sketchy formula that I got from
    * https://keisan.casio.com/has10/SpecExec.cgi?id=system/2006/1224585971
@@ -146,22 +176,28 @@ float findAltitude(){
    * altitude (instead of sea level) by using our starting pressure as Po
    */
   float pressure;
-  Serial.write("$PRES");
-  if(Serial.available()){
-    pressure = Serial.read();
-    // This is assuming the external temp is 15C; we should probably add an extra thermistor to check this
+  Serial.write("$PRES;");
+  if (Serial.available()) {
+    Serial.readStringUntil(delim); // should be #PRES,
+    pressure = Serial.readStringUntil(terminator).toFloat();
   }
-    float temp = 15.0;
-    float h = (pow((initPressure/pressure), 1.0/5.257) - 1) * (temp + 273.15) / .0065;
-    return h;
+  
+  // This is assuming the external temp is 15C; we should probably add an extra thermistor to check this
+  // make sure pressure is in hPa?
+  // this returns height in meters... will need to convert to feet
+  float temp = 15.0;
+  float h = (pow((initPressure/pressure), 1.0/5.257) - 1) * (temp + 273.15) / .0065;
+  return h;
 }
 
 bool calibrateAltitude(int nTimes, int altitudeError){
   float pressure = 0;
   for(int i = 0; i < nTimes; i++){
-    Serial.write("$PRES");
+    Serial.write("$PRES;");
+    delay(100);
     if(Serial.available()){
-      pressure += Serial.read();
+      Serial.readStringUntil(delim); //should be #PRES,
+      pressure += Serial.readStringUntil(terminator).toFloat();
     }
   }
   // Take the average pressure
@@ -194,7 +230,7 @@ bool checkLKMcomm(){
 }
 
 bool checkThermistor(int thermistorPin, int lowerBound, int upperBound){
-  double temp = readThermistor(thermistorPin);
+  float temp = readThermistor(thermistorPin);
   if(temp > lowerBound && temp < upperBound){
     return 1;
   } else {
@@ -202,10 +238,7 @@ bool checkThermistor(int thermistorPin, int lowerBound, int upperBound){
   }
 }
 
-double readThermistor(int thermistorPin) {
-
-// WE FOUND A MISTAKE IN THIS SOMEWHERE, PLS CHECK TO MAKE SURE THIS IS THE LATEST VERSION
-  
+float readThermistor(int thermistorPin) {
   // function to read the temperature
   // input: int thermistorPin is an analog pin number (eg A0) 
   // output: double representing the temperature in Celsius
@@ -234,4 +267,13 @@ double readThermistor(int thermistorPin) {
   // C -> F
   //temp = 9/5 * temp + 32;
   return temp; // in Celsius
+}
+
+double PID(float Pcoeff, float Icoeff, float Dcoeff){
+//  float proportionalControl = Pcoeff * data.lastVal();
+//  float integralControl = Icoeff * data.average();
+//  float derivativeControl = Dcoeff * data.lastDeltaY() / delayTime;
+//  float controlRaw = proportionalControl + integralControl + derivativeControl;
+//  return max(min(controlRaw, 1), 0) * 100;
+  return 0.0;
 }
