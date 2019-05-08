@@ -74,6 +74,10 @@ def main(args):
         # otherwise, regular command
         elif True:
             logger.info('Command: ' + i[0] + ", " + i[1] if len(i) > 1 else 'Command: ' + i[0])
+            msg = '$' + i[0]
+            if (len(i) > 1):
+                msg += ',' + i[1]
+            logger.info(msg + ' --- sent')
 
 # $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ SERIAL HELPERS $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
