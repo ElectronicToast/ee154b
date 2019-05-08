@@ -44,6 +44,61 @@ char delim = ',';
 char terminator = ';';
 
 
+// Temp control stuff
+class averagingArray{
+  public:
+  static const int arraySize = 100;
+  int data[arraySize];
+  int iEnd = 0;
+  long arraySum = 0;
+  averagingArray(){
+    for(int i = 0; i < arraySize; i++){
+      data[i] = 0;
+    }
+  }
+  long pop(){
+    long foundValue = data[iEnd];
+    arraySum -= foundValue;
+    return foundValue;
+  }
+  
+  long addNew(long newData){
+//    if(iEnd == 0){
+//      Serial.println();
+//      Serial.println("Array Filled");
+//      Serial.println();
+//    }
+    long prevVal = -1;
+    // Update the end
+    iEnd++;
+    iEnd = iEnd % arraySize;
+    
+    // Pop off the old value, add the new one
+    prevVal = pop();
+    data[iEnd] = newData;
+    arraySum += newData;
+//    Serial.print("arraySum = ");
+//    Serial.println(arraySum);
+    return prevVal;
+  }
+  
+  float average(){
+    // This is supposed to return a float, but it will return an int...
+    return arraySum / arraySize;
+  }
+
+  int lastVal(){
+    return data[iEnd];
+  }
+
+  int lastDeltaY(){
+    return data[iEnd] - data[(iEnd - 1 + arraySize) % arraySize];
+  }
+  
+};
+
+averagingArray data;
+
 void setup() {
   // Set up indicator LEDs
   pinMode(SDinitLED, OUTPUT);
@@ -148,6 +203,7 @@ void controlTemps(float target, float err_tolerance){
     temp = Serial.readStringUntil(terminator).toFloat();
   }
   float error = target - temp;
+  data.addNew(error);
   // prolly need to somehow record time elapsed between thermistor readings
   // also need to record error into data structure 
   // record any temperatures outside of a tolerable range
@@ -270,10 +326,10 @@ float readThermistor(int thermistorPin) {
 }
 
 double PID(float Pcoeff, float Icoeff, float Dcoeff){
-//  float proportionalControl = Pcoeff * data.lastVal();
-//  float integralControl = Icoeff * data.average();
-//  float derivativeControl = Dcoeff * data.lastDeltaY() / delayTime;
-//  float controlRaw = proportionalControl + integralControl + derivativeControl;
-//  return max(min(controlRaw, 1), 0) * 100;
-  return 0.0;
+ float proportionalControl = Pcoeff * data.lastVal();
+ float integralControl = Icoeff * data.average();
+ float derivativeControl = Dcoeff * data.lastDeltaY() / delayTime;
+ float controlRaw = proportionalControl + integralControl + derivativeControl;
+ return max(min(controlRaw, 1), 0) * 100;
+//  return 0.0;
 }
