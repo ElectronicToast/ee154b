@@ -6,6 +6,9 @@
 #define DOOR_ALTITUDE 95
 #define TARGET_TEMP 30
 #define TEMP_TOLERANCE 1
+#define USB_BAUD 9600
+#define LKM_DEFAULT_BAUD 9600
+#define LKM_STARTUP_TIME 30000
 
 // Pins, hardware
 // Burn Door Deploy 
@@ -23,6 +26,7 @@ int LKMcommLED;
 int altitudeCalibratedLED;
 int readingThermistorsLED;
 int allSystemsLED;
+int launchedLED;
 int launchSwitch;
 
 // Global variables
@@ -40,6 +44,7 @@ bool doorDeployed = 0;
 int pacemakerPeriod = 60000;
 int groundCommPeriod = 60000;
 int doorTimeout;
+int LKMsetupTimeout;
 char delim = ',';
 char terminator = ';';
 
@@ -63,11 +68,6 @@ class averagingArray{
   }
   
   long addNew(long newData){
-//    if(iEnd == 0){
-//      Serial.println();
-//      Serial.println("Array Filled");
-//      Serial.println();
-//    }
     long prevVal = -1;
     // Update the end
     iEnd++;
@@ -77,8 +77,6 @@ class averagingArray{
     prevVal = pop();
     data[iEnd] = newData;
     arraySum += newData;
-//    Serial.print("arraySum = ");
-//    Serial.println(arraySum);
     return prevVal;
   }
   
@@ -105,16 +103,29 @@ void setup() {
   pinMode(LKMcommLED, OUTPUT);
   pinMode(altitudeCalibratedLED, OUTPUT);
   pinMode(readingThermistorsLED, OUTPUT);
+  pinMode(allSystemsLED, OUTPUT);
+  pinMode(launchedLED, OUTPUT);
   
-  // Initialize UART 
+  // Initialize UARTs 
   Serial.begin(9600);
+  Serial1.begin(LKM_DEFAULT_BAUD);
+  
   // Initialize SD card, 5 min timeout
   bool SDinit = initializeSDcard(300000);
   if(SDinit){
     digitalWrite(SDinitLED, HIGH);
   }
   // Make sure we're talking to the LKM
-  bool LKMcomm = checkLKMcomm();
+  // Delay long enough for the LKM to start up
+  delay(LKM_STARTUP_TIME);
+  // Change baud rate
+  // Maybe we should check if it's done starting up first?
+  lowerBaudRate(2400);
+  bool LKMcomm = 0;
+  unsigned long startLKMtestTime = millis();
+  while(! LKMcomm && (millis() - startLKMtestTime < LKMsetupTimeout){
+    LKMcomm = checkLKMcomm();
+  }
   if(LKMcomm){
     digitalWrite(LKMcommLED, HIGH);
   }
@@ -141,6 +152,7 @@ void loop() {
   if(! launched && digitalRead(launchSwitch)){
     launchTime = millis();
     launched = true;
+    digitalWrite(launchedLED, HIGH);
   }
   pacemakerIfNeeded(pacemakerPeriod);
   burnIfNeeded(doorTimeout);
@@ -332,4 +344,65 @@ double PID(float Pcoeff, float Icoeff, float Dcoeff){
  float controlRaw = proportionalControl + integralControl + derivativeControl;
  return max(min(controlRaw, 1), 0) * 100;
 //  return 0.0;
+}
+
+bool lowerBaudRate(int baud){
+  // Assume we're communicating with the LKM at 9600 to start
+  // Lower baud rate using $DATA
+  Serial1.write("$DATA, ");
+  Serial1.write(baud);
+  Serial1.write(";");
+  delay(100);
+  bool error = 0;
+  while(Serial1.available()){
+    // If there's stuff on the serial, read it so it doesn't just sit in the buffer and note an error
+    // Because $DATA shouldn't return anything, so if 
+    Serial1.read();
+    error = 1;
+  }
+  if(error){
+    // try one more time
+    Serial1.write("$DATA, ");
+    Serial1.write(baud);
+    Serial1.write(";");
+    delay(100);
+    if(! Serial1.available()){
+      error = 0;
+    }
+    while(Serial1.available()){
+      Serial1.read();
+    }
+  }
+  if(error){
+    return 0;
+  }
+  Serial1.begin(baud);
+  // try n times, in case there's an error
+  // possible that this will eventually get built into checkLKMcomm
+  int nAttempts = 3;
+  for(int i = 0; i < nAttempts; i++){
+    if(checkLKMcomm()){
+      return 1;
+    }
+  }
+  return 0;
+  // If failure, should probably communicate with ground too?
+}
+
+float parseLKM(){
+  delay(100);
+  float value;
+  String output;
+  if(Serial.available()){
+      Serial.readStringUntil(delim);
+      output =  Serial.readStringUntil(terminator);
+  }
+  if(output.equals("ON")){
+    return 1.0;
+  }else if(output.equals("OFF")){
+    return 0.0;
+  } else {
+    value = output.toFloat();
+  }
+  return value;
 }
