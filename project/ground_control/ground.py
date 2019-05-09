@@ -12,6 +12,7 @@ DEFAULT_LOGGING_LEVEL = 'DEBUG'
 COMMAND_BOM_CHAR = '$' # beginning of message character for commands
 TELEM_BOM_CHAR = '#' # beginning of message character for received telemetry
 EOM_CHAR = ';' # marks end of time temperature data
+DELIM = ',' # delimiter between commands and arguments
 
 # Serial instance
 ser = None
@@ -45,7 +46,7 @@ def main(args):
     config_logger(args)
 
     # setup serial port
-    #setup_serial(args)
+    setup_serial(args)
 
     # print menu once
     print_menu()
@@ -64,9 +65,19 @@ def main(args):
 def listening_state():
     just_entered = True
     while True:
+        # check if need to print enter listening mode 
         if just_entered:
             just_entered = False
-            logger.info("Listening...  press <c> to enter COMMAND MODE or <q> to quit prorgam")
+            logger.info('Listening...  press <c> to enter COMMAND MODE or <q> to quit prorgam')
+            # check if received anything when in command mode
+            if ser.in_waiting > 0:
+                logger.info('\t RX (delayed): ' + serial_read())
+
+        # check if receiving data
+        if ser.in_waiting > 0:
+            logger.info('\t RX: ' + serial_read())
+
+        # check if key is pressed
         if kb.kbhit():
             c = kb.getch()
             if c == 'c' or c == 'C':
@@ -90,10 +101,12 @@ def command_state():
 
         # get all possible commands
         cmds = [i[0] for i in PAYLOAD_MENU_ITEMS + BOX_MENU_ITEMS + ADMIN_MENU_ITEMS]
-        
+        # get all arguments
+        arguments = [i[1] for i in PAYLOAD_MENU_ITEMS + BOX_MENU_ITEMS + ADMIN_MENU_ITEMS]
+
         valid_command = True
 
-        # see if command exists
+        # check if command exists
         try: 
             cmds.index(i[0])
         except Exception:
@@ -101,6 +114,13 @@ def command_state():
 
         if not valid_command:
             logger.info('Command "' + i[0] + '" not recognized.')
+        # check if trying to send argument when none should be sent
+        elif  len(i[1:]) != 0 and len(arguments[cmds.index(i[0])]) == 0:
+            logger.info(i[0] + ' takes no arguments.')
+        # check if not sending argument when one should be sent
+        elif len(i[1:]) == 0 and len(arguments[cmds.index(i[0])]) != 0:
+            logger.info(i[0] + ' takes arguments: ' + str(arguments[cmds.index(i[0])]))
+        # check for exiting command mode and returning to listening mode
         elif i[0] == 'X':
             logger.info('Exited COMMAND MODE.')
             done = True
@@ -108,31 +128,30 @@ def command_state():
         elif i[0] == 'Q':
             logger.info('Program terminated.')
             sys.exit(0)
+        # check for menu printing
         elif i[0] == 'M':
             print_menu()
         # check if need passthrough mode    
         elif i[0] == 'PASS':
-
             # check if no command was sent
             if len(i) < 2 or i[1] == '':
                 logger.info('Please input command to passthrough. e.g. PASS $PWR,ON;')
             else:
                 i[1] = ' '.join(str(e) for e in i[1:])
-                logger.info('Command input: ' + i[0] + ", " + i[1] if len(i) > 1 else 'Command: ' + i[0])
+                logger.debug('Command input: ' + i[0] + ', ' + i[1] if len(i) > 1 else 'Command: ' + i[0])
                 msg = i[1]
-                # serial_send(msg) 
-                logger.info('Sent-------: '+ msg)
+                serial_send(msg) 
+                logger.info('\t TX: '+ msg)
                 done = True
         # otherwise, regular command that will be sent in '$XXX,YYY;' format
         elif True:
-            logger.info('Command input: ' + i[0] + ", " + i[1] if len(i) > 1 else 'Command: ' + i[0])
-            msg = '$' + i[0]
+            logger.debug('Command input: ' + i[0] + ', ' + i[1] if len(i) > 1 else 'Command: ' + i[0])
+            msg = COMMAND_BOM_CHAR + i[0]
             if (len(i) > 1):
-                msg += ',' + i[1]
-            msg += ';'
-            # BELOW COMMENTED TO TEST WITHOUT DEVICE
-            # serial_send(msg)
-            logger.info('Sent-------: '+ msg)
+                msg += DELIM + i[1]
+            msg += EOM_CHAR
+            serial_send(msg)
+            logger.info('\t TX: '+ msg)
             done = True
 
 # $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ SERIAL COMM HELPERS $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
@@ -141,12 +160,12 @@ def setup_serial(args):
     # Try to open the serial port
     global ser
     try:
-        ser = serial.Serial(args['serial_port'], args['baud_rate'])
-    except serial.serialutil.SerialException:
-        logger.error('Serial port ' + args['serial_port'] + ' in use or incorrect.')
         logger.info('The following ports are available: ')
         ports = serial.tools.list_ports.comports()
         logger.info([port.description for port in ports])
+        ser = serial.Serial(args['serial_port'], args['baud_rate'])
+    except serial.serialutil.SerialException:
+        logger.error('Serial port ' + args['serial_port'] + ' in use or incorrect.')
         logger.info('Program terminated.')
         sys.exit()
 
@@ -182,7 +201,7 @@ def serial_wait():
 
 def send_heartbeat():
     serial_send('$STAT;')
-    logger.info('')
+    logger.info('Heartbeat sent.')
 
 # $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ MENU HELPERS $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 # prints all menu items (printed only to stdout, not to log file)
@@ -225,7 +244,7 @@ def build_completer():
 # $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ CL ARGS HELPERS $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 # parses command line arguments
 def parse_arguments(argv):
-    default_filename = datetime.now().strftime("%m-%d-%Y %I-%M-%S %p")+".log"
+    default_filename = datetime.now().strftime('%m-%d-%Y %I-%M-%S %p')+'.log'
 
     parser = argparse.ArgumentParser()
 
@@ -295,7 +314,7 @@ def config_logger(args):
 
     # create console handler
     ch = logging.StreamHandler()
-    ch.setLevel(level)
+    ch.setLevel(logging.INFO)
     #ch.setFormatter(formatter) # commented out to avoid cluttering of console
     logger.addHandler(ch)
 
