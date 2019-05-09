@@ -31,37 +31,26 @@ ADMIN_MENU_ITEMS = [
     ('Q', [], 'Quit this ground command module.')]
 
 def main(args):
-    buildCompleter()
+    # build tab completer
+    build_completer()
 
     # Configure the logger
     config_logger(args)
 
-    # Try to open the serial port
-    global ser
-    # BELOW COMMENTED TO TEST WITHOUT CONNECTION
-    # try:
-    #     ser = serial.Serial(args['serial_port'], args['baud_rate'])
-    # except serial.serialutil.SerialException:
-    #     logger.error('Serial port ' + args['serial_port'] + ' in use or incorrect.')
-    #     logger.info('Program terminated.')
-    #     sys.exit()
+    # setup serial port
+    setup_serial(args)
 
-    # Wait half a second to initialize
-    sleep(0.5)
-
-    # BELOW COMMENTED TO TEST WITHOUT CONNECTION
-    # Confirm that the connection is established
-    # if ser.isOpen():
-    #     logger.info('Serial port ' + args['serial_port'] + ' opened successfully.')
-
+    # main loop
     while True:
         print_menu()
+
+        # ask for input
         i = input('>> ').upper()
 
-        # split into list [command, argument]
+        # split input into list [command, argument]
         i = i.split(' ')
 
-        # find all possible commands
+        # get all possible commands
         cmds = [i[0] for i in PAYLOAD_MENU_ITEMS + BOX_MENU_ITEMS + ADMIN_MENU_ITEMS]
         
         # see if command exists
@@ -71,15 +60,42 @@ def main(args):
         elif i[0] == 'Q':
             logger.info('Program terminated.')
             break
-        # otherwise, regular command
+        # check if need passthrough mode    
+        elif i[0] == 'PASS':
+            i[1] = ' '.join(str(e) for e in i[1:])
+            logger.info('Command input: ' + i[0] + ", " + i[1] if len(i) > 1 else 'Command: ' + i[0])
+            msg = i[1]
+            # serial_send(msg) 
+            logger.info('Sent-------: '+ msg)
+        # otherwise, regular command that will be sent in '$XXX,YYY;' format
         elif True:
-            logger.info('Command: ' + i[0] + ", " + i[1] if len(i) > 1 else 'Command: ' + i[0])
+            logger.info('Command input: ' + i[0] + ", " + i[1] if len(i) > 1 else 'Command: ' + i[0])
             msg = '$' + i[0]
             if (len(i) > 1):
                 msg += ',' + i[1]
-            logger.info(msg + ' --- sent')
+            msg += ';'
+            # serial_send(msg)
+            logger.info('Sent-------: '+ msg)
 
 # $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ SERIAL HELPERS $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+# sets up serial port
+def setup_serial(args):
+    # Try to open the serial port
+    global ser
+    try:
+        ser = serial.Serial(args['serial_port'], args['baud_rate'])
+    except serial.serialutil.SerialException:
+        logger.error('Serial port ' + args['serial_port'] + ' in use or incorrect.')
+        logger.info('Program terminated.')
+        sys.exit()
+
+    # Wait half a second to initialize
+    sleep(0.5)
+
+    # Confirm that the connection is established
+    if ser.isOpen():
+        logger.info('Serial port ' + args['serial_port'] + ' opened successfully.')
+
 
 # encodes a message using utf-8 and sends over serial
 def serial_send(msg):
@@ -113,7 +129,7 @@ def print_menu():
             ('Admin commands: ', ADMIN_MENU_ITEMS)]
 
     print('--------------------------------------------------------')
-    # print('Separate command and argument with comma. e.g. PWR,ON')
+    print('Separate command and argument with space. e.g. PWR ON')
     for i in range(len(menus)):
         # print submenu title
         print('\t{:20}'.format(menus[i][0]))
@@ -124,7 +140,7 @@ def print_menu():
 
     print('--------------------------------------------------------')
 
-def buildCompleter():
+def build_completer():
     # store all 'command': 'argument'
     cmds = {}
 
