@@ -13,11 +13,14 @@ COMMAND_BOM_CHAR = '$' # beginning of message character for commands
 TELEM_BOM_CHAR = '#' # beginning of message character for received telemetry
 EOM_CHAR = ';' # marks end of time temperature data
 DELIM = ',' # delimiter between commands and arguments
+HEART_BEAT_INTERVAl = 60 # time in seconds between heartbeats
 
 # Serial instance
 ser = None
 # Logger instance
 logger = None
+# time of last heartbeat sent
+last_heartbeat = None
 
 PAYLOAD_MENU_ITEMS = [
     ('PWR', ['ON', 'OFF'], 'Turn the instrument on or off.'),
@@ -58,6 +61,11 @@ def main(args):
     global kb
     kb = kbhit.KBHit()
 
+    # send first heartbeat
+    global last_heartbeat
+    last_heartbeat = datetime.now()
+    send_heartbeat()
+
     # start listening
     listening_state()
 
@@ -66,12 +74,13 @@ def main(args):
 # state that constantly listens for transmissions and handles heartbeats and
 # entering the command state
 def listening_state():
+    global last_heartbeat
     just_entered = True
     while True:
         # check if need to print enter listening mode 
         if just_entered:
             just_entered = False
-            logger.info('Listening...  press <c> to enter COMMAND MODE or <q> to quit prorgam')
+            logger.info('Listening...  press <c> to enter COMMAND MODE or <q> to quit program')
             # check if received anything when in command mode
             if ser.in_waiting > 0:
                 logger.info('\t RX (delayed): ' + serial_read())
@@ -89,6 +98,11 @@ def listening_state():
             elif c == 'q' or c == 'Q':
                 logger.info('Program terminated.')
                 sys.exit(0)
+
+        # send heartbeat
+        if (datetime.now() - last_heartbeat).seconds > HEART_BEAT_INTERVAl:
+            last_heartbeat = datetime.now()
+            send_heartbeat()
 
 # state that prompts for command input
 def command_state():
@@ -203,8 +217,9 @@ def serial_wait():
         pass
 
 def send_heartbeat():
-    serial_send('$STAT;')
-    logger.info('Heartbeat sent.')
+    msg = '$STAT;'
+    serial_send(msg)
+    logger.info('\t TX (Heartbeat): ' + msg)
 
 # $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ MENU HELPERS $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 # prints all menu items (printed only to stdout, not to log file)
