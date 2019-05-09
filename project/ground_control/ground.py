@@ -1,7 +1,8 @@
-from time import sleep
+from time import sleep, time
 import serial, random, string, sys, logging, argparse, readline
 from datetime import datetime
 import completer as completer
+from threading import Thread
 
 # Constants
 DEFAULT_BAUD_RATE = 9600
@@ -40,7 +41,18 @@ def main(args):
     # setup serial port
     setup_serial(args)
 
-    # main loop
+
+    t_input = Thread(target=input_loop)
+    t_lifeline = Thread(target=lifeline_loop)
+
+    t_input.start()
+    t_lifeline.start()
+
+    
+
+# $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ THREAD FUNCTIONS $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+# loop to prompt user for commands
+def input_loop():
     while True:
         print_menu()
 
@@ -77,7 +89,16 @@ def main(args):
             # serial_send(msg)
             logger.info('Sent-------: '+ msg)
 
-# $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ SERIAL HELPERS $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+# loop to send heartbeats and constantly listen
+def lifeline_loop():
+    last = datetime.now()
+    while True:
+        if (datetime.now() - last).seconds > 3:
+            last = datetime.now()
+            
+            logger.info('hi')
+
+# $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ SERIAL COMM HELPERS $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 # sets up serial port
 def setup_serial(args):
     # Try to open the serial port
@@ -103,7 +124,6 @@ def serial_send(msg):
 
 # waits for data to come in buffer, then read all data
 def serial_read():
-    serial_wait()
     out = ''
     while ser.in_waiting > 0:
         out += ser.read(1).decode('utf-8')
@@ -119,6 +139,10 @@ def serial_wait():
             logger.error('Read timeout!!!!')
             break
         pass
+
+def send_heartbeat():
+    serial_send('$STAT;')
+    logger.info('')
 
 # $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ MENU HELPERS $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 # prints all menu items (printed only to stdout, not to log file)
