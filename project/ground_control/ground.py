@@ -29,7 +29,8 @@ BOX_MENU_ITEMS = [
     # probably some more like battery temp
 
 ADMIN_MENU_ITEMS = [
-    ('Q', [], 'Quit this ground command module.')]
+    ('Q', [], 'Quit this ground command module.'),
+    ('MENU', [], 'Print this menu.')]
 
 def main(args):
     # build tab completer
@@ -39,14 +40,10 @@ def main(args):
     config_logger(args)
 
     # setup serial port
-    setup_serial(args)
+    #setup_serial(args)
 
-
-    t_input = Thread(target=input_loop)
-    t_lifeline = Thread(target=lifeline_loop)
-
-    t_input.start()
-    t_lifeline.start()
+    print_menu()
+    input_loop()
 
     
 
@@ -54,8 +51,6 @@ def main(args):
 # loop to prompt user for commands
 def input_loop():
     while True:
-        print_menu()
-
         # ask for input
         i = input('>> ').upper()
 
@@ -72,13 +67,19 @@ def input_loop():
         elif i[0] == 'Q':
             logger.info('Program terminated.')
             break
+        elif i[0] == 'MENU':
+            print_menu()
         # check if need passthrough mode    
         elif i[0] == 'PASS':
-            i[1] = ' '.join(str(e) for e in i[1:])
-            logger.info('Command input: ' + i[0] + ", " + i[1] if len(i) > 1 else 'Command: ' + i[0])
-            msg = i[1]
-            # serial_send(msg) 
-            logger.info('Sent-------: '+ msg)
+            # check if no command was sent
+            if len(i) < 2:
+                logger.info('Please input command to passthrough. e.g. PASS $PWR,ON;')
+            else:
+                i[1] = ' '.join(str(e) for e in i[1:])
+                logger.info('Command input: ' + i[0] + ", " + i[1] if len(i) > 1 else 'Command: ' + i[0])
+                msg = i[1]
+                # serial_send(msg) 
+                logger.info('Sent-------: '+ msg)
         # otherwise, regular command that will be sent in '$XXX,YYY;' format
         elif True:
             logger.info('Command input: ' + i[0] + ", " + i[1] if len(i) > 1 else 'Command: ' + i[0])
