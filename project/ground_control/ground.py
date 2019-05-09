@@ -7,7 +7,7 @@ import serial.tools.list_ports
 
 # Constants
 DEFAULT_BAUD_RATE = 9600
-DEFAULT_SERIAL_PORT = 'COM3' # on windows
+DEFAULT_SERIAL_PORT = 'DEF' # on windows
 DEFAULT_LOGGING_LEVEL = 'DEBUG'
 COMMAND_BOM_CHAR = '$' # beginning of message character for commands
 TELEM_BOM_CHAR = '#' # beginning of message character for received telemetry
@@ -177,24 +177,34 @@ def command_state():
 # $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ SERIAL COMM HELPERS $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 # sets up serial port
 def setup_serial(args):
-    # Try to open the serial port
     global ser
-    try:
-        logger.info('The following ports are available: ')
-        ports = serial.tools.list_ports.comports()
-        logger.info([port.description for port in ports])
-        ser = serial.Serial(args['serial_port'], args['baud_rate'])
-    except serial.serialutil.SerialException:
-        logger.error('Serial port ' + args['serial_port'] + ' in use or incorrect.')
-        logger.info('Program terminated.')
-        sys.exit()
 
+    successful = False # track if connection is successful
+    first_failed = False # track if first try is successful or not, so can prompt
+    port = args['serial_port']
+
+    while not successful:
+        if port == DEFAULT_SERIAL_PORT or first_failed:
+            logger.info('The following ports are available: ')
+            ports = serial.tools.list_ports.comports()
+            logger.info([port.description for port in ports])
+            port = input("Specify serial port (or <q> to quit) >> ").upper()
+        if port == 'Q':
+            logger.info('Program terminated.')
+            sys.exit()
+        try:        
+            ser = serial.Serial(port, args['baud_rate'])
+            successful = True
+        except serial.serialutil.SerialException:
+            logger.error('Serial port ' + port + ' in use or incorrect.')
+            first_failed = True
+            
     # Wait half a second to initialize
     sleep(0.5)
 
     # Confirm that the connection is established
     if ser.isOpen():
-        logger.info('Serial port ' + args['serial_port'] + ' opened successfully.')
+        logger.info('Serial port ' + port + ' opened successfully.')
 
 
 # encodes a message using utf-8 and sends over serial
@@ -302,7 +312,7 @@ def parse_arguments(argv):
         dest='serial_port',
         const=DEFAULT_SERIAL_PORT,
         default=DEFAULT_SERIAL_PORT,
-        help='set serial port name. default: COM3')
+        help='set serial port name. will prompt in interface if not specified')
 
     # suppress logging
     parser.add_argument('-D',
