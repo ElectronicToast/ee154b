@@ -60,9 +60,16 @@ def input_loop():
         # get all possible commands
         cmds = [i[0] for i in PAYLOAD_MENU_ITEMS + BOX_MENU_ITEMS + ADMIN_MENU_ITEMS]
         
+        valid_command = True
+
         # see if command exists
-        if cmds.index(i[0]) == -1:
-            logger.info('Command "' + i + '" not recognized.')
+        try: 
+            cmds.index(i[0])
+        except Exception:
+            valid_command = False
+
+        if not valid_command:
+            logger.info('Command "' + i[0] + '" not recognized.')
         # check for quitting
         elif i[0] == 'Q':
             logger.info('Program terminated.')
