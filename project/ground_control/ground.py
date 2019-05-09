@@ -64,7 +64,6 @@ def command_state():
     done = False
 
     while not done:
-        done = True
         # ask for input
         i = input('>> ').upper()
 
@@ -86,17 +85,18 @@ def command_state():
             logger.info('Command "' + i[0] + '" not recognized.')
         elif i[0] == 'X':
             logger.info('Exited COMMAND MODE.')
+            done = True
         # check for quitting
         elif i[0] == 'Q':
             logger.info('Program terminated.')
             sys.exit(0)
         elif i[0] == 'M':
             print_menu()
-            done = False
         # check if need passthrough mode    
         elif i[0] == 'PASS':
+
             # check if no command was sent
-            if len(i) < 2:
+            if len(i) < 2 or i[1] == '':
                 logger.info('Please input command to passthrough. e.g. PASS $PWR,ON;')
             else:
                 i[1] = ' '.join(str(e) for e in i[1:])
@@ -104,6 +104,7 @@ def command_state():
                 msg = i[1]
                 # serial_send(msg) 
                 logger.info('Sent-------: '+ msg)
+                done = True
         # otherwise, regular command that will be sent in '$XXX,YYY;' format
         elif True:
             logger.info('Command input: ' + i[0] + ", " + i[1] if len(i) > 1 else 'Command: ' + i[0])
@@ -114,6 +115,7 @@ def command_state():
             # BELOW COMMENTED TO TEST WITHOUT DEVICE
             # serial_send(msg)
             logger.info('Sent-------: '+ msg)
+            done = True
 
 # loop to send heartbeats and constantly listen
 def listening_state():
@@ -121,12 +123,15 @@ def listening_state():
     while True:
         if just_entered:
             just_entered = False
-            logger.info("Listening...  press <c> to enter COMMAND MODE")
+            logger.info("Listening...  press <c> to enter COMMAND MODE or <q> to quit prorgam")
         if kb.kbhit():
             c = kb.getch()
             if c == 'c' or c == 'C':
                 command_state()
                 just_entered = True
+            elif c == 'q' or c == 'Q':
+                logger.info('Program terminated.')
+                sys.exit(0)
 
 # $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ SERIAL COMM HELPERS $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 # sets up serial port
