@@ -3,6 +3,7 @@ import serial, random, string, sys, logging, argparse, readline
 from datetime import datetime
 import completer as completer
 from threading import Thread
+import serial.tools.list_ports
 
 # Constants
 DEFAULT_BAUD_RATE = 9600
@@ -115,6 +116,9 @@ def setup_serial(args):
         ser = serial.Serial(args['serial_port'], args['baud_rate'])
     except serial.serialutil.SerialException:
         logger.error('Serial port ' + args['serial_port'] + ' in use or incorrect.')
+         logger.info('The following ports are available: ')
+        ports = serial.tools.list_ports.comports()
+        logger.info([port.description for port in ports])
         logger.info('Program terminated.')
         sys.exit()
 
