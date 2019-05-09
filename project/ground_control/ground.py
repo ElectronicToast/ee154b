@@ -3,20 +3,19 @@ import serial, random, string, sys, logging, argparse, readline
 from datetime import datetime
 import completer as completer
 import kbhit as kbhit
-# import groundthread as groundthread
-from threading import Thread
 import serial.tools.list_ports
-import multiprocessing 
-import msvcrt
 
 # Constants
 DEFAULT_BAUD_RATE = 9600
 DEFAULT_SERIAL_PORT = 'COM3' # on windows
 DEFAULT_LOGGING_LEVEL = 'DEBUG'
-EOM_CHAR = '#' # marks end of time temperature data
-TIME_OUT = 5    # time to wait for a response in seconds
+COMMAND_BOM_CHAR = '$' # beginning of message character for commands
+TELEM_BOM_CHAR = '#' # beginning of message character for received telemetry
+EOM_CHAR = ';' # marks end of time temperature data
 
+# Serial instance
 ser = None
+# Logger instance
 logger = None
 
 PAYLOAD_MENU_ITEMS = [
@@ -34,7 +33,7 @@ BOX_MENU_ITEMS = [
     # probably some more like battery temp
 
 ADMIN_MENU_ITEMS = [
-    ('MENU', [], 'Print this menu.'),
+    ('M', [], 'Print this menu.'),
     ('X', [], 'Quit command mode and return to LISTENING MODE.'),
     ('Q', [], 'Quit this ground command module.')]
 
@@ -55,67 +54,69 @@ def main(args):
     global kb
     kb = kbhit.KBHit()
 
-    # start main listener
-    lifeline_loop()
+    # start listening
+    listening_state()
 
-    
 
-# $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ THREAD FUNCTIONS $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-# loop to prompt user for commands
-def input_loop():
+# $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ STATES $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+def command_state():
     logger.info('Entered COMMAND MODE.')
+    done = False
 
-    # ask for input
-    i = input('>> ').upper()
+    while not done:
+        done = True
+        # ask for input
+        i = input('>> ').upper()
 
-    # split input into list [command, argument]
-    i = i.split(' ')
+        # split input into list [command, argument]
+        i = i.split(' ')
 
-    # get all possible commands
-    cmds = [i[0] for i in PAYLOAD_MENU_ITEMS + BOX_MENU_ITEMS + ADMIN_MENU_ITEMS]
-    
-    valid_command = True
+        # get all possible commands
+        cmds = [i[0] for i in PAYLOAD_MENU_ITEMS + BOX_MENU_ITEMS + ADMIN_MENU_ITEMS]
+        
+        valid_command = True
 
-    # see if command exists
-    try: 
-        cmds.index(i[0])
-    except Exception:
-        valid_command = False
+        # see if command exists
+        try: 
+            cmds.index(i[0])
+        except Exception:
+            valid_command = False
 
-    if not valid_command:
-        logger.info('Command "' + i[0] + '" not recognized.')
-    elif i[0] == 'X':
-        logger.info('Exited COMMAND MODE.')
-    # check for quitting
-    elif i[0] == 'Q':
-        logger.info('Program terminated.')
-        sys.exit(0)
-    elif i[0] == 'MENU':
-        print_menu()
-    # check if need passthrough mode    
-    elif i[0] == 'PASS':
-        # check if no command was sent
-        if len(i) < 2:
-            logger.info('Please input command to passthrough. e.g. PASS $PWR,ON;')
-        else:
-            i[1] = ' '.join(str(e) for e in i[1:])
+        if not valid_command:
+            logger.info('Command "' + i[0] + '" not recognized.')
+        elif i[0] == 'X':
+            logger.info('Exited COMMAND MODE.')
+        # check for quitting
+        elif i[0] == 'Q':
+            logger.info('Program terminated.')
+            sys.exit(0)
+        elif i[0] == 'M':
+            print_menu()
+            done = False
+        # check if need passthrough mode    
+        elif i[0] == 'PASS':
+            # check if no command was sent
+            if len(i) < 2:
+                logger.info('Please input command to passthrough. e.g. PASS $PWR,ON;')
+            else:
+                i[1] = ' '.join(str(e) for e in i[1:])
+                logger.info('Command input: ' + i[0] + ", " + i[1] if len(i) > 1 else 'Command: ' + i[0])
+                msg = i[1]
+                # serial_send(msg) 
+                logger.info('Sent-------: '+ msg)
+        # otherwise, regular command that will be sent in '$XXX,YYY;' format
+        elif True:
             logger.info('Command input: ' + i[0] + ", " + i[1] if len(i) > 1 else 'Command: ' + i[0])
-            msg = i[1]
-            # serial_send(msg) 
+            msg = '$' + i[0]
+            if (len(i) > 1):
+                msg += ',' + i[1]
+            msg += ';'
+            # BELOW COMMENTED TO TEST WITHOUT DEVICE
+            # serial_send(msg)
             logger.info('Sent-------: '+ msg)
-    # otherwise, regular command that will be sent in '$XXX,YYY;' format
-    elif True:
-        logger.info('Command input: ' + i[0] + ", " + i[1] if len(i) > 1 else 'Command: ' + i[0])
-        msg = '$' + i[0]
-        if (len(i) > 1):
-            msg += ',' + i[1]
-        msg += ';'
-        # BELOW COMMENTED TO TEST WITHOUT DEVICE
-        # serial_send(msg)
-        logger.info('Sent-------: '+ msg)
 
 # loop to send heartbeats and constantly listen
-def lifeline_loop():
+def listening_state():
     just_entered = True
     while True:
         if just_entered:
@@ -124,7 +125,7 @@ def lifeline_loop():
         if kb.kbhit():
             c = kb.getch()
             if c == 'c' or c == 'C':
-                input_loop()
+                command_state()
                 just_entered = True
 
 # $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ SERIAL COMM HELPERS $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
