@@ -15,7 +15,7 @@ class Completer(object):
             origline = readline.get_line_buffer().upper()
             begin = readline.get_begidx()
             end = readline.get_endidx()
-            being_completed = origline[begin:end].upper()
+            being_completed = origline[begin:end]
             words = origline.split()
 
             
