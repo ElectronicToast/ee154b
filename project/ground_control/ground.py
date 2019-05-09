@@ -59,6 +59,24 @@ def main(args):
 
 
 # $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ STATES $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+# state that constantly listens for transmissions and handles heartbeats and
+# entering the command state
+def listening_state():
+    just_entered = True
+    while True:
+        if just_entered:
+            just_entered = False
+            logger.info("Listening...  press <c> to enter COMMAND MODE or <q> to quit prorgam")
+        if kb.kbhit():
+            c = kb.getch()
+            if c == 'c' or c == 'C':
+                command_state()
+                just_entered = True
+            elif c == 'q' or c == 'Q':
+                logger.info('Program terminated.')
+                sys.exit(0)
+
+# state that prompts for command input
 def command_state():
     logger.info('Entered COMMAND MODE.')
     done = False
@@ -116,22 +134,6 @@ def command_state():
             # serial_send(msg)
             logger.info('Sent-------: '+ msg)
             done = True
-
-# loop to send heartbeats and constantly listen
-def listening_state():
-    just_entered = True
-    while True:
-        if just_entered:
-            just_entered = False
-            logger.info("Listening...  press <c> to enter COMMAND MODE or <q> to quit prorgam")
-        if kb.kbhit():
-            c = kb.getch()
-            if c == 'c' or c == 'C':
-                command_state()
-                just_entered = True
-            elif c == 'q' or c == 'Q':
-                logger.info('Program terminated.')
-                sys.exit(0)
 
 # $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ SERIAL COMM HELPERS $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 # sets up serial port
