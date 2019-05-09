@@ -11,6 +11,7 @@
 #define SHUTDOWN_PIN 2
 
 int counter = 0;
+long timer = 0;
 
 SoftwareSerial LKMserial =  SoftwareSerial(SERIAL1_RX, SERIAL1_TX);
 
@@ -24,10 +25,18 @@ void setup() {
 }
 
 void loop() {
+    timer++;
+    if (timer == 40000) {
+        timer = 0;
+        LKMserial.println(counter++);
+        if(counter == 1000) {
+            counter = 0;
+        }
+    }
     while(Serial.available()) {
-        LKMserial.write(Serial.read());
+        LKMserial.print((char)Serial.read());
     }
     while(LKMserial.available()) {
-        Serial.write(LKMserial.read());
+        Serial.print((char)LKMserial.read());
     }
 }
