@@ -73,7 +73,10 @@ class KBHit:
         s = ''
 
         if os.name == 'nt':
-            return msvcrt.getch().decode('utf-8')
+            try:
+                return msvcrt.getch().decode('utf-8')
+            except:
+                return ' '
 
         else:
             return sys.stdin.read(1)
