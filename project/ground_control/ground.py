@@ -1,5 +1,5 @@
 from time import sleep, time
-import serial, random, string, sys, logging, argparse, readline
+import serial, random, string, sys, logging, argparse, readline, coloredlogs
 from datetime import datetime
 import completer as completer
 import kbhit as kbhit
@@ -13,14 +13,17 @@ COMMAND_BOM_CHAR = '$' # beginning of message character for commands
 TELEM_BOM_CHAR = '#' # beginning of message character for received telemetry
 EOM_CHAR = ';' # marks end of time temperature data
 DELIM = ',' # delimiter between commands and arguments
-HEART_BEAT_INTERVAl = 60 # time in seconds between heartbeats
+HEART_BEAT_INTERVAl = 5 # time in seconds between heartbeats
+HEART_BEAT_TIMEOUT = 1 # time to wait for heartbeat response
 
 # Serial instance
 ser = None
 # Logger instance
 logger = None
 # time of last heartbeat sent
-last_heartbeat = None
+last_sent_heartbeat = None
+# time of last transmission reponsded to
+last_rec = None
 
 PAYLOAD_MENU_ITEMS = [
     ('PWR', ['ON', 'OFF'], 'Turn the instrument on or off.'),
@@ -62,8 +65,8 @@ def main(args):
     kb = kbhit.KBHit()
 
     # send first heartbeat
-    global last_heartbeat
-    last_heartbeat = datetime.now()
+    global last_sent_heartbeat
+    last_sent_heartbeat = datetime.now()
     send_heartbeat()
 
     # start listening
@@ -74,7 +77,7 @@ def main(args):
 # state that constantly listens for transmissions and handles heartbeats and
 # entering the command state
 def listening_state():
-    global last_heartbeat
+    global last_sent_heartbeat
     just_entered = True
     while True:
         # check if need to print enter listening mode 
@@ -83,11 +86,11 @@ def listening_state():
             logger.info('Listening...  press <c> to enter COMMAND MODE or <q> to quit program')
             # check if received anything when in command mode
             if ser.in_waiting > 0:
-                logger.info('\t RX (delayed): ' + serial_read())
+                logger.warning('\t RX (delayed): ' + serial_read())
 
         # check if receiving data
         if ser.in_waiting > 0:
-            logger.info('\t RX: ' + serial_read())
+            logger.warning('\t RX: ' + serial_read())
 
         # check if key is pressed
         if kb.kbhit():
@@ -100,8 +103,8 @@ def listening_state():
                 sys.exit(0)
 
         # send heartbeat
-        if (datetime.now() - last_heartbeat).seconds > HEART_BEAT_INTERVAl:
-            last_heartbeat = datetime.now()
+        if (datetime.now() - last_sent_heartbeat).seconds > HEART_BEAT_INTERVAl:
+            last_sent_heartbeat = datetime.now()
             send_heartbeat()
 
 # state that prompts for command input
@@ -158,7 +161,7 @@ def command_state():
                 logger.debug('Command input: ' + i[0] + ', ' + i[1] if len(i) > 1 else 'Command: ' + i[0])
                 msg = i[1]
                 serial_send(msg) 
-                logger.info('\t TX: '+ msg)
+                logger.warning('\t TX: '+ msg)
                 done = True
         # otherwise, regular command that will be sent in '$XXX,YYY;' format
         elif True:
@@ -168,7 +171,7 @@ def command_state():
                 msg += DELIM + i[1]
             msg += EOM_CHAR
             serial_send(msg)
-            logger.info('\t TX: '+ msg)
+            logger.warning('\t TX: '+ msg)
             done = True
 
 # $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ SERIAL COMM HELPERS $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
@@ -200,26 +203,37 @@ def serial_send(msg):
 
 # waits for data to come in buffer, then read all data
 def serial_read():
+    global last_rec
     out = ''
     while ser.in_waiting > 0:
         out += ser.read(1).decode('utf-8')
         sleep(0.01)
+    last_rec = datetime.now()
     return out
 
-# hangs until data comes into the buffer
-def serial_wait():
-    # wait for data to come in
-    start = datetime.now().second
+def send_heartbeat():
+    global last_rec
+    msg = '$STAT;'
+    serial_send(msg)
+    logger.warning('\t TX (Heartbeat): ' + msg)
+
+    # wait for heartbeat response to come in
+    start = datetime.now()
     while ser.in_waiting == 0:
-        if datetime.now().second - start > TIME_OUT:
-            logger.error('Read timeout!!!!')
+        if (datetime.now() - start).seconds > HEART_BEAT_TIMEOUT:
+            if last_rec == None:
+                last = 'never'
+                logger.error('Did not receive data from payload within ' + str(HEART_BEAT_TIMEOUT) + 's. Last heard: ' + last)
+            else:
+                last = last_rec.strftime('%H-%M-%S.%f')[:-3]
+                diff = '{:.2f}'.format((datetime.now() - last_rec).seconds / 60.0)
+                logger.error('Did not receive data from payload within ' + str(HEART_BEAT_TIMEOUT) + 's. Last heard: ' + last + ', ' + diff + ' minutes ago.')
             break
         pass
 
-def send_heartbeat():
-    msg = '$STAT;'
-    serial_send(msg)
-    logger.info('\t TX (Heartbeat): ' + msg)
+    if ser.in_waiting > 0:
+        logger.warning('\t RX (Heartbeat): ' + serial_read())
+        last_rec = datetime.now()
 
 # $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ MENU HELPERS $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 # prints all menu items (printed only to stdout, not to log file)
@@ -327,14 +341,18 @@ def config_logger(args):
     logger = logging.getLogger('ground')
     logger.setLevel(level)
 
-    # create formatter
-    formatter = logging.Formatter(fmt='%(levelname)s \t %(asctime)s %(message)s')
+    coloredlogs.install(level='DEBUG', fmt='%(asctime)s,%(msecs)03d %(levelname)s %(message)s')
 
-    # create console handler
-    ch = logging.StreamHandler()
-    ch.setLevel(logging.INFO)
-    #ch.setFormatter(formatter) # commented out to avoid cluttering of console
-    logger.addHandler(ch)
+    # create formatter
+    formatter = logging.Formatter(fmt='%(levelname)8s \t %(asctime)s %(message)s')
+
+    # BELOW COMMENTED OUT DUE TO INTRODUCTION OF COLOREDLOGS, WHICH OUTPUTS PRETTY
+    # FORMATTED LOG RECORDS TO CONSOLE
+    # # create console handler
+    # ch = logging.StreamHandler()
+    # ch.setLevel(logging.INFO)
+    # #ch.setFormatter(formatter) # commented out to avoid cluttering of console
+    # logger.addHandler(ch)
 
     if not args['debug_mode']:
         # create file handler
