@@ -36,7 +36,7 @@ PAYLOAD_MENU_ITEMS = [
 
 BOX_MENU_ITEMS = [
     ('DOOR', [], 'Force open the side panel.'),
-    ('PASS', [], 'Pass through any data.'),
+    ('PASS', ['anything'], 'Pass through any data.'),
     ('KP', ['int'], 'Change the Proportional constant for temperature PID loop.'),
     ('KI', ['int'], 'Change the Integral constant for temperature PID loop.'),
     ('KD', ['int'], 'Change the Derivative constant for temperature PID loop.')]
