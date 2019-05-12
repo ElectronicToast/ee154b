@@ -260,11 +260,9 @@ void controlTemps(float target, float err_tolerance){
   // Should use Klesh's function to get temp
   // which temp reading am i supposed to use??? we doing temp of LKM processor?
   float temp = readThermistor(therm1);
+  // temp = readThermistor(therm1);
   Serial.write("$TEMP;");
-  if (Serial.available()) {
-    Serial.readStringUntil(delim); // should be #TEMP,
-    temp = Serial.readStringUntil(terminator).toFloat();
-  }
+  temp = parseLKM();
   float error = target - temp;
   data.addNew(error);
   // prolly need to somehow record time elapsed between thermistor readings
