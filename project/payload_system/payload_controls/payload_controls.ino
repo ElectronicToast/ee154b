@@ -8,7 +8,7 @@
 #define TEMP_TOLERANCE 1
 #define USB_BAUD 9600
 #define LKM_DEFAULT_BAUD 9600
-#define LKM_STARTUP_TIME 30000
+#define LKM_STARTUP_TIME 120000
 
 #define BAD_CMD -1
 #define BAD_VAL -2
@@ -34,13 +34,13 @@ int CS = 7;
 int therm1 = A3;
 int therm2 = A4;
 // Indicator LEDs
-int SDinitLED;
-int LKMcommLED;
-int altitudeCalibratedLED;
-int readingThermistorsLED;
-int allSystemsLED;
-int launchedLED;
-int launchSwitch;
+int SDinitLED = 8;
+int LKMcommLED = 9;
+int altitudeCalibratedLED = 10;
+int readingThermistorsLED = 11;
+int allSystemsLED = 12;
+int launchedLED = 13;
+int launchSwitch = 2;
 
 // Global variables
 float initPressure;
@@ -141,14 +141,11 @@ void setup() {
   }
   // Make sure we're talking to the LKM
   // Delay long enough for the LKM to start up
-  bool LKMstartup = 0;
   delay(LKM_STARTUP_TIME);
   // Change baud rate
   // Maybe we should check if it's done starting up first?
-  while(!LKMstartup){
-    // @Julia can you add something else to test if the LKM is on?
-    // Could be waiting until "done" or sending a command and seeing if it sends garbage back
-  }
+  Serial1.readStringUntil("\n");
+  
   lowerBaudRate(2400);
   bool LKMcomm = 0;
   unsigned long startLKMtestTime = millis();
@@ -168,6 +165,10 @@ void setup() {
     digitalWrite(readingThermistorsLED, HIGH);
   }
 
+  // Turn the heater off
+  Serial1.print("$PULS, 0;");
+  parseLKM();
+  
   // Make sure all the systems we've checked are okay
   // I'm making this its own bool so that if we decide we want to do something (like run again
   // or whatever, we can just grab the allSystems bool
