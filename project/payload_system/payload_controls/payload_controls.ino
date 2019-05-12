@@ -10,6 +10,19 @@
 #define LKM_DEFAULT_BAUD 9600
 #define LKM_STARTUP_TIME 30000
 
+#define BAD_CMD -1
+#define BAD_VAL -2
+#define MISMATCH -3
+#define BAD_STAT -4
+
+#define PWR_INDEX  0
+#define PULS_INDEX 1
+#define DATA_INDEX 2
+#define VOLT_INDEX 3
+#define PRES_INDEX 4
+#define TEMP_INDEX 5
+#define MOTR_INDEX 6
+
 // Pins, hardware
 // Burn Door Deploy 
 int BDD = 4;
@@ -34,20 +47,31 @@ float initPressure;
 unsigned long lastPacemaker;
 unsigned long lastGroundComm;
 unsigned long launchTime;
+unsigned long lastTempControl = 0;
+unsigned long timeEnteredAutonomous;
 bool autonomousMode = 0;
 bool tempConcern = 0;
 bool tempFreakOut = 0;
 bool launched = 0;
 bool doorDeployed = 0;
+float PID_kP = .5;
+float PID_kI = .1;
+float PID_kD = 0;
 
 // Other global variables
 int pacemakerPeriod = 60000;
 int groundCommPeriod = 60000;
+int burnTime = 300000;
 int doorTimeout;
 int LKMsetupTimeout;
 char delim = ',';
 char terminator = ';';
 
+// global arrays to store telem 
+// [PWR, PULS, DATA, VOLT, PRES, TEMP, MOTR]
+enum Command {PWR, PULS, DATA, VOLT, PRES, STAT, MOTR, KP, KI, KD};
+float expected_val[] = {1.0, 0.0, 9600, 5.0, 1000.0, 27.0, 30.0};
+float stats[7];
 
 // Temp control stuff
 class averagingArray{
@@ -117,14 +141,19 @@ void setup() {
   }
   // Make sure we're talking to the LKM
   // Delay long enough for the LKM to start up
+  bool LKMstartup = 0;
   delay(LKM_STARTUP_TIME);
   // Change baud rate
   // Maybe we should check if it's done starting up first?
+  while(!LKMstartup){
+    // @Julia can you add something else to test if the LKM is on?
+    // Could be waiting until "done" or sending a command and seeing if it sends garbage back
+  }
   lowerBaudRate(2400);
   bool LKMcomm = 0;
   unsigned long startLKMtestTime = millis();
-  while(! LKMcomm && (millis() - startLKMtestTime < LKMsetupTimeout){
-    LKMcomm = checkLKMcomm();
+  while(! LKMcomm && (millis() - startLKMtestTime < LKMsetupTimeout)){
+    LKMcomm = checkLKMcomm(10);
   }
   if(LKMcomm){
     digitalWrite(LKMcommLED, HIGH);
@@ -158,16 +187,34 @@ void loop() {
   burnIfNeeded(doorTimeout);
   controlTemps(TARGET_TEMP, TEMP_TOLERANCE);
   handleGroundCommand();
+  if(millis() - lastGroundComm > groundCommPeriod){
+    autonomousMode = true;
+    Serial.print("Yo talk to us");
+    recordVitals("Entered autonomous mode");
+    timeEnteredAutonomous = millis();
+  }
+  while(autonomousMode && launched){
+    pacemakerIfNeeded(pacemakerPeriod);
+    burnIfNeeded(doorTimeout);
+    controlTemps(TARGET_TEMP, TEMP_TOLERANCE);
+    Serial.print("Pls I'm lonely");
+    Serial.print("Entered autonomous mode ");
+    Serial.print((millis() - timeEnteredAutonomous) / 1000);
+    Serial.print(" seconds ago");
+    if(handleGroundCommand()){
+      autonomousMode = false;
+    }
+  }
 }
 
 
 // Helper functions
 void recordVitals(String event){
-  Serial.write("$STAT;");
+  Serial1.write("$STAT;");
   String telem = "";
   delay(100);
-  if (Serial.available()) {
-    telem = Serial.readStringUntil(terminator);
+  if (Serial1.available()) {
+    telem = Serial1.readStringUntil(terminator);
   }
   
   // open the file.
@@ -178,7 +225,8 @@ void recordVitals(String event){
     dataFile.println(millis() + ',' + telem + ',' + event);
     dataFile.close();
   }
-
+  Serial.print("Event: ");
+  Serial.print(event);
 }
 
 boolean pacemakerIfNeeded(int pacemakerPeriod){
@@ -200,13 +248,16 @@ boolean burnIfNeeded(int timeout){
 }
 
 void burnWire(){
-  // TODO
+  recordVitals("Door: burn started");
   digitalWrite(BDD, HIGH);
+  delay(burnTime);
+  digitalWrite(BDD, LOW);
   recordVitals("Door: deployed");
+  
 }
 
 void controlTemps(float target, float err_tolerance){
-  // TODO
+  // Should use Klesh's function to get temp
   // which temp reading am i supposed to use??? we doing temp of LKM processor?
   float temp = readThermistor(therm1);
   Serial.write("$TEMP;");
@@ -226,16 +277,10 @@ void controlTemps(float target, float err_tolerance){
     recordVitals("WARNING: temp too high");
   }
   //need to tune this as well... oh boy 
-  analogWrite(heater, 255.0 / 100.0 * PID(0.5, 0.1, 0)); 
+  analogWrite(heater, 255.0 / 100.0 * PID(PID_kP, PID_kI, PID_kD)); 
+  lastTempControl = millis();
 }
 
-void handleGroundCommand(){
-  // Almost certainly not void
-  // Set time of last ground command
-  // Write to log
-  // Actually deal with the command
-  // Steal the ground people's radio code for this
-}
 
 float findAltitude(){
   /*This is a vaguely sketchy formula that I got from
@@ -291,9 +336,14 @@ bool initializeSDcard(int timeout){
   }
 }
 
-bool checkLKMcomm(){
-  // TODO
-  // Take vitals, make sure it returns numbers
+bool checkLKMcomm(int nTries){
+  for(int i = 0; i < nTries; i++){
+    Serial1.write("$STAT;");
+    if(parseStat() == 1.0){
+      return 1;
+    }
+    delay(100);
+  }
   return 0;
 }
 
@@ -340,7 +390,7 @@ float readThermistor(int thermistorPin) {
 double PID(float Pcoeff, float Icoeff, float Dcoeff){
  float proportionalControl = Pcoeff * data.lastVal();
  float integralControl = Icoeff * data.average();
- float derivativeControl = Dcoeff * data.lastDeltaY() / delayTime;
+ float derivativeControl = Dcoeff * data.lastDeltaY() / (millis() - lastTempControl);
  float controlRaw = proportionalControl + integralControl + derivativeControl;
  return max(min(controlRaw, 1), 0) * 100;
 //  return 0.0;
@@ -381,7 +431,7 @@ bool lowerBaudRate(int baud){
   // possible that this will eventually get built into checkLKMcomm
   int nAttempts = 3;
   for(int i = 0; i < nAttempts; i++){
-    if(checkLKMcomm()){
+    if(checkLKMcomm(2)){
       return 1;
     }
   }
@@ -389,20 +439,229 @@ bool lowerBaudRate(int baud){
   // If failure, should probably communicate with ground too?
 }
 
+
 float parseLKM(){
   delay(100);
-  float value;
-  String output;
-  if(Serial.available()){
-      Serial.readStringUntil(delim);
-      output =  Serial.readStringUntil(terminator);
+  String cmd, val;
+  //read back in format #cmd,val;
+  if(Serial.available()) {
+    cmd = Serial.readStringUntil(delim);
+    val = Serial.readStringUntil(terminator);
   }
-  if(output.equals("ON")){
-    return 1.0;
-  }else if(output.equals("OFF")){
-    return 0.0;
-  } else {
-    value = output.toFloat();
+
+  // go through each command value pair and return the value or error
+  return processCmdVal(cmd, val, false);
+}
+
+
+
+float processCmdVal(String cmd, String val, boolean save) {
+
+  // go through each command value pair and return the value or error
+  if (cmd.equals("#PWR") ){
+    if(val.equals("ON")){
+      val = "1.0";
+    }
+    else if (val.equals("OFF")) {
+      val = "0.0";
+    }
+    else {
+      return BAD_VAL;
+    }
+    return processTelem(val, PWR_INDEX, save);
   }
-  return value;
+  else if (cmd.equals("#PULS") || cmd.equals("PULS") ){
+    return processTelem(val, PULS_INDEX, save);
+  }
+  else if (cmd.equals("#DATA") || cmd.equals("DATA") ){
+    return processTelem(val, DATA_INDEX, save);
+  }
+  else if (cmd.equals("#VOLT") || cmd.equals("VOLT") ){
+    return processTelem(val, VOLT_INDEX, save);
+  }
+  else if (cmd.equals("#PRES") || cmd.equals("PRES") ){
+    return processTelem(val, PRES_INDEX, save);
+  }
+  else if (cmd.equals("#TEMP") || cmd.equals("TEMP") ){
+    return processTelem(val, TEMP_INDEX, save);
+  }
+  else if(cmd.equals("#MOTR") || cmd.equals("MOTR") ){
+    return processTelem(val, MOTR_INDEX, save);
+  }
+  else {
+    return BAD_CMD;
+  }
+}
+
+
+
+float processTelem(String val, int index, bool saveStat) {
+  float output;
+  output = isValidTelem(val);
+  if (saveStat) {
+    stats[index] = output;
+  }
+  if (output == BAD_VAL) {
+    return BAD_VAL;
+  }
+  else if (output == expected_val[index]){
+    return output;
+  }
+  else if (index == VOLT_INDEX || index == PRES_INDEX || index == TEMP_INDEX) {
+    expected_val[index] = output; // update expected_val
+    return output;
+  }
+  else {
+    return MISMATCH;
+  }
+}
+
+
+float isValidTelem(String str){
+  boolean isNum=false;
+  for(byte i=0;i<str.length();i++)
+  {
+    if (i == 0) {
+      isNum = isDigit(str.charAt(i)) || str.charAt(i) == '.' || str.charAt(i) == '-';
+    }
+    else {
+      isNum = isDigit(str.charAt(i)) || str.charAt(i) == '.' ;
+    }
+    if(!isNum) {
+      return -2.0;
+    }
+  }
+  return str.toFloat();
+}
+
+
+
+bool handleGroundCommand(){
+  if(!Serial.available()){
+    return false;
+  }
+  lastGroundComm = millis();
+  String command = Serial.readStringUntil(delim);
+  bool sendToLKM = 0;
+  int dataIndex;
+  if(command.equals("PWR")){
+      sendToLKM = 1;
+      dataIndex = PWR_INDEX;
+  }
+  if(command.equals("PULS")){
+      sendToLKM = 1;
+      dataIndex = PULS_INDEX;
+  }
+  if(command.equals("DATA")){
+      sendToLKM = 1;
+      dataIndex = DATA_INDEX;
+  }
+  if(command.equals("VOLT")){
+      sendToLKM = 1;
+      dataIndex = VOLT_INDEX;
+  }
+  if(command.equals("PRES")){
+      sendToLKM = 1;
+      dataIndex = PRES_INDEX;
+  }
+  if(command.equals("STAT")){
+      sendToLKM = 1;
+  }
+  if(command.equals("MOTR")){
+      sendToLKM = 1;
+      dataIndex = MOTR_INDEX;
+  }
+  if(command.equals("KP")){
+    // how to do error checking here?
+    // TODO
+      PID_kP = Serial.readStringUntil(terminator).toFloat();
+   }
+   if(command.equals("KI")){
+      PID_kI = Serial.readStringUntil(terminator).toFloat();
+   }
+   if(command.equals("KD")){
+      PID_kD = Serial.readStringUntil(terminator).toFloat();
+   }
+    else{
+      // Complain to ground
+      Serial.write("Whatcha say?");
+   }
+  
+  if(sendToLKM){
+    // Send command
+    Serial1.write("$");
+    String commandToSend = "Hi";
+    Serial1.print(command);
+    // Add the comma back
+    Serial1.write(delim);
+    // Send all the args
+    while(Serial.available()){
+      // it's probably not actually necesssary to do this, could probably read all
+      // But if there's two commands in a row stored in the UART that feels a little weird
+      Serial1.print(Serial.readStringUntil(terminator));
+    }
+    Serial1.write(terminator);
+  }
+  recordVitals("Ground command: " + command);
+  return true;
+}
+
+
+float parseStat(){
+  delay(100);
+  String stat;
+  //read back stat;
+  if(Serial.available()) {
+    stat = Serial.readStringUntil(terminator);
+    Serial.println(stat);
+  }
+  
+  int start = 0;
+  int nextIndex = 0;
+  String cmd, val;
+  float result;
+  boolean stat_error = false;
+  
+  // go through stat and process the cmd,val pairs
+  while (nextIndex != -1) {
+    nextIndex = stat.indexOf(',', start);
+//    Serial.print("next val start: ");
+//    Serial.println(nextIndex);
+    if (nextIndex != -1) {
+      cmd = stat.substring(start, nextIndex);
+//      Serial.print("cmd: ");
+//      Serial.println(cmd);
+      start = nextIndex + 1;
+
+      nextIndex = stat.indexOf(',', start);
+//      Serial.print("next cmd start: ");
+//      Serial.println(nextIndex);
+      if (nextIndex != -1) {
+        val = stat.substring(start, nextIndex);
+//        Serial.print("val: ");
+//        Serial.println(val);
+      }
+      else{
+         val = stat.substring(start);
+//         Serial.print("val: ");
+//         Serial.println(val);
+      }
+      
+    }
+    else {
+      stat_error = true;
+    }
+    start = nextIndex + 1;
+
+    result = processCmdVal(cmd, val, true);
+    if (result == -1 || result == -2) {
+      stat_error = true;
+    }
+    
+  }// end while
+  
+  if (stat_error) {
+    return BAD_STAT;
+  }
+  return 1.0;
 }
