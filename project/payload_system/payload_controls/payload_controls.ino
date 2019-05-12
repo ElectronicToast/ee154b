@@ -131,7 +131,7 @@ void setup() {
   pinMode(launchedLED, OUTPUT);
   
   // Initialize UARTs 
-  Serial.begin(9600);
+  Serial2.begin(9600);
   Serial1.begin(LKM_DEFAULT_BAUD);
   
   // Initialize SD card, 5 min timeout
@@ -144,7 +144,7 @@ void setup() {
   delay(LKM_STARTUP_TIME);
   // Change baud rate
   // Maybe we should check if it's done starting up first?
-  Serial1.readStringUntil("\n");
+  Serial1.readStringUntil('\n');
   
   lowerBaudRate(2400);
   bool LKMcomm = 0;
@@ -190,7 +190,7 @@ void loop() {
   handleGroundCommand();
   if(millis() - lastGroundComm > groundCommPeriod){
     autonomousMode = true;
-    Serial.print("Yo talk to us");
+    Serial2.print("Yo talk to us");
     recordVitals("Entered autonomous mode");
     timeEnteredAutonomous = millis();
   }
@@ -198,10 +198,10 @@ void loop() {
     pacemakerIfNeeded(pacemakerPeriod);
     burnIfNeeded(doorTimeout);
     controlTemps(TARGET_TEMP, TEMP_TOLERANCE);
-    Serial.print("Pls I'm lonely");
-    Serial.print("Entered autonomous mode ");
-    Serial.print((millis() - timeEnteredAutonomous) / 1000);
-    Serial.print(" seconds ago");
+    Serial2.print("Pls I'm lonely");
+    Serial2.print("Entered autonomous mode ");
+    Serial2.print((millis() - timeEnteredAutonomous) / 1000);
+    Serial2.print(" seconds ago");
     if(handleGroundCommand()){
       autonomousMode = false;
     }
@@ -226,8 +226,8 @@ void recordVitals(String event){
     dataFile.println(millis() + ',' + telem + ',' + event);
     dataFile.close();
   }
-  Serial.print("Event: ");
-  Serial.print(event);
+  Serial2.print("Event: ");
+  Serial2.print(event);
 }
 
 boolean pacemakerIfNeeded(int pacemakerPeriod){
@@ -262,7 +262,7 @@ void controlTemps(float target, float err_tolerance){
   // which temp reading am i supposed to use??? we doing temp of LKM processor?
   float temp = readThermistor(therm1);
   // temp = readThermistor(therm1);
-  Serial.write("$TEMP;");
+  Serial2.write("$TEMP;");
   temp = parseLKM();
   float error = target - temp;
   data.addNew(error);
@@ -288,10 +288,10 @@ float findAltitude(){
    * altitude (instead of sea level) by using our starting pressure as Po
    */
   float pressure;
-  Serial.write("$PRES;");
-  if (Serial.available()) {
-    Serial.readStringUntil(delim); // should be #PRES,
-    pressure = Serial.readStringUntil(terminator).toFloat();
+  Serial2.write("$PRES;");
+  if (Serial2.available()) {
+    Serial2.readStringUntil(delim); // should be #PRES,
+    pressure = Serial2.readStringUntil(terminator).toFloat();
   }
   
   // This is assuming the external temp is 15C; we should probably add an extra thermistor to check this
@@ -305,11 +305,11 @@ float findAltitude(){
 bool calibrateAltitude(int nTimes, int altitudeError){
   float pressure = 0;
   for(int i = 0; i < nTimes; i++){
-    Serial.write("$PRES;");
+    Serial2.write("$PRES;");
     delay(100);
-    if(Serial.available()){
-      Serial.readStringUntil(delim); //should be #PRES,
-      pressure += Serial.readStringUntil(terminator).toFloat();
+    if(Serial2.available()){
+      Serial2.readStringUntil(delim); //should be #PRES,
+      pressure += Serial2.readStringUntil(terminator).toFloat();
     }
   }
   // Take the average pressure
@@ -443,9 +443,9 @@ float parseLKM(){
   delay(100);
   String cmd, val;
   //read back in format #cmd,val;
-  if(Serial.available()) {
-    cmd = Serial.readStringUntil(delim);
-    val = Serial.readStringUntil(terminator);
+  if(Serial2.available()) {
+    cmd = Serial2.readStringUntil(delim);
+    val = Serial2.readStringUntil(terminator);
   }
 
   // go through each command value pair and return the value or error
@@ -536,11 +536,12 @@ float isValidTelem(String str){
 
 
 bool handleGroundCommand(){
-  if(!Serial.available()){
+  if(!Serial2.available()){
     return false;
   }
   lastGroundComm = millis();
-  String command = Serial.readStringUntil(delim);
+  String command = Serial2.readStringUntil(delim);
+  String arg = Serial2.readStringUntil(terminator);
   bool sendToLKM = 0;
   int dataIndex;
   if(command.equals("PWR")){
@@ -550,10 +551,12 @@ bool handleGroundCommand(){
   if(command.equals("PULS")){
       sendToLKM = 1;
       dataIndex = PULS_INDEX;
+      expected_val[PULS_INDEX] = arg.toFloat();
   }
   if(command.equals("DATA")){
       sendToLKM = 1;
       dataIndex = DATA_INDEX;
+      expected_val[DATA_INDEX] = arg.toFloat();
   }
   if(command.equals("VOLT")){
       sendToLKM = 1;
@@ -569,36 +572,32 @@ bool handleGroundCommand(){
   if(command.equals("MOTR")){
       sendToLKM = 1;
       dataIndex = MOTR_INDEX;
+      expected_val[MOTR_INDEX] = arg.toFloat();
   }
   if(command.equals("KP")){
     // how to do error checking here?
     // TODO
-      PID_kP = Serial.readStringUntil(terminator).toFloat();
+      PID_kP = arg.toFloat();
    }
    if(command.equals("KI")){
-      PID_kI = Serial.readStringUntil(terminator).toFloat();
+      PID_kI = arg.toFloat();
    }
    if(command.equals("KD")){
-      PID_kD = Serial.readStringUntil(terminator).toFloat();
+      PID_kD = arg.toFloat();
    }
     else{
       // Complain to ground
-      Serial.write("Whatcha say?");
+      Serial2.write("Whatcha say?");
    }
   
   if(sendToLKM){
     // Send command
     Serial1.write("$");
-    String commandToSend = "Hi";
     Serial1.print(command);
     // Add the comma back
     Serial1.write(delim);
     // Send all the args
-    while(Serial.available()){
-      // it's probably not actually necesssary to do this, could probably read all
-      // But if there's two commands in a row stored in the UART that feels a little weird
-      Serial1.print(Serial.readStringUntil(terminator));
-    }
+    Serial1.print(arg);
     Serial1.write(terminator);
   }
   recordVitals("Ground command: " + command);
@@ -610,9 +609,9 @@ float parseStat(){
   delay(100);
   String stat;
   //read back stat;
-  if(Serial.available()) {
-    stat = Serial.readStringUntil(terminator);
-    Serial.println(stat);
+  if(Serial2.available()) {
+    stat = Serial2.readStringUntil(terminator);
+    Serial2.println(stat);
   }
   
   int start = 0;
@@ -624,26 +623,26 @@ float parseStat(){
   // go through stat and process the cmd,val pairs
   while (nextIndex != -1) {
     nextIndex = stat.indexOf(',', start);
-//    Serial.print("next val start: ");
-//    Serial.println(nextIndex);
+//    Serial2.print("next val start: ");
+//    Serial2.println(nextIndex);
     if (nextIndex != -1) {
       cmd = stat.substring(start, nextIndex);
-//      Serial.print("cmd: ");
-//      Serial.println(cmd);
+//      Serial2.print("cmd: ");
+//      Serial2.println(cmd);
       start = nextIndex + 1;
 
       nextIndex = stat.indexOf(',', start);
-//      Serial.print("next cmd start: ");
-//      Serial.println(nextIndex);
+//      Serial2.print("next cmd start: ");
+//      Serial2.println(nextIndex);
       if (nextIndex != -1) {
         val = stat.substring(start, nextIndex);
-//        Serial.print("val: ");
-//        Serial.println(val);
+//        Serial2.print("val: ");
+//        Serial2.println(val);
       }
       else{
          val = stat.substring(start);
-//         Serial.print("val: ");
-//         Serial.println(val);
+//         Serial2.print("val: ");
+//         Serial2.println(val);
       }
       
     }
