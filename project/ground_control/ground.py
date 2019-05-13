@@ -13,8 +13,9 @@ COMMAND_BOM_CHAR = '$' # beginning of message character for commands
 TELEM_BOM_CHAR = '#' # beginning of message character for received telemetry
 EOM_CHAR = ';' # marks end of time temperature data
 DELIM = ',' # delimiter between commands and arguments
-HEART_BEAT_INTERVAl = 5 # time in seconds between heartbeats
-HEART_BEAT_TIMEOUT = 1 # time to wait for heartbeat response
+HEARTBEAT_INTERVAl = 60 # time in seconds between heartbeats
+HEARTBEAT_TIMEOUT = 2 # time to wait for heartbeat response
+HEARTBEAT_MSG = '$STAT,;'
 
 # Serial instance
 ser = None
@@ -39,7 +40,8 @@ BOX_MENU_ITEMS = [
     ('PASS', ['anything'], 'Pass through any data.'),
     ('KP', ['int'], 'Change the Proportional constant for temperature PID loop.'),
     ('KI', ['int'], 'Change the Integral constant for temperature PID loop.'),
-    ('KD', ['int'], 'Change the Derivative constant for temperature PID loop.')]
+    ('KD', ['int'], 'Change the Derivative constant for temperature PID loop.'),
+    ('BAUD', ['2400', '4800', '9600'], 'Set Arduino\'s data rate with LKM')]
     # probably some more like battery temp
 
 ADMIN_MENU_ITEMS = [
@@ -68,10 +70,9 @@ def main(args):
     global last_sent_heartbeat
     last_sent_heartbeat = datetime.now()
     send_heartbeat()
-
+ 
     # start listening
     listening_state()
-
 
 # $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ STATES $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 # state that constantly listens for transmissions and handles heartbeats and
@@ -103,7 +104,7 @@ def listening_state():
                 sys.exit(0)
 
         # send heartbeat
-        if (datetime.now() - last_sent_heartbeat).seconds > HEART_BEAT_INTERVAl:
+        if (datetime.now() - last_sent_heartbeat).seconds > HEARTBEAT_INTERVAl:
             last_sent_heartbeat = datetime.now()
             send_heartbeat()
 
@@ -166,9 +167,9 @@ def command_state():
         # otherwise, regular command that will be sent in '$XXX,YYY;' format
         elif True:
             logger.debug('Command input: ' + i[0] + ', ' + i[1] if len(i) > 1 else 'Command: ' + i[0])
-            msg = COMMAND_BOM_CHAR + i[0]
+            msg = COMMAND_BOM_CHAR + i[0] + DELIM
             if (len(i) > 1):
-                msg += DELIM + i[1]
+                msg += i[1]
             msg += EOM_CHAR
             serial_send(msg)
             logger.warning('\t TX: '+ msg)
@@ -209,41 +210,50 @@ def setup_serial(args):
 
 # encodes a message using utf-8 and sends over serial
 def serial_send(msg):
-    ser.write(bytes(msg, 'utf-8'))
+    try:
+        ser.write(bytes(msg, 'utf-8'))
+    except serial.serialutil.SerialException:
+        logger.error('Serial port disconnected.')
 
 # waits for data to come in buffer, then read all data
 def serial_read():
     global last_rec
     out = ''
-    while ser.in_waiting > 0:
-        out += ser.read(1).decode('utf-8')
-        sleep(0.01)
-    last_rec = datetime.now()
+    try:
+        while ser.in_waiting > 0:
+            out += ser.read(1).decode('utf-8')
+            sleep(0.01)
+            last_rec = datetime.now()
+    except serial.serialutil.SerialException:
+        logger.error('Serial port disconnected.')
+
     return out
 
 def send_heartbeat():
     global last_rec
-    msg = '$STAT;'
-    serial_send(msg)
-    logger.warning('\t TX (Heartbeat): ' + msg)
+    serial_send(HEARTBEAT_MSG)
+    logger.warning('\t TX (Heartbeat): ' + HEARTBEAT_MSG)
 
     # wait for heartbeat response to come in
-    start = datetime.now()
-    while ser.in_waiting == 0:
-        if (datetime.now() - start).seconds > HEART_BEAT_TIMEOUT:
-            if last_rec == None:
-                last = 'never'
-                logger.error('Did not receive data from payload within ' + str(HEART_BEAT_TIMEOUT) + 's. Last heard: ' + last)
-            else:
-                last = last_rec.strftime('%H-%M-%S.%f')[:-3]
-                diff = '{:.2f}'.format((datetime.now() - last_rec).seconds / 60.0)
-                logger.error('Did not receive data from payload within ' + str(HEART_BEAT_TIMEOUT) + 's. Last heard: ' + last + ', ' + diff + ' minutes ago.')
-            break
-        pass
+    try:
+        start = datetime.now()
+        while ser.in_waiting == 0:
+            if (datetime.now() - start).seconds > HEARTBEAT_TIMEOUT:
+                if last_rec == None:
+                    last = 'never'
+                    logger.error('Did not receive data from payload within ' + str(HEARTBEAT_TIMEOUT) + 's. Last heard: ' + last)
+                else:
+                    last = last_rec.strftime('%H-%M-%S.%f')[:-3]
+                    diff = '{:.2f}'.format((datetime.now() - last_rec).seconds / 60.0)
+                    logger.error('Did not receive data from payload within ' + str(HEARTBEAT_TIMEOUT) + 's. Last heard: ' + last + ', ' + diff + ' minutes ago.')
+                break
+            pass
 
-    if ser.in_waiting > 0:
-        logger.warning('\t RX (Heartbeat): ' + serial_read())
-        last_rec = datetime.now()
+        if ser.in_waiting > 0:
+            logger.warning('\t RX (Heartbeat): ' + serial_read())
+            last_rec = datetime.now()
+    except serial.serialutil.SerialException:
+        logger.error('Serial port disconnected.')  
 
 # $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ MENU HELPERS $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 # prints all menu items (printed only to stdout, not to log file)
