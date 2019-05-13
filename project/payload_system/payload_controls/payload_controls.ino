@@ -564,8 +564,7 @@ float parseLKM(){
     val = Serial1.readStringUntil(terminator);
     Serial1.readStringUntil('\n');
   }
-  Serial.println(cmd);
-  Serial.println(val);
+
 
   // go through each command value pair and return the value or error
   return processCmdVal(cmd, val, false);
@@ -574,9 +573,11 @@ float parseLKM(){
 
 
 float processCmdVal(String cmd, String val, boolean save) {
-  while(cmd.startsWith("\n") {
+  while(cmd.startsWith("\n")) {
     cmd.remove(0);
   }
+  Serial.println(cmd);
+  Serial.println(val);
   // go through each command value pair and return the value or error
   if (cmd.equals("#PWR") ){
     if(val.equals("ON")){
