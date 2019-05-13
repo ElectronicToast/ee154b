@@ -35,11 +35,11 @@ int therm1 = A3;
 int therm2 = A4;
 // Indicator LEDs
 int SDinitLED = 3;
-int LKMcommLED = 9;
-int altitudeCalibratedLED = 10;
-int readingThermistorsLED = 11;
-int allSystemsLED = 12;
-int launchedLED = 13;
+int LKMcommLED = 22;
+int altitudeCalibratedLED = 24;
+int readingThermistorsLED = 26;
+int allSystemsLED = 28;
+int launchedLED = 30;
 int launchSwitch = 2;
 
 // Global variables
