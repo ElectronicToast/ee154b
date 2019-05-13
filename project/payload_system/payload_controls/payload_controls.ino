@@ -29,12 +29,12 @@ int BDD = 4;
 // thermal control
 int heater = 6;
 // Chip select for SD card
-int CS = 7;
+int CS = 8;
 // Thermistors
 int therm1 = A3;
 int therm2 = A4;
 // Indicator LEDs
-int SDinitLED = 8;
+int SDinitLED = 3;
 int LKMcommLED = 9;
 int altitudeCalibratedLED = 10;
 int readingThermistorsLED = 11;
@@ -62,8 +62,8 @@ float PID_kD = 0;
 int pacemakerPeriod = 60000;
 int groundCommPeriod = 60000;
 int burnTime = 300000;
-int doorTimeout;
-int LKMsetupTimeout;
+int doorTimeout = 3600000;
+int LKMsetupTimeout = 60000;
 char delim = ',';
 char terminator = ';';
 
@@ -129,8 +129,21 @@ void setup() {
   pinMode(readingThermistorsLED, OUTPUT);
   pinMode(allSystemsLED, OUTPUT);
   pinMode(launchedLED, OUTPUT);
+  pinMode(BDD, OUTPUT);
+  pinMode(CS, OUTPUT);
+  pinMode(launchSwitch, INPUT);
+  digitalWrite(BDD, LOW);
+  digitalWrite(SDinitLED, LOW);
+  digitalWrite(LKMcommLED, LOW);
+  digitalWrite(altitudeCalibratedLED, LOW);
+  digitalWrite(readingThermistorsLED, LOW);
+  digitalWrite(allSystemsLED, LOW);
+  digitalWrite(launchedLED, LOW);
+  digitalWrite(CS, LOW);
+  
   
   // Initialize UARTs 
+  Serial.begin(9600);
   Serial2.begin(9600);
   Serial1.begin(LKM_DEFAULT_BAUD);
   
@@ -324,15 +337,19 @@ bool calibrateAltitude(int nTimes, int altitudeError){
 }
 
 bool initializeSDcard(int timeout){
+  Serial.print("initializing SD card... \n");
   SD.begin(CS);
   // Wait for it to initialize
   while(!SD.begin(CS)){
     if(millis() > timeout){
       return 0;
     } else {
+      Serial.print("Giving up on SD");
       return 1;
     }
   }
+  Serial.print("SD initialized");
+  return 1;
 }
 
 bool checkLKMcomm(int nTries){
