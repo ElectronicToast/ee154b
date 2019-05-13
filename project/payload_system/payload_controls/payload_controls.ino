@@ -11,10 +11,10 @@
 #define LKM_STARTUP_TIME 12000
 #define DEFAULT_DEMAND_N 50
 
-#define BAD_CMD -1
-#define BAD_VAL -2
-#define MISMATCH -3
-#define BAD_STAT -4
+#define BAD_CMD -100
+#define BAD_VAL -200
+#define MISMATCH -300
+#define BAD_STAT -400
 
 #define PWR_INDEX  0
 #define PULS_INDEX 1
@@ -62,9 +62,9 @@ float PID_kD = 0;
 // Other global variables
 int pacemakerPeriod = 60000;
 int groundCommPeriod = 60000;
-int burnTime = 300000;
-int doorTimeout = 60000;
-int LKMsetupTimeout = 60000;
+int burnTime = 60000;
+int doorTimeout = 6000;
+int LKMsetupTimeout = 100000;
 char delim = ',';
 char terminator = ';';
 
@@ -157,7 +157,7 @@ void setup() {
 
   Serial2.write("Hello");
   
-  // Initialize SD card, 5 min timeout
+  // Initialize SD card, 3 sec timeout
   bool SDinit = initializeSDcard(3000);
   
   if(SDinit){
@@ -292,22 +292,29 @@ void loop() {
 
 // Helper functions
 void recordVitals(String event){
-  Serial.println("Called recordVitals");
+  Serial.print("Called recordVitals with event: ");
+  Serial.println(event);
   Serial.flush();
   Serial1.write("$STAT;");
   String telem = "";
   delay(100);
   if (Serial1.available()) {
     telem = Serial1.readStringUntil(terminator);
+    while(telem.charAt(0)=='\n' || telem.charAt(0)=='\r' ) {
+    telem = telem.substring(1);
+    }
   }
-  Serial.flush();
-  
+  Serial1.flush();
   // open the file.
   File dataFile = SD.open("datalog.txt", FILE_WRITE);
 
   // if the file is available, write the time and vitals to it:
   if (dataFile) {
-    dataFile.println(millis() + ',' + telem + ',' + event);
+    dataFile.print(millis());
+    dataFile.print(',');
+    dataFile.print(telem);
+    dataFile.print(',');
+    dataFile.println(event);
     dataFile.close();
   }
   Serial2.print("Event: ");
@@ -357,7 +364,7 @@ void controlTemps(float target, float err_tolerance){
   // temp = readThermistor(therm1);
   Serial1.write("$TEMP;");
   temp = parseLKM();
-  if (temp == -1 || temp == -2 || temp == -3) {
+  if (temp == BAD_VAL || temp == BAD_CMD || temp == MISMATCH) {
     return;
   }
   float error = target - temp;
@@ -562,10 +569,8 @@ float parseLKM(){
 //    Serial1.readStringUntil('\n');
     cmd = Serial1.readStringUntil(delim);
     val = Serial1.readStringUntil(terminator);
-    Serial1.readStringUntil('\n');
   }
-
-
+  Serial1.flush();
   // go through each command value pair and return the value or error
   return processCmdVal(cmd, val, false);
 }
@@ -573,8 +578,8 @@ float parseLKM(){
 
 
 float processCmdVal(String cmd, String val, boolean save) {
-  while(cmd.startsWith("\n")) {
-    cmd.remove(0);
+  while(cmd.charAt(0)=='\n' || cmd.charAt(0)=='\r' ) {
+    cmd = cmd.substring(1);
   }
   Serial.println(cmd);
   Serial.println(val);
@@ -650,7 +655,7 @@ float isValidTelem(String str){
       isNum = isDigit(str.charAt(i)) || str.charAt(i) == '.' ;
     }
     if(!isNum) {
-      return -2.0;
+      return BAD_VAL;
     }
   }
   return str.toFloat();
@@ -729,7 +734,7 @@ bool handleGroundCommand(){
 
 
 float parseStat(){
-//  Serial.println("called parseStat()");
+  Serial.println("called parseStat()");
   delay(100);
   String stat;
   //read back stat;
@@ -737,6 +742,7 @@ float parseStat(){
     stat = Serial1.readStringUntil(terminator);
 //    Serial.println(stat);
   }
+  Serial1.flush();
   
   int start = 0;
   int nextIndex = 0;
@@ -776,7 +782,7 @@ float parseStat(){
     start = nextIndex + 1;
 
     result = processCmdVal(cmd, val, true);
-    if (result == -1 || result == -2) {
+    if (result == BAD_CMD || result == BAD_VAL) {
       stat_error = true;
     }
     
