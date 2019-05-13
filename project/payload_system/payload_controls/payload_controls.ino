@@ -150,29 +150,39 @@ void setup() {
   /////////////////////////////////////////////////////////
   Serial.println("Startup\n");
   /////////////////////////////////////////////////////////
+
+  Serial2.write("Hello");
   
   // Initialize SD card, 5 min timeout
   bool SDinit = initializeSDcard(3000);
-
-  /////////////////////////////////////////////////////////
-  Serial.println("SD initialization:" + (int) SDinit);
-  /////////////////////////////////////////////////////////
   
   if(SDinit){
     digitalWrite(SDinitLED, HIGH);
   }
   // Make sure we're talking to the LKM
   // Delay long enough for the LKM to start up
+  
+  /////////////////////////////////////////////////////////
+  Serial.print("Waiting for LKM startup...");
+  /////////////////////////////////////////////////////////
+  
   delay(LKM_STARTUP_TIME);
   // Change baud rate
   // Maybe we should check if it's done starting up first?
   Serial1.readStringUntil('\n');
 
   /////////////////////////////////////////////////////////
+  Serial.println("Done.");
   Serial.println("Lowering LKM baud rate...");
   /////////////////////////////////////////////////////////
   
   lowerBaudRate(2400);
+
+  /////////////////////////////////////////////////////////
+  Serial.println("Done.");
+  Serial.println("Connecting to LKM...");
+  /////////////////////////////////////////////////////////
+  
   bool LKMcomm = 0;
   unsigned long startLKMtestTime = millis();
   while(! LKMcomm && (millis() - startLKMtestTime < LKMsetupTimeout)){
@@ -180,7 +190,16 @@ void setup() {
   }
   if(LKMcomm){
     digitalWrite(LKMcommLED, HIGH);
+    
+    /////////////////////////////////////////////////////////
+    Serial.println("Connected to LKM");
+    /////////////////////////////////////////////////////////
   }
+
+  /////////////////////////////////////////////////////////
+  Serial.print("Calibrating sensors...");
+  /////////////////////////////////////////////////////////
+    
   // Calibrate the current altitude to 0 +- 5, averaging over 3 readings
   bool altitudeCalibrated = calibrateAltitude(3, 5);
   if(altitudeCalibrated){
@@ -191,9 +210,23 @@ void setup() {
     digitalWrite(readingThermistorsLED, HIGH);
   }
 
+  /////////////////////////////////////////////////////////
+  Serial.println("Done.");
+  Serial.print("Turning off LKM heater...");
+  /////////////////////////////////////////////////////////
+    
   // Turn the heater off
   Serial1.print("$PULS, 0;");
+
+  /////////////////////////////////////////////////////////
+  Serial.println("Done.");
+  /////////////////////////////////////////////////////////
+  
   parseLKM();
+
+  /////////////////////////////////////////////////////////
+  Serial.print("Checking systems status");
+  /////////////////////////////////////////////////////////
   
   // Make sure all the systems we've checked are okay
   // I'm making this its own bool so that if we decide we want to do something (like run again
@@ -201,7 +234,15 @@ void setup() {
   bool allSystems = SDinit && LKMcomm && altitudeCalibrated && readingThermistors;
   if(allSystems){
     digitalWrite(allSystemsLED, HIGH);
+
+    /////////////////////////////////////////////////////////
+    Serial.print("\tGO");
+    /////////////////////////////////////////////////////////
   }
+
+  /////////////////////////////////////////////////////////
+  Serial.println("Done.");
+  /////////////////////////////////////////////////////////
 }
 
 void loop() {
@@ -452,6 +493,9 @@ bool lowerBaudRate(int baud){
     }
   }
   if(error){
+    /////////////////////////////////////////////////////////
+    Serial.println("Could not lower baud rate!");
+    /////////////////////////////////////////////////////////
     return 0;
   }
   Serial1.begin(baud);
@@ -462,6 +506,9 @@ bool lowerBaudRate(int baud){
     if(checkLKMcomm(2)){
       return 1;
     }
+    /////////////////////////////////////////////////////////
+    Serial.println("---" + i + " checkLKMcomm(2) false, retrying");
+    /////////////////////////////////////////////////////////
   }
   return 0;
   // If failure, should probably communicate with ground too?
