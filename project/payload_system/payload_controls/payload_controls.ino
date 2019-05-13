@@ -9,6 +9,7 @@
 #define USB_BAUD 9600
 #define LKM_DEFAULT_BAUD 9600
 #define LKM_STARTUP_TIME 12000
+#define DEFAULT_DEMAND_N 50
 
 #define BAD_CMD -1
 #define BAD_VAL -2
@@ -373,15 +374,7 @@ float findAltitude(){
    * altitude (instead of sea level) by using our starting pressure as Po
    */
   float pressure;
-  Serial1.write("$PRES;");
-  delay(100);
-  if (Serial1.available()) {
-//    Serial2.readStringUntil(delim); // should be #PRES,
-    pressure = parseLKM();
-    Serial.println("Pressure:");
-    Serial.println(pressure);
-  }
-  
+  pressure = demandVal("$PRES;", DEFAULT_DEMAND_N);
   // This is assuming the external temp is 15C; we should probably add an extra thermistor to check this
   // make sure pressure is in hPa?
   // this returns height in meters... will need to convert to feet
@@ -400,18 +393,11 @@ bool calibrateAltitude(int nTimes, int altitudeError){
   int maxTries = 200;
   int realMeasurements = 0;
   
-  while(realMeasurements < nTimes && nTries <= maxTries){
-    Serial1.write("$PRES;");
-    delay(100);
-    if(Serial1.available()){
-      float measuredPressure = parseLKM();
-      Serial.println(measuredPressure);
-      if(measuredPressure > 0){
-        pressure += measuredPressure;
-        realMeasurements++;
-      }
+  for(int i = 0; i < nTimes; i++){
+    float readPressure = demandVal("$PRES;", 2 * DEFAULT_DEMAND_N);
+    if(readPressure > 0){
+      pressure += readPressure;
     }
-    nTries++;
   }
   // Take the average pressure
   initPressure = pressure / nTimes;
@@ -786,4 +772,21 @@ float parseStat(){
     return BAD_STAT;
   }
   return 1.0;
+}
+
+
+float demandVal(String command, int nTrials){
+  // Only works for function where parseLKM returns a value
+  // Send command with semicolon attached
+  for(int i = 0; i < nTrials; i++){
+     Serial1.flush();
+     Serial1.print(command);
+     delay(100);
+     float val = parseLKM();
+     if(val != BAD_VAL && val != BAD_CMD){
+        return val;
+     }
+  }
+  Serial.println("demandVal failed, big yikers");
+  return -1;
 }
