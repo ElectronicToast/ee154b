@@ -121,7 +121,7 @@ class averagingArray{
 
 averagingArray data;
 
-void setup() {
+void setup() {  
   // Set up indicator LEDs
   pinMode(SDinitLED, OUTPUT);
   pinMode(LKMcommLED, OUTPUT);
@@ -146,9 +146,18 @@ void setup() {
   Serial.begin(9600);
   Serial2.begin(9600);
   Serial1.begin(LKM_DEFAULT_BAUD);
+
+  /////////////////////////////////////////////////////////
+  Serial.println("Startup\n");
+  /////////////////////////////////////////////////////////
   
   // Initialize SD card, 5 min timeout
-  bool SDinit = initializeSDcard(300000);
+  bool SDinit = initializeSDcard(3000);
+
+  /////////////////////////////////////////////////////////
+  Serial.println("SD initialization:" + (int) SDinit);
+  /////////////////////////////////////////////////////////
+  
   if(SDinit){
     digitalWrite(SDinitLED, HIGH);
   }
@@ -158,6 +167,10 @@ void setup() {
   // Change baud rate
   // Maybe we should check if it's done starting up first?
   Serial1.readStringUntil('\n');
+
+  /////////////////////////////////////////////////////////
+  Serial.println("Lowering LKM baud rate...");
+  /////////////////////////////////////////////////////////
   
   lowerBaudRate(2400);
   bool LKMcomm = 0;
@@ -337,18 +350,17 @@ bool calibrateAltitude(int nTimes, int altitudeError){
 }
 
 bool initializeSDcard(int timeout){
-  Serial.print("initializing SD card... \n");
+  Serial.println("initializing SD card...");
   SD.begin(CS);
   // Wait for it to initialize
+  unsigned long startTime = millis();
   while(!SD.begin(CS)){
-    if(millis() > timeout){
+    if(millis() - startTime > timeout){
+      Serial.println("Giving up on SD");
       return 0;
-    } else {
-      Serial.print("Giving up on SD");
-      return 1;
     }
   }
-  Serial.print("SD initialized");
+  Serial.println("SD initialized");
   return 1;
 }
 
