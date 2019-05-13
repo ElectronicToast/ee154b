@@ -45,7 +45,7 @@ int launchSwitch = 2;
 
 // Global variables
 float initPressure;
-unsigned long lastPacemaker;
+unsigned long lastPacemaker = 0;
 unsigned long lastGroundComm;
 unsigned long launchTime;
 unsigned long lastTempControl = 0;
@@ -292,12 +292,15 @@ void loop() {
 
 // Helper functions
 void recordVitals(String event){
+  Serial.println("Called recordVitals");
+  Serial.flush();
   Serial1.write("$STAT;");
   String telem = "";
   delay(100);
   if (Serial1.available()) {
     telem = Serial1.readStringUntil(terminator);
   }
+  Serial.flush();
   
   // open the file.
   File dataFile = SD.open("datalog.txt", FILE_WRITE);
@@ -312,14 +315,17 @@ void recordVitals(String event){
 }
 
 boolean pacemakerIfNeeded(int pacemakerPeriod){
+  Serial.println("Called pacemakerIfNeeded");
   if(millis() - lastPacemaker > pacemakerPeriod){
     recordVitals("");
+    lastPacemaker = millis();
     return 1;
   }
   return 0;
 }
 
 boolean burnIfNeeded(int timeout){
+  Serial.println("Called burnIfNeeded");
   // Only check if we need to burn if the door hasn't already been deployed
   if(! doorDeployed){
     if(findAltitude() > DOOR_ALTITUDE || launched && (millis() - launchTime > timeout)){
@@ -334,6 +340,7 @@ boolean burnIfNeeded(int timeout){
 }
 
 void burnWire(){
+  Serial.println("Called burnWire");
   recordVitals("Door: burn started");
   digitalWrite(BDD, HIGH);
   delay(burnTime);
@@ -343,12 +350,16 @@ void burnWire(){
 }
 
 void controlTemps(float target, float err_tolerance){
+  Serial.println("Called controlTemps");
   // Should use Klesh's function to get temp
   // which temp reading am i supposed to use??? we doing temp of LKM processor?
   float temp = readThermistor(therm1);
   // temp = readThermistor(therm1);
-  Serial2.write("$TEMP;");
+  Serial1.write("$TEMP;");
   temp = parseLKM();
+  if (temp == -1 || temp == -2 || temp == -3) {
+    return;
+  }
   float error = target - temp;
   data.addNew(error);
   // prolly need to somehow record time elapsed between thermistor readings
@@ -563,7 +574,9 @@ float parseLKM(){
 
 
 float processCmdVal(String cmd, String val, boolean save) {
-
+  while(cmd.startsWith("\n") {
+    cmd.remove(0);
+  }
   // go through each command value pair and return the value or error
   if (cmd.equals("#PWR") ){
     if(val.equals("ON")){
