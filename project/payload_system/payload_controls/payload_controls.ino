@@ -742,9 +742,12 @@ bool handleGroundCommand(){
     // powers LKM on and adjusts the baud rates
     Serial2.print(powerLKMon(arg.toFloat()));
    }
-   if(command.equals("PAYLOAD_BAUD")){
+   if(command.equals("ARDUINO_BAUD")){
     // changes payload arduino baud rate. Shouldn't be necessary to use with LKM_POWERON
     Serial1.begin(arg.toFloat());
+   }
+   if(command.equals("SYSTEM_BAUD")){
+    Serial1.print(lowerBaudRate(arg.toFloat()));
    }
    else{
       // Complain to ground
