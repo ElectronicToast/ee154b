@@ -50,11 +50,14 @@ unsigned long lastGroundComm;
 unsigned long launchTime;
 unsigned long lastTempControl = 0;
 unsigned long timeEnteredAutonomous;
+unsigned long firstKillSignalTime;
 bool autonomousMode = 0;
 bool tempConcern = 0;
 bool tempFreakOut = 0;
 bool launched = 0;
 bool doorDeployed = 0;
+bool emergencyKill = 0;
+bool emergencyKillFirstSignal = 0;
 float PID_kP = .5;
 float PID_kI = .1;
 float PID_kD = 0;
@@ -65,6 +68,7 @@ int groundCommPeriod = 60000;
 int burnTime = 60000;
 int doorTimeout = 6000;
 int LKMsetupTimeout = 100000;
+int killSignalInterval = 60000;
 char delim = ',';
 char terminator = ';';
 
@@ -286,6 +290,9 @@ void loop() {
     if(handleGroundCommand()){
       autonomousMode = false;
     }
+  }
+  while(emergencyKill){
+    handleGroundCommand();
   }
 }
 
@@ -713,7 +720,25 @@ bool handleGroundCommand(){
    if(command.equals("KD")){
       PID_kD = arg.toFloat();
    }
-    else{
+   if(command.equals("EMERG_KILL1")){
+    if(!emergencyKillFirstSignal){
+      emergencyKillFirstSignal = true;
+      firstKillSignalTime = millis();
+      Serial2.print("First emergency kill signal recieved. Please send $EMERG_KILL2; to continue or $END_KILL; to abort.");
+    } 
+   }
+   if(command.equals("EMERG_KILL2")){
+    if(emergencyKillFirstSignal && (millis() - firstKillSignalTime < killSignalInterval)){
+      Serial2.print("Emergency kill mode activated");
+      emergencyKill = true;
+    }
+   }
+   if(command.equals("END_KILL")){
+    emergencyKill = false;
+    emergencyKillFirstSignal = false;
+    Serial2.print("Emergency kill sequence ended");
+   }
+   else{
       // Complain to ground
       Serial2.write("Whatcha say?");
    }
