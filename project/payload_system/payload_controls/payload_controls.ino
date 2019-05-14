@@ -175,7 +175,7 @@ void setup() {
   Serial.print("Waiting for LKM startup...");
   /////////////////////////////////////////////////////////
   
-  delay(LKM_STARTUP_TIME);
+//  delay(LKM_STARTUP_TIME);
   // Change baud rate
   // Maybe we should check if it's done starting up first?
   // UNCOMMENT FOR FLIGHT
@@ -738,6 +738,14 @@ bool handleGroundCommand(){
     emergencyKillFirstSignal = false;
     Serial2.print("Emergency kill sequence ended");
    }
+   if(command.equals("LKM_POWERON")){
+    // powers LKM on and adjusts the baud rates
+    Serial2.print(powerLKMon(arg.toFloat()));
+   }
+   if(command.equals("PAYLOAD_BAUD")){
+    // changes payload arduino baud rate. Shouldn't be necessary to use with LKM_POWERON
+    Serial1.begin(arg.toFloat());
+   }
    else{
       // Complain to ground
       Serial2.write("Whatcha say?");
@@ -834,4 +842,15 @@ float demandVal(String command, int nTrials){
   }
   Serial.println("demandVal failed, big yikers");
   return -1;
+}
+
+
+bool powerLKMon(int baudRate){
+  // Assumes the LKM is not on
+  Serial1.begin(LKM_DEFAULT_BAUD);
+  Serial1.flush();
+  Serial1.print("$PWR,ON;");
+  Serial1.readStringUntil('\n');
+  Serial1.flush();
+  return lowerBaudRate(baudRate);
 }
