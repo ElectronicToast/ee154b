@@ -857,3 +857,65 @@ bool powerLKMon(int baudRate){
   Serial1.flush();
   return lowerBaudRate(baudRate);
 }
+
+
+boolean checkVals(){
+  String val;
+  boolean resetVal = false;
+  
+  Serial1.print("$STAT;");
+  delay(100);
+  
+  if (parseStat() >= 0) {
+    
+    if (stats[PWR_INDEX] != expected_val[PWR_INDEX]) {
+      
+      if (expected_val[PWR_INDEX] == 1.0) { 
+        val == "ON";
+      }
+      else {
+        val = "OFF";
+      }
+      
+      Serial1.print("$PWR,");
+      Serial1.print(val);
+      Serial1.print(';');
+      recordVitals("FIX: mismatch in pwr");
+      Serial2.print("FIX: mismatch in pwr - changed pwr to ");
+      Serial2.print(val);
+      resetVal = true;
+    }
+
+    if (stats[PULS_INDEX] != expected_val[PULS_INDEX]) {
+      Serial1.print("$PULS,");
+      Serial1.print(String((int)expected_val[PULS_INDEX]));
+      Serial1.print(';');
+      recordVitals("FIX: mismatch in puls");
+      Serial2.print("FIX: mismatch in puls - changed puls to ");
+      Serial2.print(String((int)expected_val[PULS_INDEX]));
+      resetVal = true;
+    }
+
+    if (stats[DATA_INDEX] != expected_val[DATA_INDEX]) {
+      Serial1.print("$DATA,");
+      Serial1.print(String((int)expected_val[DATA_INDEX]));
+      Serial1.print(';');
+      recordVitals("FIX: mismatch in data");
+      Serial2.print("FIX: mismatch in data - changed data to ");
+      Serial2.print(String((int)expected_val[DATA_INDEX]));
+      resetVal = true;
+    }
+
+    if (stats[MOTR_INDEX] != expected_val[MOTR_INDEX]) {
+      Serial1.print("$MOTR,");
+      Serial1.print(String((int)expected_val[MOTR_INDEX]));
+      Serial1.print(';');
+      recordVitals("FIX: mismatch in motr");
+      Serial2.print("FIX: mismatch in motr - changed motr to ");
+      Serial2.print(String((int)expected_val[MOTR_INDEX]));
+      resetVal = true;
+    }
+  }
+  
+  return resetVal;
+}
