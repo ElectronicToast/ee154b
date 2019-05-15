@@ -145,7 +145,15 @@ void setup() {
   digitalWrite(allSystemsLED, LOW);
   digitalWrite(launchedLED, LOW);
   digitalWrite(CS, LOW);
-  
+
+  // Blink to indicate initialization
+  digitalWrite(LKMcommLED, HIGH);
+  delay(500);
+  digitalWrite(LKMcommLED, LOW);
+  delay(500);
+  digitalWrite(LKMcommLED, HIGH);
+  delay(500);
+  digitalWrite(LKMcommLED, LOW);
   
   // Initialize UARTs 
   Serial.begin(9600);
@@ -158,6 +166,17 @@ void setup() {
   /////////////////////////////////////////////////////////
   Serial.println("Startup\n");
   /////////////////////////////////////////////////////////
+  digitalWrite(LKMcommLED, HIGH);
+  delay(500);
+  digitalWrite(LKMcommLED, LOW);
+  delay(500);
+  digitalWrite(LKMcommLED, HIGH);
+  delay(500);
+  digitalWrite(LKMcommLED, LOW);
+  delay(500);
+  digitalWrite(LKMcommLED, HIGH);
+  delay(500);
+  digitalWrite(LKMcommLED, LOW);
 
   Serial2.write("Hello");
   
@@ -273,6 +292,7 @@ void loop() {
   burnIfNeeded(doorTimeout);
   controlTemps(TARGET_TEMP, TEMP_TOLERANCE);
   handleGroundCommand();
+  monitorVals();
   if(millis() - lastGroundComm > groundCommPeriod){
     autonomousMode = true;
     Serial2.print("Yo talk to us");
@@ -283,6 +303,7 @@ void loop() {
     pacemakerIfNeeded(pacemakerPeriod);
     burnIfNeeded(doorTimeout);
     controlTemps(TARGET_TEMP, TEMP_TOLERANCE);
+    monitorVals();
     Serial2.print("Pls I'm lonely");
     Serial2.print("Entered autonomous mode ");
     Serial2.print((millis() - timeEnteredAutonomous) / 1000);
@@ -752,6 +773,7 @@ bool handleGroundCommand(){
    else{
       // Complain to ground
       Serial2.write("Whatcha say?");
+      Serial2.flush();
    }
   
   if(sendToLKM){
@@ -770,7 +792,7 @@ bool handleGroundCommand(){
 
 
 float parseStat(){
-  Serial.println("called parseStat()");
+//  Serial.println("called parseStat()");
   delay(100);
   String stat;
   //read back stat;
@@ -856,4 +878,44 @@ bool powerLKMon(int baudRate){
   Serial1.readStringUntil('\n');
   Serial1.flush();
   return lowerBaudRate(baudRate);
+}
+
+bool monitorVals(){
+  // Ask for stats
+  Serial1.flush();
+  Serial1.print("$STAT;");
+  int timeout = 100;
+  int timeoutCounter = 0;
+  bool somethingChanged = false;
+  while(parseStat() != 1){
+    // If there's an error, keep going until there's not an error or we decide it got stuck
+    timeoutCounter++;
+    if(timeoutCounter > timeout){
+      Serial2.print("Error with monitorVals, could not parseStat()");
+      return 0;
+    }
+    Serial1.flush();
+    Serial1.print("$STAT;");
+  }
+  if(stats[MOTR_INDEX] != expected_val[MOTR_INDEX]){
+    float initialMotrVal = stats[MOTR_INDEX];
+    somethingChanged = true;
+    Serial1.print("$MOTR,");
+    Serial1.print(expected_val[MOTR_INDEX]);
+    Serial1.print(";");
+    String errorMsg = "Automated LKM monitor: Changed MOTR from " + String(initialMotrVal) + " to " + String(expected_val[MOTR_INDEX]);
+    Serial2.print(errorMsg);
+    recordVitals(errorMsg);
+  }
+  if(stats[PULS_INDEX] != expected_val[PULS_INDEX]){
+    float initialPulsVal = stats[PULS_INDEX];
+    somethingChanged = true;
+    Serial1.print("$PULS,");
+    Serial1.print(expected_val[PULS_INDEX]);
+    Serial1.print(";");
+    String errorMsg = "Automated LKM monitor: Changed PULS from " + String(initialPulsVal) + " to " + String(expected_val[PULS_INDEX]);
+    Serial2.print(errorMsg);
+    recordVitals(errorMsg);
+  }
+  return somethingChanged;
 }
