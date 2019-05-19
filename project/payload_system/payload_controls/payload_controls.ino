@@ -10,6 +10,8 @@
 #define LKM_DEFAULT_BAUD 9600
 #define LKM_STARTUP_TIME 12000
 #define DEFAULT_DEMAND_N 50
+#define SD_TIMEOUT 5000
+#define STAT_BUFFER_TIME 300
 
 #define BAD_CMD -100
 #define BAD_VAL -200
@@ -23,6 +25,10 @@
 #define PRES_INDEX 4
 #define TEMP_INDEX 5
 #define MOTR_INDEX 6
+
+// Debugging modes
+bool LKMStillOn = true;
+
 
 // Pins, hardware
 // Burn Door Deploy 
@@ -126,6 +132,20 @@ class averagingArray{
 
 averagingArray data;
 
+
+//
+//
+//
+//
+//
+//    SETUP BEGIN
+//
+//
+//
+//
+//
+
+
 void setup() {  
   // Set up indicator LEDs
   pinMode(SDinitLED, OUTPUT);
@@ -158,14 +178,17 @@ void setup() {
   // Initialize UARTs 
   Serial.begin(9600);
   Serial2.begin(9600);
-//  Serial1.begin(LKM_DEFAULT_BAUD);
+  if(! LKMStillOn){
+    Serial1.begin(LKM_DEFAULT_BAUD);
+  }
 // REMOVE FOR FLIGHT
 // UNCOMMENT ABOVE
-  Serial1.begin(2400);
+  if(LKMStillOn){
+    Serial1.begin(2400);
+  }
 
-  /////////////////////////////////////////////////////////
-  Serial.println("Startup\n");
-  /////////////////////////////////////////////////////////
+  Serial2.println("Startup\n");
+
   digitalWrite(LKMcommLED, HIGH);
   delay(500);
   digitalWrite(LKMcommLED, LOW);
@@ -180,8 +203,8 @@ void setup() {
 
   Serial2.write("Hello");
   
-  // Initialize SD card, 3 sec timeout
-  bool SDinit = initializeSDcard(3000);
+  // Initialize SD card
+  bool SDinit = initializeSDcard(SD_TIMEOUT);
   
   if(SDinit){
     digitalWrite(SDinitLED, HIGH);
@@ -189,29 +212,25 @@ void setup() {
   }
   // Make sure we're talking to the LKM
   // Delay long enough for the LKM to start up
-  
-  /////////////////////////////////////////////////////////
   Serial.print("Waiting for LKM startup...");
-  /////////////////////////////////////////////////////////
-  
-//  delay(LKM_STARTUP_TIME);
+  if(! LKMStillOn){
+    delay(LKM_STARTUP_TIME);
+  }
   // Change baud rate
   // Maybe we should check if it's done starting up first?
   // UNCOMMENT FOR FLIGHT
-//  Serial.print(Serial1.readStringUntil('\n'));
-
-  /////////////////////////////////////////////////////////
-  Serial.println("Done.");
-  Serial.println("Lowering LKM baud rate...");
-  /////////////////////////////////////////////////////////
+  if(! LKMStillOn){
+    Serial2.println(Serial1.readStringUntil('\n'));
+  }
 
   // UNCOMMENT FOR FLIGHT
-//  lowerBaudRate(2400);
+  if(! LKMStillOn){
+    Serial2.println("Lowering LKM baud rate...");
+    lowerBaudRate(2400);
+  }
 
-  /////////////////////////////////////////////////////////
   Serial.println("Done.");
   Serial.println("Connecting to LKM...");
-  /////////////////////////////////////////////////////////
   
   bool LKMcomm = 0;
   unsigned long startLKMtestTime = millis();
@@ -220,16 +239,11 @@ void setup() {
   }
   if(LKMcomm){
     digitalWrite(LKMcommLED, HIGH);
-    
-    /////////////////////////////////////////////////////////
     Serial.println("Connected to LKM");
     Serial.println("Should light LKMcommLED");
-    /////////////////////////////////////////////////////////
   }
 
-  /////////////////////////////////////////////////////////
   Serial.print("Calibrating sensors...");
-  /////////////////////////////////////////////////////////
     
   // Calibrate the current altitude to 0 +- 5, averaging over 3 readings
   Serial.println("Trying to calibrate altitude");
@@ -246,23 +260,16 @@ void setup() {
     Serial.println("Should light readingThermistorsLED");
   }
 
-  /////////////////////////////////////////////////////////
   Serial.println("Done.");
-  Serial.print("Turning off LKM heater...");
-  /////////////////////////////////////////////////////////
-    
+  
+  Serial2.println("Turning off LKM heater...");
   // Turn the heater off
   Serial1.print("$PULS, 0;");
-
-  /////////////////////////////////////////////////////////
   Serial.println("Done.");
-  /////////////////////////////////////////////////////////
   
   parseLKM();
 
-  /////////////////////////////////////////////////////////
-  Serial.print("Checking systems status...");
-  /////////////////////////////////////////////////////////
+  Serial2.print("Checking systems status...");
   
   // Make sure all the systems we've checked are okay
   // I'm making this its own bool so that if we decide we want to do something (like run again
@@ -270,15 +277,9 @@ void setup() {
   bool allSystems = SDinit && LKMcomm && altitudeCalibrated && readingThermistors;
   if(allSystems){
     digitalWrite(allSystemsLED, HIGH);
-
-    /////////////////////////////////////////////////////////
-    Serial.print("\tGO\t");
-    /////////////////////////////////////////////////////////
+    Serial2.print("\tGO\t");
   }
-
-  /////////////////////////////////////////////////////////
-  Serial.println("Done.");
-  /////////////////////////////////////////////////////////
+  Serial2.println("Finished startup function");
 }
 
 void loop() {
@@ -295,7 +296,7 @@ void loop() {
   monitorVals();
   if(millis() - lastGroundComm > groundCommPeriod){
     autonomousMode = true;
-    Serial2.print("Yo talk to us");
+    Serial2.println("Yo talk to us");
     recordVitals("Entered autonomous mode");
     timeEnteredAutonomous = millis();
   }
@@ -304,12 +305,13 @@ void loop() {
     burnIfNeeded(doorTimeout);
     controlTemps(TARGET_TEMP, TEMP_TOLERANCE);
     monitorVals();
-    Serial2.print("Pls I'm lonely");
+    Serial2.println("Pls I'm lonely");
     Serial2.print("Entered autonomous mode ");
     Serial2.print((millis() - timeEnteredAutonomous) / 1000);
-    Serial2.print(" seconds ago");
+    Serial2.println(" seconds ago");
     if(handleGroundCommand()){
       autonomousMode = false;
+      Serial2.print("Exited autonomous mode;");
     }
   }
   while(emergencyKill){
@@ -346,13 +348,13 @@ void recordVitals(String event){
     dataFile.close();
   }
   Serial2.print("Event: ");
-  Serial2.print(event);
+  Serial2.println(event);
 }
 
 boolean pacemakerIfNeeded(int pacemakerPeriod){
-  Serial.println("Called pacemakerIfNeeded");
+//  Serial.println("Called pacemakerIfNeeded");
   if(millis() - lastPacemaker > pacemakerPeriod){
-    recordVitals("");
+    recordVitals("Pacemaker");
     lastPacemaker = millis();
     return 1;
   }
@@ -360,12 +362,12 @@ boolean pacemakerIfNeeded(int pacemakerPeriod){
 }
 
 boolean burnIfNeeded(int timeout){
-  Serial.println("Called burnIfNeeded");
+//  Serial.println("Called burnIfNeeded");
   // Only check if we need to burn if the door hasn't already been deployed
-  if(! doorDeployed){
-    if(findAltitude() > DOOR_ALTITUDE || launched && (millis() - launchTime > timeout)){
-      Serial.print("Burn wire activated, altitude ");
-      Serial.print(findAltitude());
+  if(! doorDeployed && launched){
+    if(findAltitude() > DOOR_ALTITUDE ||(millis() - launchTime > timeout)){
+      Serial2.print("Burn wire activated, altitude ");
+      Serial2.println(findAltitude());
       Serial.print("time ");
       Serial.print(millis() - launchTime);
       burnWire();
@@ -381,7 +383,7 @@ void burnWire(){
   delay(burnTime);
   digitalWrite(BDD, LOW);
   recordVitals("Door: deployed");
-  
+  Serial2.println("Door: deployed");
 }
 
 void controlTemps(float target, float err_tolerance){
@@ -431,6 +433,7 @@ float findAltitude(){
 
 bool calibrateAltitude(int nTimes, int altitudeError){
   Serial.println("Called calibrateAltitude");
+  Serial2.print("Calibrating altitude...");
   while(Serial1.available()){
     Serial.print(Serial1.read());
   }
@@ -450,23 +453,24 @@ bool calibrateAltitude(int nTimes, int altitudeError){
   // We probably can't check that the measured altitude is exactly 0.00...
   if(initPressure > 0 && -altitudeError < findAltitude() && findAltitude() < altitudeError){
     // Probably add a (generous) expected range once we know units, etc
-    Serial.println("Altitude calibrated successfully");
+    Serial2.println("Success");
     return 1;
   } else {
-    Serial.println("Altitude calibration failed. initPressure: ");
-    Serial.println(initPressure);
+    Serial2.print("Altitude calibration failed. initPressure: ");
+    Serial2.println(initPressure);
     return 0;
   }
 }
 
 bool initializeSDcard(int timeout){
-  Serial.println("initializing SD card...");
+  Serial2.print("initializing SD card...");
   SD.begin(CS);
   // Wait for it to initialize
   unsigned long startTime = millis();
   while(!SD.begin(CS)){
     if(millis() - startTime > timeout){
-      Serial.println("Giving up on SD");
+      Serial2.println("Failure");
+      Serial2.println("Giving up on SD");
       return 0;
     }
   }
@@ -475,21 +479,27 @@ bool initializeSDcard(int timeout){
 }
 
 bool checkLKMcomm(int nTries){
+  Serial2.print("Checking communications with LKM...");
   for(int i = 0; i < nTries; i++){
     Serial1.write("$STAT;");
+    delay(STAT_BUFFER_TIME);
     if(parseStat() == 1.0){
+      Serial2.println("Successful");
       return 1;
     }
-    delay(100);
   }
+  Serial2.println("failed");
   return 0;
 }
 
 bool checkThermistor(int thermistorPin, int lowerBound, int upperBound){
+  Serial2.print("Checking thermistor readings...");
   float temp = readThermistor(thermistorPin);
   if(temp > lowerBound && temp < upperBound){
+    Serial2.println("Success");
     return 1;
   } else {
+    Serial2.println("Failure");
     return 0;
   }
 }
@@ -535,6 +545,7 @@ double PID(float Pcoeff, float Icoeff, float Dcoeff){
 }
 
 bool lowerBaudRate(int baud){
+  Serial1.flush();
   Serial.println("Called lowerBaudRate");
   // Assume we're communicating with the LKM at 9600 to start
   // Lower baud rate using $DATA
@@ -564,23 +575,19 @@ bool lowerBaudRate(int baud){
     }
   }
   if(error){
-    /////////////////////////////////////////////////////////
-    Serial.println("Could not lower baud rate!");
-    /////////////////////////////////////////////////////////
+    Serial2.println("Could not lower baud rate");
     return 0;
   }
   Serial1.begin(baud);
   Serial.println("Lowering arduino baud rate");
   // try n times, in case there's an error
   // possible that this will eventually get built into checkLKMcomm
-  int nAttempts = 3;
+  int nAttempts = 50;
   for(int i = 0; i < nAttempts; i++){
     if(checkLKMcomm(2)){
+      Serial.println("Probably lowered baud rate, communicating with LKM");
       return 1;
     }
-    /////////////////////////////////////////////////////////
-    //Serial.println("---" + i + " checkLKMcomm(2) false, retrying");
-    /////////////////////////////////////////////////////////
   }
   Serial.println("Maybe lowered baud rate, returning 0");
   return 0;
@@ -695,84 +702,94 @@ bool handleGroundCommand(){
   if(!Serial2.available()){
     return false;
   }
+  Serial1.flush();
   lastGroundComm = millis();
   String command = Serial2.readStringUntil(delim);
   String arg = Serial2.readStringUntil(terminator);
   bool sendToLKM = 0;
   int dataIndex;
-  if(command.equals("PWR")){
+  if(command.equals("$PWR")){
       sendToLKM = 1;
       dataIndex = PWR_INDEX;
   }
-  if(command.equals("PULS")){
+  else if(command.equals("$PULS")){
       sendToLKM = 1;
       dataIndex = PULS_INDEX;
       expected_val[PULS_INDEX] = arg.toFloat();
   }
-  if(command.equals("DATA")){
+  else if(command.equals("$DATA")){
       sendToLKM = 1;
       dataIndex = DATA_INDEX;
       expected_val[DATA_INDEX] = arg.toFloat();
   }
-  if(command.equals("VOLT")){
-      sendToLKM = 1;
+  else if(command.equals("$VOLT")){
+      Serial1.print("$VOLT;");
       dataIndex = VOLT_INDEX;
   }
-  if(command.equals("PRES")){
-      sendToLKM = 1;
+  else if(command.equals("$PRES")){
+      Serial1.print("$PRES;");
       dataIndex = PRES_INDEX;
   }
-  if(command.equals("STAT")){
-      sendToLKM = 1;
+  else if(command.equals("$STAT")){
+      Serial.print("STAT heard from ground");
+      Serial1.print("$STAT;");
+      delay(STAT_BUFFER_TIME);
   }
-  if(command.equals("MOTR")){
+  else if(command.equals("$MOTR")){
       sendToLKM = 1;
       dataIndex = MOTR_INDEX;
       expected_val[MOTR_INDEX] = arg.toFloat();
   }
-  if(command.equals("KP")){
+  else if(command.equals("$KP")){
     // how to do error checking here?
     // TODO
       PID_kP = arg.toFloat();
+      Serial2.print("Changed KP to ");
+      Serial2.print(PID_kP);
    }
-   if(command.equals("KI")){
+   else if(command.equals("$KI")){
       PID_kI = arg.toFloat();
+      Serial2.print("Changed KI to ");
+      Serial2.print(PID_kI);
    }
-   if(command.equals("KD")){
+   else if(command.equals("$KD")){
       PID_kD = arg.toFloat();
+      Serial2.print("Changed KD to ");
+      Serial2.print(PID_kD);
    }
-   if(command.equals("EMERG_KILL1")){
-    if(!emergencyKillFirstSignal){
+   else if(command.equals("$EMERG_KILL1")){
       emergencyKillFirstSignal = true;
       firstKillSignalTime = millis();
       Serial2.print("First emergency kill signal recieved. Please send $EMERG_KILL2; to continue or $END_KILL; to abort.");
-    } 
    }
-   if(command.equals("EMERG_KILL2")){
+   else if(command.equals("$EMERG_KILL2")){
     if(emergencyKillFirstSignal && (millis() - firstKillSignalTime < killSignalInterval)){
       Serial2.print("Emergency kill mode activated");
       emergencyKill = true;
     }
    }
-   if(command.equals("END_KILL")){
+   else if(command.equals("$END_KILL")){
     emergencyKill = false;
     emergencyKillFirstSignal = false;
     Serial2.print("Emergency kill sequence ended");
    }
-   if(command.equals("LKM_POWERON")){
+   else if(command.equals("$LKM_POWERON")){
     // powers LKM on and adjusts the baud rates
+    Serial2.print("Attempting LKM_POWERON, baud rate ");
+    Serial2.print(arg);
     Serial2.print(powerLKMon(arg.toFloat()));
    }
-   if(command.equals("ARDUINO_BAUD")){
+   else if(command.equals("$ARDUINO_BAUD")){
     // changes payload arduino baud rate. Shouldn't be necessary to use with LKM_POWERON
     Serial1.begin(arg.toFloat());
    }
-   if(command.equals("SYSTEM_BAUD")){
-    Serial1.print(lowerBaudRate(arg.toFloat()));
+   else if(command.equals("$SYSTEM_BAUD")){
+    Serial2.print("Attempting to lowerBaudRate");
+    Serial2.print(lowerBaudRate(arg.toFloat()));
    }
    else{
       // Complain to ground
-      Serial2.write("Whatcha say?");
+      Serial2.write("Whatcha say?;");
       Serial2.flush();
    }
   
@@ -786,6 +803,11 @@ bool handleGroundCommand(){
     Serial1.print(arg);
     Serial1.write(terminator);
   }
+  delay(100);
+  while(Serial1.available()){
+    Serial2.write(Serial1.read());
+  }
+  Serial2.write('\n');
   recordVitals("Ground command: " + command);
   return true;
 }
@@ -891,7 +913,7 @@ bool monitorVals(){
     // If there's an error, keep going until there's not an error or we decide it got stuck
     timeoutCounter++;
     if(timeoutCounter > timeout){
-      Serial2.print("Error with monitorVals, could not parseStat()");
+      Serial2.println("Error with monitorVals, could not parseStat()");
       return 0;
     }
     Serial1.flush();
@@ -904,7 +926,7 @@ bool monitorVals(){
     Serial1.print(expected_val[MOTR_INDEX]);
     Serial1.print(";");
     String errorMsg = "Automated LKM monitor: Changed MOTR from " + String(initialMotrVal) + " to " + String(expected_val[MOTR_INDEX]);
-    Serial2.print(errorMsg);
+    Serial2.println(errorMsg);
     recordVitals(errorMsg);
   }
   if(stats[PULS_INDEX] != expected_val[PULS_INDEX]){
@@ -914,7 +936,7 @@ bool monitorVals(){
     Serial1.print(expected_val[PULS_INDEX]);
     Serial1.print(";");
     String errorMsg = "Automated LKM monitor: Changed PULS from " + String(initialPulsVal) + " to " + String(expected_val[PULS_INDEX]);
-    Serial2.print(errorMsg);
+    Serial2.println(errorMsg);
     recordVitals(errorMsg);
   }
   return somethingChanged;
