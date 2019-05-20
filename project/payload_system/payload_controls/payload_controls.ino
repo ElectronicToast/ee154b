@@ -6,6 +6,7 @@
 #define DOOR_ALTITUDE 95
 #define TARGET_TEMP 30
 #define TEMP_TOLERANCE 1
+#define MAX_RESTART_TEMP 30
 #define USB_BAUD 9600
 #define LKM_DEFAULT_BAUD 9600
 #define LKM_STARTUP_TIME 35000
@@ -13,6 +14,7 @@
 #define SD_TIMEOUT 10000
 #define STAT_BUFFER_TIME 300
 #define SERIAL_TIMEOUT 3000
+#define COOLTIME_TIMEOUT 300000
 
 #define BAD_CMD -100
 #define BAD_VAL -200
@@ -29,6 +31,7 @@
 
 // Debugging modes
 bool LKMStillOn = true;
+bool autoFreakAndTurnOffIntervalEnabled = false;
 
 
 // Pins, hardware
@@ -76,6 +79,7 @@ int burnTime = 60000;
 int doorTimeout = 6000;
 int LKMsetupTimeout = 100000;
 int killSignalInterval = 60000;
+int autoFreakAndTurnOffInterval = 600000;
 char delim = ',';
 char terminator = ';';
 
@@ -295,6 +299,7 @@ void loop() {
     launched = true;
     digitalWrite(launchedLED, HIGH);
     Serial.println("Launch button pushed");
+    recordVitals("Event: launched");
   }
   pacemakerIfNeeded(pacemakerPeriod);
   burnIfNeeded(doorTimeout);
@@ -316,6 +321,29 @@ void loop() {
     Serial2.print("Entered autonomous mode ");
     Serial2.print((millis() - timeEnteredAutonomous) / 1000);
     Serial2.println(" seconds ago");
+    if((millis() - timeEnteredAutonomous > autoFreakAndTurnOffInterval) && autoFreakAndTurnOffIntervalEnabled){
+      // Enter autoFreakAndTurnOffMode
+      recordVitals("Entering autoFreakAndTurnOffMode");
+      unsigned long timeoutTime = millis() + COOLTIME_TIMEOUT;
+      // Figure out if we're too hot; in this case, it might be worth turning the LKM off
+      bool tooHot = demandVal("$TEMP;", 30) > TARGET_TEMP + TEMP_TOLERANCE;
+      if(tooHot){
+        recordVitals("Decided processor was too hot. Powering LKM off");
+        Serial1.print("PWR,OFF;");
+      }
+      // figure out once we have thermistors on processor, but probably something like this
+      while(readThermistor(therm1) > MAX_RESTART_TEMP && millis() < timeoutTime){
+        // Communicate with ground
+        Serial2.println("Communication with ground lost. Processor temp too hot. Suspected spinning. Waiting for processor to cool.");
+        Serial2.print("Current temp (thermistor reading): ");
+        Serial2.println(readThermistor(therm1));
+        // listen to ground just in case
+        handleGroundCommand();
+        // Wait a second so we're not too obnoxious to ground
+        delay(1000);
+      }
+      powerLKMon(2400);
+    }
     if(handleGroundCommand()){
       autonomousMode = false;
       Serial2.print("Exited autonomous mode;");
@@ -714,8 +742,10 @@ bool handleGroundCommand(){
   lastGroundComm = millis();
   String command = Serial2.readStringUntil(delim);
   String arg = Serial2.readStringUntil(terminator);
+  Serial2.flush();
   bool sendToLKM = 0;
   int dataIndex;
+  Serial2.println("Recieved command " + command);
   if(command.equals("$PWR")){
       sendToLKM = 1;
       dataIndex = PWR_INDEX;
@@ -817,7 +847,7 @@ bool handleGroundCommand(){
     Serial2.write(Serial1.read());
   }
   Serial2.write('\n');
-  recordVitals("Ground command: " + command);
+  recordVitals("Ground command: " + command + delim + arg + terminator);
   return true;
 }
 
@@ -902,6 +932,10 @@ float demandVal(String command, int nTrials){
 
 
 bool powerLKMon(int baudRate){
+  if(!(baudRate == 9600 ||baudRate == 4800 || baudRate == 9600)){
+    Serial2.println("Invalid baud rate, try again");
+    return 0;
+  }
   // Assumes the LKM is not on
   Serial1.print("$PWR,ON;");
   Serial1.flush();
