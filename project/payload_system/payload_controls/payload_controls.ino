@@ -8,10 +8,11 @@
 #define TEMP_TOLERANCE 1
 #define USB_BAUD 9600
 #define LKM_DEFAULT_BAUD 9600
-#define LKM_STARTUP_TIME 12000
+#define LKM_STARTUP_TIME 35000
 #define DEFAULT_DEMAND_N 50
 #define SD_TIMEOUT 5000
 #define STAT_BUFFER_TIME 300
+#define SERIAL_TIMEOUT 3000
 
 #define BAD_CMD -100
 #define BAD_VAL -200
@@ -27,7 +28,7 @@
 #define MOTR_INDEX 6
 
 // Debugging modes
-bool LKMStillOn = true;
+bool LKMStillOn = false;
 
 
 // Pins, hardware
@@ -38,8 +39,8 @@ int heater = 6;
 // Chip select for SD card
 int CS = 8;
 // Thermistors
-int therm1 = A3;
-int therm2 = A4;
+int therm1 = A0;
+int therm2 = A3;
 // Indicator LEDs
 int SDinitLED = 3;
 int LKMcommLED = 22;
@@ -168,23 +169,26 @@ void setup() {
 
   // Blink to indicate initialization
   digitalWrite(LKMcommLED, HIGH);
-  delay(500);
+  delay(100);
   digitalWrite(LKMcommLED, LOW);
-  delay(500);
+  delay(100);
   digitalWrite(LKMcommLED, HIGH);
-  delay(500);
+  delay(100);
   digitalWrite(LKMcommLED, LOW);
+  delay(100);
   
   // Initialize UARTs 
   Serial.begin(9600);
+  Serial.setTimeout(SERIAL_TIMEOUT);
   Serial2.begin(9600);
+  Serial2.setTimeout(SERIAL_TIMEOUT);
   if(! LKMStillOn){
     Serial1.begin(LKM_DEFAULT_BAUD);
+    Serial1.setTimeout(SERIAL_TIMEOUT);
   }
-// REMOVE FOR FLIGHT
-// UNCOMMENT ABOVE
   if(LKMStillOn){
     Serial1.begin(2400);
+    Serial1.setTimeout(SERIAL_TIMEOUT);
   }
 
   Serial2.println("Startup\n");
@@ -192,11 +196,11 @@ void setup() {
   digitalWrite(LKMcommLED, HIGH);
   delay(500);
   digitalWrite(LKMcommLED, LOW);
-  delay(500);
+  delay(250);
   digitalWrite(LKMcommLED, HIGH);
   delay(500);
   digitalWrite(LKMcommLED, LOW);
-  delay(500);
+  delay(250);
   digitalWrite(LKMcommLED, HIGH);
   delay(500);
   digitalWrite(LKMcommLED, LOW);
@@ -212,8 +216,8 @@ void setup() {
   }
   // Make sure we're talking to the LKM
   // Delay long enough for the LKM to start up
-  Serial.print("Waiting for LKM startup...");
   if(! LKMStillOn){
+    Serial.print("Waiting for LKM startup...");
     delay(LKM_STARTUP_TIME);
   }
   // Change baud rate
@@ -267,7 +271,7 @@ void setup() {
   Serial1.print("$PULS, 0;");
   Serial.println("Done.");
   
-  parseLKM();
+
 
   Serial2.print("Checking systems status...");
   
@@ -279,6 +283,9 @@ void setup() {
     digitalWrite(allSystemsLED, HIGH);
     Serial2.print("\tGO\t");
   }
+
+  Serial1.flush();
+  
   Serial2.println("Finished startup function");
 }
 
@@ -579,6 +586,7 @@ bool lowerBaudRate(int baud){
     return 0;
   }
   Serial1.begin(baud);
+  Serial1.setTimeout(SERIAL_TIMEOUT);
   Serial.println("Lowering arduino baud rate");
   // try n times, in case there's an error
   // possible that this will eventually get built into checkLKMcomm
@@ -782,6 +790,7 @@ bool handleGroundCommand(){
    else if(command.equals("$ARDUINO_BAUD")){
     // changes payload arduino baud rate. Shouldn't be necessary to use with LKM_POWERON
     Serial1.begin(arg.toFloat());
+    Serial1.setTimeout(SERIAL_TIMEOUT);
    }
    else if(command.equals("$SYSTEM_BAUD")){
     Serial2.print("Attempting to lowerBaudRate");
@@ -895,9 +904,11 @@ float demandVal(String command, int nTrials){
 bool powerLKMon(int baudRate){
   // Assumes the LKM is not on
   Serial1.begin(LKM_DEFAULT_BAUD);
+  Serial1.setTimeout(SERIAL_TIMEOUT);
   Serial1.flush();
   Serial1.print("$PWR,ON;");
-  Serial1.readStringUntil('\n');
+  delay(LKM_STARTUP_TIME);
+  Serial2.println(Serial1.readStringUntil('\n'));
   Serial1.flush();
   return lowerBaudRate(baudRate);
 }
