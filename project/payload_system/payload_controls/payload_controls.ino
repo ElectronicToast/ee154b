@@ -952,3 +952,15 @@ bool monitorVals(){
   }
   return somethingChanged;
 }
+
+double findCurrent(int batPin, int currentPin) {
+  // TBH totally copied and pasted this from last term and I have no idea what it does, but maybe it'll be useful...?
+  double currReading = analogRead(currentPin);
+  double Vin = (3.3 / 1023.0) * currReading;
+  double batReading = analogRead(batPin);
+  double Vbat = (3.3 / 1023.0) * batReading;
+  double divV = (4.7+ 22.0)/4.7;
+  double R = 2.0;
+  double current = (Vbat - Vin) * divV/R;
+  return current * 1000; // in mA
+}
