@@ -21,6 +21,14 @@
 #define MISMATCH -300
 #define BAD_STAT -400
 
+#define ADC_N_BITS      10
+#define ADC_MAX_VAL     1023
+#define ADC_VREF        3.3
+
+#define SHUNT_RES_OHM   3.0
+#define SHUNT_SCALE_H   4.13832853025937
+#define SHUNT_SCALE_L   4.323499491353
+
 #define PWR_INDEX  0
 #define PULS_INDEX 1
 #define DATA_INDEX 2
@@ -44,6 +52,9 @@ int CS = 8;
 // Thermistors
 int therm1 = A0;
 int therm2 = A3;
+// Voltage/Current Sense
+int shunt_h = A1;
+int shunt_l = A2;
 // Indicator LEDs
 int SDinitLED = 3;
 int LKMcommLED = 22;
@@ -568,6 +579,21 @@ float readThermistor(int thermistorPin) {
   // C -> F
   //temp = 9/5 * temp + 32;
   return temp; // in Celsius
+}
+
+// ------------------------------- CURRENT SHUNT -------------------------------
+
+double readAnalogVoltage(int pin) {
+  // Read and compute an analog voltage reading on `pin`
+  return (double) analogRead(pin) * (double)ADC_VREF / (double)ADC_MAX_VAL;
+}
+
+double readCurrent() {
+  // Read both sides of shunt resistor
+  double in_h = readAnalogVoltage(shunt_h);
+  double in_l = readAnalogVoltage(shunt_l);
+  // Compute the current 
+  return (SHUNT_SCALE_H * in_h - SHUNT_SCALE_L * in_l) / SHUNT_RES_OHM;
 }
 
 double PID(float Pcoeff, float Icoeff, float Dcoeff){
