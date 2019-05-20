@@ -10,7 +10,7 @@
 #define LKM_DEFAULT_BAUD 9600
 #define LKM_STARTUP_TIME 35000
 #define DEFAULT_DEMAND_N 50
-#define SD_TIMEOUT 5000
+#define SD_TIMEOUT 10000
 #define STAT_BUFFER_TIME 300
 #define SERIAL_TIMEOUT 3000
 
@@ -28,7 +28,7 @@
 #define MOTR_INDEX 6
 
 // Debugging modes
-bool LKMStillOn = false;
+bool LKMStillOn = true;
 
 
 // Pins, hardware
@@ -71,7 +71,7 @@ float PID_kD = 0;
 
 // Other global variables
 int pacemakerPeriod = 60000;
-int groundCommPeriod = 60000;
+int groundCommPeriod = 300000;
 int burnTime = 60000;
 int doorTimeout = 6000;
 int LKMsetupTimeout = 100000;
@@ -903,10 +903,10 @@ float demandVal(String command, int nTrials){
 
 bool powerLKMon(int baudRate){
   // Assumes the LKM is not on
+  Serial1.print("$PWR,ON;");
+  Serial1.flush();
   Serial1.begin(LKM_DEFAULT_BAUD);
   Serial1.setTimeout(SERIAL_TIMEOUT);
-  Serial1.flush();
-  Serial1.print("$PWR,ON;");
   delay(LKM_STARTUP_TIME);
   Serial2.println(Serial1.readStringUntil('\n'));
   Serial1.flush();
