@@ -53,8 +53,8 @@ int CS = 8;
 int therm1 = A0;
 int therm2 = A3;
 // Voltage/Current Sense
-int shunt_h = A1;
-int shunt_l = A2;
+int shunt_h = A2;     // Not correct but gives >0 most of the time
+int shunt_l = A1;
 // Indicator LEDs
 int SDinitLED = 3;
 int LKMcommLED = 22;
@@ -285,8 +285,15 @@ void setup() {
   // Turn the heater off
   Serial1.print("$PULS, 0;");
   Serial.println("Done.");
-  
 
+  //////////////////////////////////////
+  //Serial.println("Reading current");
+  //Serial.println(readCurrent());
+  //delay(5000);
+  //Serial.println(readCurrent());
+  //delay(5000);
+  //Serial.println(readCurrent());
+  ///////////////////////////////////////
 
   Serial2.print("Checking systems status...");
   
@@ -593,7 +600,7 @@ double readCurrent() {
   double in_h = readAnalogVoltage(shunt_h);
   double in_l = readAnalogVoltage(shunt_l);
   // Compute the current 
-  return (SHUNT_SCALE_H * in_h - SHUNT_SCALE_L * in_l) / SHUNT_RES_OHM;
+  return abs(SHUNT_SCALE_H * in_h - SHUNT_SCALE_L * in_l) / SHUNT_RES_OHM;
 }
 
 double PID(float Pcoeff, float Icoeff, float Dcoeff){
