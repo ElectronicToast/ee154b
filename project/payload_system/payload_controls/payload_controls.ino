@@ -21,13 +21,11 @@
 #define MISMATCH -300
 #define BAD_STAT -400
 
-#define ADC_N_BITS      10
-#define ADC_MAX_VAL     1023
-#define ADC_VREF        3.3
-
-#define SHUNT_RES_OHM   3.0
-#define SHUNT_SCALE_H   4.13832853025937
-#define SHUNT_SCALE_L   4.323499491353
+// Current sensor constants
+#define N_CURR_SMPL     10          // Number of samples to average over
+#define MV_PER_RAW      4.88        // mV per fraction of 4095 from ADC in
+#define CURR_OFF        1990        // Linear fit to calibration curve
+#define CURR_GAIN       -1.6
 
 #define PWR_INDEX  0
 #define PULS_INDEX 1
@@ -52,9 +50,10 @@ int CS = 8;
 // Thermistors
 int therm1 = A0;
 int therm2 = A3;
+
 // Voltage/Current Sense
-int shunt_h = A2;     // Not correct but gives >0 most of the time
-int shunt_l = A1;
+int isns_pin = A1;          // Fix this on the hardware
+
 // Indicator LEDs
 int SDinitLED = 3;
 int LKMcommLED = 22;
@@ -595,17 +594,23 @@ float readThermistor(int thermistorPin) {
 
 // ------------------------------- CURRENT SHUNT -------------------------------
 
-double readAnalogVoltage(int pin) {
-  // Read and compute an analog voltage reading on `pin`
-  return (double) analogRead(pin) * (double)ADC_VREF / (double)ADC_MAX_VAL;
-}
-
 double readCurrent() {
-  // Read both sides of shunt resistor
-  double in_h = readAnalogVoltage(shunt_h);
-  double in_l = readAnalogVoltage(shunt_l);
-  // Compute the current 
-  return abs(SHUNT_SCALE_H * in_h - SHUNT_SCALE_L * in_l) / SHUNT_RES_OHM;
+  long isns_in = 0;
+  // read the analog in value:
+  for (int i = 0; i < N_CURR_SMPL; i++)
+  {
+    isns_in += analogRead(isns_pin);
+
+    // wait 2 milliseconds before the next loop
+    // for the analog-to-digital converter to settle
+    // after the last reading:
+    delay(2);
+  }
+  isns_in /= N_CURR_SMPL;
+
+  // Compute number of millivolts from raw ADC reading, then convert to a current
+  // by subtracting an offset and dividing by a gain (see calibration curve)
+  return(MV_PER_RAW * ((double) isns_in) - CURR_OFF) / CURR_GAIN;
 }
 
 double PID(float Pcoeff, float Icoeff, float Dcoeff){
