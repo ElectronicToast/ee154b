@@ -398,6 +398,8 @@ void recordVitals(String event){
     dataFile.print(',');
     dataFile.print(telem);
     dataFile.print(',');
+    dataFile.print(String(readCurrent()));
+    dataFile.print(',');
     dataFile.println(event);
     dataFile.close();
   }
