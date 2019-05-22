@@ -13,9 +13,10 @@ COMMAND_BOM_CHAR = '$' # beginning of message character for commands
 TELEM_BOM_CHAR = '#' # beginning of message character for received telemetry
 EOM_CHAR = ';' # marks end of time temperature data
 DELIM = ',' # delimiter between commands and arguments
-HEARTBEAT_INTERVAl = 60 # time in seconds between heartbeats
-HEARTBEAT_TIMEOUT = 2 # time to wait for heartbeat response
+HEARTBEAT_INTERVAL = 60 # time in seconds between heartbeats
+HEARTBEAT_TIMEOUT = 2 # time in seconds to wait for heartbeat response
 HEARTBEAT_MSG = '$STAT,;'
+RADIO_COMMAND_TIMEOUT = 2 # time to wait for radio command response
 
 # Serial instance
 ser = None
@@ -41,7 +42,10 @@ BOX_MENU_ITEMS = [
     ('KP', ['int'], 'Change the Proportional constant for temperature PID loop.'),
     ('KI', ['int'], 'Change the Integral constant for temperature PID loop.'),
     ('KD', ['int'], 'Change the Derivative constant for temperature PID loop.'),
-    ('BAUD', ['2400', '4800', '9600'], 'Set Arduino\'s data rate with LKM')]
+    ('BAUD', ['2400', '4800', '9600'], 'Set Arduino\'s data rate with LKM'),
+    ('EMERG_KILL1', [], 'Initialize kill procedure.'),
+    ('EMERG_KILL2', [], 'Confirm kill procedure.'),
+    ('END_KILL', [], 'End kill.')]
     # probably some more like battery temp
 
 ADMIN_MENU_ITEMS = [
@@ -58,6 +62,9 @@ def main(args):
 
     # setup serial port
     setup_serial(args)
+
+    # configure radio
+    # config_radio()
 
     # print menu once
     print_menu()
@@ -85,6 +92,7 @@ def listening_state():
         if just_entered:
             just_entered = False
             logger.info('Listening...  press <c> to enter COMMAND MODE or <q> to quit program')
+            sys.stdout.flush()
             # check if received anything when in command mode
             if ser.in_waiting > 0:
                 logger.warning('\t RX (delayed): ' + serial_read())
@@ -92,6 +100,7 @@ def listening_state():
         # check if receiving data
         if ser.in_waiting > 0:
             logger.warning('\t RX: ' + serial_read())
+            sys.stdout.flush()
 
         # check if key is pressed
         if kb.kbhit():
@@ -104,7 +113,7 @@ def listening_state():
                 sys.exit(0)
 
         # send heartbeat
-        if (datetime.now() - last_sent_heartbeat).seconds > HEARTBEAT_INTERVAl:
+        if (datetime.now() - last_sent_heartbeat).seconds > HEARTBEAT_INTERVAL:
             last_sent_heartbeat = datetime.now()
             send_heartbeat()
 
@@ -115,10 +124,12 @@ def command_state():
 
     while not done:
         # ask for input
-        i = input('>> ').upper()
+        i_original = input('>> ')
+        i = i_original.upper()
 
         # split input into list [command, argument]
         i = i.split(' ')
+        i_original = i_original.split(' ')
 
         # get all possible commands
         cmds = [i[0] for i in PAYLOAD_MENU_ITEMS + BOX_MENU_ITEMS + ADMIN_MENU_ITEMS]
@@ -158,9 +169,9 @@ def command_state():
             if len(i) < 2 or i[1] == '':
                 logger.info('Please input command to passthrough. e.g. PASS $PWR,ON;')
             else:
-                i[1] = ' '.join(str(e) for e in i[1:])
-                logger.debug('Command input: ' + i[0] + ', ' + i[1] if len(i) > 1 else 'Command: ' + i[0])
-                msg = i[1]
+                i_original[1] = ' '.join(str(e) for e in i_original[1:])
+                logger.debug('Command input: ' + i_original[0] + ', ' + i_original[1] if len(i) > 1 else 'Command: ' + i_original[0])
+                msg = i_original[1]
                 serial_send(msg) 
                 logger.warning('\t TX: '+ msg)
                 done = True
@@ -169,7 +180,7 @@ def command_state():
             logger.debug('Command input: ' + i[0] + ', ' + i[1] if len(i) > 1 else 'Command: ' + i[0])
             msg = COMMAND_BOM_CHAR + i[0] + DELIM
             if (len(i) > 1):
-                msg += i[1]
+                msg += i[1] 
             msg += EOM_CHAR
             serial_send(msg)
             logger.warning('\t TX: '+ msg)
@@ -211,26 +222,43 @@ def setup_serial(args):
 # encodes a message using utf-8 and sends over serial
 def serial_send(msg):
     try:
-        ser.write(bytes(msg, 'utf-8'))
+        ser.write(msg.encode('utf-8'))
     except serial.serialutil.SerialException:
         logger.error('Serial port disconnected.')
 
 # waits for data to come in buffer, then read all data
-def serial_read():
+def serial_read(disable_rec_time=False):
     global last_rec
+    corrupt_count = 0
     out = ''
     try:
         while ser.in_waiting > 0:
-            out += ser.read(1).decode('utf-8')
-            sleep(0.01)
-            last_rec = datetime.now()
+            try:
+                c = ser.read(1).decode('utf-8')
+                # if reach the end of a message break so not all messages clumped up
+                if c == EOM_CHAR:
+                    break
+                out += c
+                sleep(0.01)
+
+                # to filter out if just listening to local radio (+++, AT commands) 
+                if not disable_rec_time:
+                    last_rec = datetime.now()
+            # catch corrupted transmissions
+            except UnicodeDecodeError:
+                out += '?'
+                corrupt_count += 1
     except serial.serialutil.SerialException:
         logger.error('Serial port disconnected.')
 
+    if corrupt_count != 0:
+        logger.error('Message has ' + corrupt_count + 'corruptions.')
     return out
 
+# sends a heartbeat and waits to hear back
 def send_heartbeat():
     global last_rec
+    # BELOW COMMENTED FOR TESTING
     serial_send(HEARTBEAT_MSG)
     logger.warning('\t TX (Heartbeat): ' + HEARTBEAT_MSG)
 
@@ -254,6 +282,30 @@ def send_heartbeat():
             last_rec = datetime.now()
     except serial.serialutil.SerialException:
         logger.error('Serial port disconnected.')  
+
+# configures xTend radio to operate at 10kb/s 
+def config_radio():
+    logging.debug('Attepmting to enter radio command mode.')
+    serial_send('+++')
+    while ser.in_waiting == 0:
+        pass
+    while ser.in_waiting > 0:
+        logging.debug(ser.read(1).decode('utf-8'))
+        sleep(0.01)
+    # radio_wait()
+    # ok = serial_read(disable_rec_time=True)
+    # logging.error(ok)
+    # if ok != 'OK':
+    #     logging.error('Failed to enter radio command mode.')
+    # else:
+    #     logging.debug('success')
+
+def radio_wait():
+    start = datetime.now()
+    while ser.in_waiting == 0: 
+        if (datetime.now() - start).seconds > RADIO_COMMAND_TIMEOUT:
+            logging.error('Radio did not respond to command in ' + str(RADIO_COMMAND_TIMEOUT) + ' seconds.')
+            break
 
 # $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ MENU HELPERS $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 # prints all menu items (printed only to stdout, not to log file)
