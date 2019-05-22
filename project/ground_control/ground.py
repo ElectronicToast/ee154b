@@ -269,7 +269,7 @@ def send_heartbeat():
             if (datetime.now() - start).seconds > HEARTBEAT_TIMEOUT:
                 if last_rec == None:
                     last = 'never'
-                    logger.error('Did not receive data from payload within ' + str(HEARTBEAT_TIMEOUT) + 's. Last heard: ' + last)
+                    logger.error('Did not receive heartbeat data from payload within ' + str(HEARTBEAT_TIMEOUT) + 's. Last heard: ' + last)
                 else:
                     last = last_rec.strftime('%H-%M-%S.%f')[:-3]
                     diff = '{:.2f}'.format((datetime.now() - last_rec).seconds / 60.0)
