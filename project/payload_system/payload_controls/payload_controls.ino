@@ -40,8 +40,8 @@
 #define MOTR_INDEX 6
 
 // Debugging modes
-bool LKMStillOn = true;
-bool autoFreakAndTurnOffIntervalEnabled = false;
+bool LKMStillOn = false;
+bool autoFreakAndTurnOffIntervalEnabled = true;
 
 
 // Pins, hardware
