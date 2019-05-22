@@ -4,7 +4,6 @@
 #include <SD.h>
 
 #define DOOR_ALTITUDE 95
-#define TARGET_TEMP 30
 #define TEMP_TOLERANCE 1
 #define MAX_RESTART_TEMP 30
 #define USB_BAUD 9600
@@ -21,20 +20,23 @@
 #define MISMATCH -300
 #define BAD_STAT -400
 
-#define ADC_N_BITS      10
-#define ADC_MAX_VAL     1023
+// Voltage sense ADC constants 
+#define ADC_RES         1023 
 #define ADC_VREF        3.3
+#define VSNS_RATIO      0.18        // (22kOhm) / (100k + 22kOhm)
 
-#define SHUNT_RES_OHM   3.0
-#define SHUNT_SCALE_H   4.13832853025937
-#define SHUNT_SCALE_L   4.323499491353
+// Current sensor constants
+#define N_CURR_SMPL     10          // Number of samples to average over
+#define MV_PER_RAW      4.88        // mV per fraction of 4095 from ADC in
+#define CURR_OFF        1990        // Linear fit to calibration curve
+#define CURR_GAIN       -1.6
 
 #define PWR_INDEX  0
 #define PULS_INDEX 1
 #define DATA_INDEX 2
 #define VOLT_INDEX 3
-#define PRES_INDEX 4
-#define TEMP_INDEX 5
+#define TEMP_INDEX 4
+#define PRES_INDEX 5
 #define MOTR_INDEX 6
 
 // Debugging modes
@@ -52,9 +54,11 @@ int CS = 8;
 // Thermistors
 int therm1 = A0;
 int therm2 = A3;
+
 // Voltage/Current Sense
-int shunt_h = A2;     // Not correct but gives >0 most of the time
-int shunt_l = A1;
+int vsns_pin = A1;          // Voltage sense voltage divider from VBat
+int isns_pin = A2;          // Current sensor output, divided down to 3V3
+
 // Indicator LEDs
 int SDinitLED = 3;
 int LKMcommLED = 22;
@@ -82,6 +86,7 @@ bool emergencyKillFirstSignal = 0;
 float PID_kP = .5;
 float PID_kI = .1;
 float PID_kD = 0;
+float target_temp = 30;
 
 // Other global variables
 int pacemakerPeriod = 60000;
@@ -94,10 +99,14 @@ int autoFreakAndTurnOffInterval = 600000;
 char delim = ',';
 char terminator = ';';
 
+// 
+String header = "Time (ms), #PWR, Power Status, PULS, Heater Setting, VOLT, VLKM (V)," 
+                " TEMP, Temp Internal (C), PRES, Pressure (Pa), MOTR, Flywheel,"
+                " Ibat, Vbat, Therm1, Therm2, Note";
 // global arrays to store telem 
-// [PWR, PULS, DATA, VOLT, PRES, TEMP, MOTR]
-enum Command {PWR, PULS, DATA, VOLT, PRES, STAT, MOTR, KP, KI, KD};
-float expected_val[] = {1.0, 0.0, 9600, 5.0, 1000.0, 27.0, 30.0};
+enum Command {PWR, PULS, DATA, VOLT, TEMP, PRES, STAT, MOTR, KP, KI, KD};
+// [PWR, PULS, DATA, VOLT, TEMP, PRES, MOTR]
+float expected_val[] = {1.0, 0.0, 9600, 5.0, 27.0, 1000.0, 30.0};
 float stats[7];
 
 // Temp control stuff
@@ -206,7 +215,7 @@ void setup() {
     Serial1.setTimeout(SERIAL_TIMEOUT);
   }
 
-  Serial2.println("Startup\n");
+  Serial2.print("Startup;");
 
   digitalWrite(LKMcommLED, HIGH);
   delay(500);
@@ -227,7 +236,17 @@ void setup() {
   
   if(SDinit){
     digitalWrite(SDinitLED, HIGH);
-    Serial.println("SDinit true");
+    Serial.print("SDinit true... writing header to SD Card...");
+    File dataFile = SD.open("datalog.txt", FILE_WRITE);
+    // if the file is available, write the time and vitals to it:
+    if (dataFile) {
+      dataFile.println(SDHeader);
+      dataFile.close();
+      Serial.println("Success");
+    }
+    else {
+      Serial.println("Failed");
+    }
   }
   // Make sure we're talking to the LKM
   // Delay long enough for the LKM to start up
@@ -239,12 +258,13 @@ void setup() {
   // Maybe we should check if it's done starting up first?
   // UNCOMMENT FOR FLIGHT
   if(! LKMStillOn){
-    Serial2.println(Serial1.readStringUntil('\n'));
+    Serial2.print(Serial1.readStringUntil('\n'));
+    Serial2.print(';');
   }
 
   // UNCOMMENT FOR FLIGHT
   if(! LKMStillOn){
-    Serial2.println("Lowering LKM baud rate...");
+    Serial2.print("Lowering LKM baud rate...;");
     lowerBaudRate(2400);
   }
 
@@ -281,7 +301,7 @@ void setup() {
 
   Serial.println("Done.");
   
-  Serial2.println("Turning off LKM heater...");
+  Serial2.print("Turning off LKM heater...;");
   // Turn the heater off
   Serial1.print("$PULS, 0;");
   Serial.println("Done.");
@@ -295,7 +315,7 @@ void setup() {
   //Serial.println(readCurrent());
   ///////////////////////////////////////
 
-  Serial2.print("Checking systems status...");
+  Serial2.print("Checking systems status...;");
   
   // Make sure all the systems we've checked are okay
   // I'm making this its own bool so that if we decide we want to do something (like run again
@@ -303,12 +323,12 @@ void setup() {
   bool allSystems = SDinit && LKMcomm && altitudeCalibrated && readingThermistors;
   if(allSystems){
     digitalWrite(allSystemsLED, HIGH);
-    Serial2.print("\tGO\t");
+    Serial2.print("\tGO\t;");
   }
 
   Serial1.flush();
   
-  Serial2.println("Finished startup function");
+  Serial2.print("Finished startup function;");
 }
 
 void loop() {
@@ -321,47 +341,47 @@ void loop() {
   }
   pacemakerIfNeeded(pacemakerPeriod);
   burnIfNeeded(doorTimeout);
-  controlTemps(TARGET_TEMP, TEMP_TOLERANCE);
+  controlTemps(target_temp, TEMP_TOLERANCE);
   handleGroundCommand();
   monitorVals();
   if(millis() - lastGroundComm > groundCommPeriod){
     autonomousMode = true;
-    Serial2.println("Yo talk to us");
+    Serial2.print("Yo talk to us;");
     recordVitals("Entered autonomous mode");
     timeEnteredAutonomous = millis();
   }
   while(autonomousMode && launched){
     pacemakerIfNeeded(pacemakerPeriod);
     burnIfNeeded(doorTimeout);
-    controlTemps(TARGET_TEMP, TEMP_TOLERANCE);
+    controlTemps(target_temp, TEMP_TOLERANCE);
     monitorVals();
-    Serial2.println("Pls I'm lonely");
+    Serial2.print("Pls I'm lonely;");
     Serial2.print("Entered autonomous mode ");
     Serial2.print((millis() - timeEnteredAutonomous) / 1000);
-    Serial2.println(" seconds ago");
+    Serial2.print(" seconds ;");
     if((millis() - timeEnteredAutonomous > autoFreakAndTurnOffInterval) && autoFreakAndTurnOffIntervalEnabled){
       // Enter autoFreakAndTurnOffMode
       recordVitals("Entering autoFreakAndTurnOffMode");
       unsigned long timeoutTime = millis() + COOLTIME_TIMEOUT;
       // Figure out if we're too hot; in this case, it might be worth turning the LKM off
-      bool tooHot = demandVal("$TEMP;", 30) > TARGET_TEMP + TEMP_TOLERANCE;
+      bool tooHot = demandVal("$TEMP;", 30) > target_temp + TEMP_TOLERANCE;
       if(tooHot){
         recordVitals("Decided processor was too hot. Powering LKM off");
         Serial1.print("PWR,OFF;");
-      
-        // figure out once we have thermistors on processor, but probably something like this
-        while(readThermistor(therm1) > MAX_RESTART_TEMP && millis() < timeoutTime){
-          // Communicate with ground
-          Serial2.println("Communication with ground lost. Processor temp too hot. Suspected spinning. Waiting for processor to cool.");
-          Serial2.print("Current temp (thermistor reading): ");
-          Serial2.println(readThermistor(therm1));
-          // listen to ground just in case
-          handleGroundCommand();
-          // Wait a second so we're not too obnoxious to ground
-          delay(1000);
-        }
-        powerLKMon(2400);
-      }}
+      }
+      // figure out once we have thermistors on processor, but probably something like this
+      while(readThermistor(therm1) > MAX_RESTART_TEMP && millis() < timeoutTime){
+        // Communicate with ground
+        Serial2.print("Communication with ground lost. Processor temp too hot. Suspected spinning. Waiting for processor to cool.;");
+        Serial2.print("Current temp (thermistor reading): ");
+        Serial2.print(readThermistor(therm1));
+        Serial2.print(";");
+        // listen to ground just in case
+        handleGroundCommand();
+        // Wait a second so we're not too obnoxious to ground
+        delay(1000);
+      }
+      powerLKMon(2400);
     }
     if(handleGroundCommand()){
       autonomousMode = false;
@@ -398,11 +418,20 @@ void recordVitals(String event){
     dataFile.print(',');
     dataFile.print(telem);
     dataFile.print(',');
+    dataFile.print(String(readCurrent()));
+    dataFile.print(',');
+    dataFile.print(String(readVBat()));
+    dataFile.print(',');
+    dataFile.print(String(readThermistor(therm1)));
+    dataFile.print(',');
+    dataFile.print(String(readThermistor(therm2)));
+    dataFile.print(',');
     dataFile.println(event);
     dataFile.close();
   }
   Serial2.print("Event: ");
   Serial2.println(event);
+  Serial2.print(";");
 }
 
 boolean pacemakerIfNeeded(int pacemakerPeriod){
@@ -422,6 +451,7 @@ boolean burnIfNeeded(int timeout){
     if(findAltitude() > DOOR_ALTITUDE ||(millis() - launchTime > timeout)){
       Serial2.print("Burn wire activated, altitude ");
       Serial2.println(findAltitude());
+      Serial2.print(";");
       Serial.print("time ");
       Serial.print(millis() - launchTime);
       burnWire();
@@ -437,7 +467,7 @@ void burnWire(){
   delay(burnTime);
   digitalWrite(BDD, LOW);
   recordVitals("Door: deployed");
-  Serial2.println("Door: deployed");
+  Serial2.print("Door: deployed;");
 }
 
 void controlTemps(float target, float err_tolerance){
@@ -487,7 +517,7 @@ float findAltitude(){
 
 bool calibrateAltitude(int nTimes, int altitudeError){
   Serial.println("Called calibrateAltitude");
-  Serial2.print("Calibrating altitude...");
+  Serial2.print("Calibrating altitude...;");
   while(Serial1.available()){
     Serial.print(Serial1.read());
   }
@@ -507,24 +537,25 @@ bool calibrateAltitude(int nTimes, int altitudeError){
   // We probably can't check that the measured altitude is exactly 0.00...
   if(initPressure > 0 && -altitudeError < findAltitude() && findAltitude() < altitudeError){
     // Probably add a (generous) expected range once we know units, etc
-    Serial2.println("Success");
+    Serial2.print("Success;");
     return 1;
   } else {
     Serial2.print("Altitude calibration failed. initPressure: ");
-    Serial2.println(initPressure);
+    Serial2.print(initPressure);
+    Serial2.print(";");
     return 0;
   }
 }
 
 bool initializeSDcard(int timeout){
-  Serial2.print("initializing SD card...");
+  Serial2.print("initializing SD card...;");
   SD.begin(CS);
   // Wait for it to initialize
   unsigned long startTime = millis();
   while(!SD.begin(CS)){
     if(millis() - startTime > timeout){
-      Serial2.println("Failure");
-      Serial2.println("Giving up on SD");
+      Serial2.print("Failure;");
+      Serial2.print("Giving up on SD;");
       return 0;
     }
   }
@@ -533,27 +564,27 @@ bool initializeSDcard(int timeout){
 }
 
 bool checkLKMcomm(int nTries){
-  Serial2.print("Checking communications with LKM...");
+  Serial2.print("Checking communications with LKM...;");
   for(int i = 0; i < nTries; i++){
     Serial1.write("$STAT;");
     delay(STAT_BUFFER_TIME);
     if(parseStat() == 1.0){
-      Serial2.println("Successful");
+      Serial2.print("Successful;");
       return 1;
     }
   }
-  Serial2.println("failed");
+  Serial2.print("failed;");
   return 0;
 }
 
 bool checkThermistor(int thermistorPin, int lowerBound, int upperBound){
-  Serial2.print("Checking thermistor readings...");
+  Serial2.print("Checking thermistor readings...;");
   float temp = readThermistor(thermistorPin);
   if(temp > lowerBound && temp < upperBound){
-    Serial2.println("Success");
+    Serial2.print("Success;");
     return 1;
   } else {
-    Serial2.println("Failure");
+    Serial2.print("Failure;");
     return 0;
   }
 }
@@ -589,19 +620,33 @@ float readThermistor(int thermistorPin) {
   return temp; // in Celsius
 }
 
-// ------------------------------- CURRENT SHUNT -------------------------------
+// ----------------------------- VOLTAGE & CURRSNS -----------------------------
 
-double readAnalogVoltage(int pin) {
-  // Read and compute an analog voltage reading on `pin`
-  return (double) analogRead(pin) * (double)ADC_VREF / (double)ADC_MAX_VAL;
+double readVBat() {
+  // Read VBat voltage divider input
+  int vbat_in = analogRead(vsns_pin);
+  // Compute voltage by getting fraction of reading 
+  //        voltage = (adc / 1023) * 3V3 / resistor ratio
+  return ( ((double) vbat_in) / ADC_RES) * ADC_VREF / VSNS_RATIO;
 }
 
 double readCurrent() {
-  // Read both sides of shunt resistor
-  double in_h = readAnalogVoltage(shunt_h);
-  double in_l = readAnalogVoltage(shunt_l);
-  // Compute the current 
-  return abs(SHUNT_SCALE_H * in_h - SHUNT_SCALE_L * in_l) / SHUNT_RES_OHM;
+  long isns_in = 0;
+  // read the analog in value:
+  for (int i = 0; i < N_CURR_SMPL; i++)
+  {
+    isns_in += analogRead(isns_pin);
+
+    // wait 2 milliseconds before the next loop
+    // for the analog-to-digital converter to settle
+    // after the last reading:
+    delay(2);
+  }
+  isns_in /= N_CURR_SMPL;
+
+  // Compute number of millivolts from raw ADC reading, then convert to a current
+  // by subtracting an offset and dividing by a gain (see calibration curve)
+  return(MV_PER_RAW * ((double) isns_in) - CURR_OFF) / CURR_GAIN;
 }
 
 double PID(float Pcoeff, float Icoeff, float Dcoeff){
@@ -644,7 +689,7 @@ bool lowerBaudRate(int baud){
     }
   }
   if(error){
-    Serial2.println("Could not lower baud rate");
+    Serial2.print("Could not lower baud rate;");
     return 0;
   }
   Serial1.begin(baud);
@@ -779,7 +824,8 @@ bool handleGroundCommand(){
   Serial2.flush();
   bool sendToLKM = 0;
   int dataIndex;
-  Serial2.println("Recieved command " + command);
+  Serial2.print("Recieved command " + command);
+  Serial2.print(";");
   if(command.equals("$PWR")){
       sendToLKM = 1;
       dataIndex = PWR_INDEX;
@@ -797,6 +843,10 @@ bool handleGroundCommand(){
   else if(command.equals("$VOLT")){
       Serial1.print("$VOLT;");
       dataIndex = VOLT_INDEX;
+  }
+  else if(command.equals("$TEMP")){
+      Serial1.print("$TEMP;");
+      dataIndex = TEMP_INDEX;
   }
   else if(command.equals("$PRES")){
       Serial1.print("$PRES;");
@@ -818,38 +868,48 @@ bool handleGroundCommand(){
       PID_kP = arg.toFloat();
       Serial2.print("Changed KP to ");
       Serial2.print(PID_kP);
+      Serial2.print(";");
    }
    else if(command.equals("$KI")){
       PID_kI = arg.toFloat();
       Serial2.print("Changed KI to ");
       Serial2.print(PID_kI);
+      Serial2.print(";");
    }
    else if(command.equals("$KD")){
       PID_kD = arg.toFloat();
       Serial2.print("Changed KD to ");
       Serial2.print(PID_kD);
+      Serial2.print(";");
+   }
+   else if(command.equals("$TARG")){
+      target_temp = arg.toFloat();
+      Serial2.print("Changed target temp to ");
+      Serial2.print(target_temp);
+      Serial2.print(";");
    }
    else if(command.equals("$EMERG_KILL1")){
       emergencyKillFirstSignal = true;
       firstKillSignalTime = millis();
-      Serial2.print("First emergency kill signal recieved. Please send $EMERG_KILL2; to continue or $END_KILL; to abort.");
+      Serial2.print("First emergency kill signal recieved. Please send $EMERG_KILL2 to continue or $END_KILL to abort.;");
    }
    else if(command.equals("$EMERG_KILL2")){
     if(emergencyKillFirstSignal && (millis() - firstKillSignalTime < killSignalInterval)){
-      Serial2.print("Emergency kill mode activated");
+      Serial2.print("Emergency kill mode activated;");
       emergencyKill = true;
     }
    }
    else if(command.equals("$END_KILL")){
     emergencyKill = false;
     emergencyKillFirstSignal = false;
-    Serial2.print("Emergency kill sequence ended");
+    Serial2.print("Emergency kill sequence ended;");
    }
    else if(command.equals("$LKM_POWERON")){
     // powers LKM on and adjusts the baud rates
     Serial2.print("Attempting LKM_POWERON, baud rate ");
     Serial2.print(arg);
     Serial2.print(powerLKMon(arg.toFloat()));
+    Serial2.print(";");
    }
    else if(command.equals("$ARDUINO_BAUD")){
     // changes payload arduino baud rate. Shouldn't be necessary to use with LKM_POWERON
@@ -859,6 +919,7 @@ bool handleGroundCommand(){
    else if(command.equals("$SYSTEM_BAUD")){
     Serial2.print("Attempting to lowerBaudRate");
     Serial2.print(lowerBaudRate(arg.toFloat()));
+    Serial2.print(";");
    }
    else{
       // Complain to ground
@@ -967,7 +1028,7 @@ float demandVal(String command, int nTrials){
 
 bool powerLKMon(int baudRate){
   if(!(baudRate == 9600 ||baudRate == 4800 || baudRate == 9600)){
-    Serial2.println("Invalid baud rate, try again");
+    Serial2.println("Invalid baud rate, try again;");
     return 0;
   }
   // Assumes the LKM is not on
@@ -976,7 +1037,8 @@ bool powerLKMon(int baudRate){
   Serial1.begin(LKM_DEFAULT_BAUD);
   Serial1.setTimeout(SERIAL_TIMEOUT);
   delay(LKM_STARTUP_TIME);
-  Serial2.println(Serial1.readStringUntil('\n'));
+  Serial2.print(Serial1.readStringUntil('\n'));
+  Serial2.print(";");
   Serial1.flush();
   return lowerBaudRate(baudRate);
 }
@@ -992,7 +1054,7 @@ bool monitorVals(){
     // If there's an error, keep going until there's not an error or we decide it got stuck
     timeoutCounter++;
     if(timeoutCounter > timeout){
-      Serial2.println("Error with monitorVals, could not parseStat()");
+      Serial2.print("Error with monitorVals, could not parseStat();");
       return 0;
     }
     Serial1.flush();
@@ -1005,7 +1067,8 @@ bool monitorVals(){
     Serial1.print(expected_val[MOTR_INDEX]);
     Serial1.print(";");
     String errorMsg = "Automated LKM monitor: Changed MOTR from " + String(initialMotrVal) + " to " + String(expected_val[MOTR_INDEX]);
-    Serial2.println(errorMsg);
+    Serial2.print(errorMsg);
+    Serial2.print(";");
     recordVitals(errorMsg);
   }
   if(stats[PULS_INDEX] != expected_val[PULS_INDEX]){
@@ -1015,7 +1078,8 @@ bool monitorVals(){
     Serial1.print(expected_val[PULS_INDEX]);
     Serial1.print(";");
     String errorMsg = "Automated LKM monitor: Changed PULS from " + String(initialPulsVal) + " to " + String(expected_val[PULS_INDEX]);
-    Serial2.println(errorMsg);
+    Serial2.print(errorMsg);
+    Serial2.print(";");
     recordVitals(errorMsg);
   }
   return somethingChanged;

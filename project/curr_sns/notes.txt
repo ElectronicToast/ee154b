@@ -1,0 +1,13 @@
+5/20/2018
+
+Using the setup documented in the 'currsns_test.ino" file with a voltage divider of R1 = 10k, R2 = 22k,
+
+No current reading ('voltage' in the sketch): 614.88
+
+500 mA current reading: 375.76
+
+1 A: 136.64
+
+2 A: 14.64
+
+
