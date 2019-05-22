@@ -4,7 +4,6 @@
 #include <SD.h>
 
 #define DOOR_ALTITUDE 95
-#define TARGET_TEMP 30
 #define TEMP_TOLERANCE 1
 #define MAX_RESTART_TEMP 30
 #define USB_BAUD 9600
@@ -87,6 +86,7 @@ bool emergencyKillFirstSignal = 0;
 float PID_kP = .5;
 float PID_kI = .1;
 float PID_kD = 0;
+float target_temp = 30;
 
 // Other global variables
 int pacemakerPeriod = 60000;
@@ -341,7 +341,7 @@ void loop() {
   }
   pacemakerIfNeeded(pacemakerPeriod);
   burnIfNeeded(doorTimeout);
-  controlTemps(TARGET_TEMP, TEMP_TOLERANCE);
+  controlTemps(target_temp, TEMP_TOLERANCE);
   handleGroundCommand();
   monitorVals();
   if(millis() - lastGroundComm > groundCommPeriod){
@@ -353,7 +353,7 @@ void loop() {
   while(autonomousMode && launched){
     pacemakerIfNeeded(pacemakerPeriod);
     burnIfNeeded(doorTimeout);
-    controlTemps(TARGET_TEMP, TEMP_TOLERANCE);
+    controlTemps(target_temp, TEMP_TOLERANCE);
     monitorVals();
     Serial2.print("Pls I'm lonely;");
     Serial2.print("Entered autonomous mode ");
@@ -364,7 +364,7 @@ void loop() {
       recordVitals("Entering autoFreakAndTurnOffMode");
       unsigned long timeoutTime = millis() + COOLTIME_TIMEOUT;
       // Figure out if we're too hot; in this case, it might be worth turning the LKM off
-      bool tooHot = demandVal("$TEMP;", 30) > TARGET_TEMP + TEMP_TOLERANCE;
+      bool tooHot = demandVal("$TEMP;", 30) > target_temp + TEMP_TOLERANCE;
       if(tooHot){
         recordVitals("Decided processor was too hot. Powering LKM off");
         Serial1.print("PWR,OFF;");
@@ -880,6 +880,12 @@ bool handleGroundCommand(){
       PID_kD = arg.toFloat();
       Serial2.print("Changed KD to ");
       Serial2.print(PID_kD);
+      Serial2.print(";");
+   }
+   else if(command.equals("$TARG")){
+      target_temp = arg.toFloat();
+      Serial2.print("Changed target temp to ");
+      Serial2.print(target_temp);
       Serial2.print(";");
    }
    else if(command.equals("$EMERG_KILL1")){
