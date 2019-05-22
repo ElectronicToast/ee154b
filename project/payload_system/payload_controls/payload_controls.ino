@@ -36,8 +36,8 @@
 #define PULS_INDEX 1
 #define DATA_INDEX 2
 #define VOLT_INDEX 3
-#define PRES_INDEX 4
-#define TEMP_INDEX 5
+#define TEMP_INDEX 4
+#define PRES_INDEX 5
 #define MOTR_INDEX 6
 
 // Debugging modes
@@ -104,9 +104,9 @@ String header = "Time (ms), #PWR, Power Status, PULS, Heater Setting, VOLT, VLKM
                 " TEMP, Temp Internal (C), PRES, Pressure (Pa), MOTR, Flywheel,"
                 " Ibat, Vbat, Therm1, Therm2, Note";
 // global arrays to store telem 
-// [PWR, PULS, DATA, VOLT, PRES, TEMP, MOTR]
-enum Command {PWR, PULS, DATA, VOLT, PRES, STAT, MOTR, KP, KI, KD};
-float expected_val[] = {1.0, 0.0, 9600, 5.0, 1000.0, 27.0, 30.0};
+enum Command {PWR, PULS, DATA, VOLT, TEMP, PRES, STAT, MOTR, KP, KI, KD};
+// [PWR, PULS, DATA, VOLT, TEMP, PRES, MOTR]
+float expected_val[] = {1.0, 0.0, 9600, 5.0, 27.0, 1000.0, 30.0};
 float stats[7];
 
 // Temp control stuff
@@ -843,6 +843,10 @@ bool handleGroundCommand(){
   else if(command.equals("$VOLT")){
       Serial1.print("$VOLT;");
       dataIndex = VOLT_INDEX;
+  }
+  else if(command.equals("$TEMP")){
+      Serial1.print("$TEMP;");
+      dataIndex = TEMP_INDEX;
   }
   else if(command.equals("$PRES")){
       Serial1.print("$PRES;");
