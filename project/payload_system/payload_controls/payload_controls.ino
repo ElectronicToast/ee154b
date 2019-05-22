@@ -99,6 +99,10 @@ int autoFreakAndTurnOffInterval = 600000;
 char delim = ',';
 char terminator = ';';
 
+// 
+String header = "Time (ms), #PWR, Power Status, PULS, Heater Setting, VOLT, VLKM (V)," 
+                " TEMP, Temp Internal (C), PRES, Pressure (Pa), MOTR, Flywheel,"
+                " Ibat, Vbat, Therm1, Therm2, Note";
 // global arrays to store telem 
 // [PWR, PULS, DATA, VOLT, PRES, TEMP, MOTR]
 enum Command {PWR, PULS, DATA, VOLT, PRES, STAT, MOTR, KP, KI, KD};
@@ -232,7 +236,17 @@ void setup() {
   
   if(SDinit){
     digitalWrite(SDinitLED, HIGH);
-    Serial.println("SDinit true");
+    Serial.print("SDinit true... writing header to SD Card...");
+    File dataFile = SD.open("datalog.txt", FILE_WRITE);
+    // if the file is available, write the time and vitals to it:
+    if (dataFile) {
+      dataFile.println(SDHeader);
+      dataFile.close();
+      Serial.println("Success");
+    }
+    else {
+      Serial.println("Failed");
+    }
   }
   // Make sure we're talking to the LKM
   // Delay long enough for the LKM to start up
@@ -405,6 +419,12 @@ void recordVitals(String event){
     dataFile.print(telem);
     dataFile.print(',');
     dataFile.print(String(readCurrent()));
+    dataFile.print(',');
+    dataFile.print(String(readVBat()));
+    dataFile.print(',');
+    dataFile.print(String(readThermistor(therm1)));
+    dataFile.print(',');
+    dataFile.print(String(readThermistor(therm2)));
     dataFile.print(',');
     dataFile.println(event);
     dataFile.close();
