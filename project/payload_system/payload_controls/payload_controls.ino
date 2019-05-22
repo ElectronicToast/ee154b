@@ -21,6 +21,11 @@
 #define MISMATCH -300
 #define BAD_STAT -400
 
+// Voltage sense ADC constants 
+#define ADC_RES         1023 
+#define ADC_VREF        3.3
+#define VSNS_RATIO      0.18        // (22kOhm) / (100k + 22kOhm)
+
 // Current sensor constants
 #define N_CURR_SMPL     10          // Number of samples to average over
 #define MV_PER_RAW      4.88        // mV per fraction of 4095 from ADC in
@@ -52,7 +57,8 @@ int therm1 = A0;
 int therm2 = A3;
 
 // Voltage/Current Sense
-int isns_pin = A1;          // Fix this on the hardware
+int vsns_pin = A1;          // Voltage sense voltage divider from VBat
+int isns_pin = A2;          // Current sensor output, divided down to 3V3
 
 // Indicator LEDs
 int SDinitLED = 3;
@@ -594,7 +600,15 @@ float readThermistor(int thermistorPin) {
   return temp; // in Celsius
 }
 
-// ------------------------------- CURRENT SHUNT -------------------------------
+// ----------------------------- VOLTAGE & CURRSNS -----------------------------
+
+double readVBat() {
+  // Read VBat voltage divider input
+  int vbat_in = analogRead(vsns_pin);
+  // Compute voltage by getting fraction of reading 
+  //        voltage = (adc / 1023) * 3V3 / resistor ratio
+  return ( ((double) vbat_in) / ADC_RES) * ADC_VREF / VSNS_RATIO;
+}
 
 double readCurrent() {
   long isns_in = 0;
