@@ -100,7 +100,7 @@ char delim = ',';
 char terminator = ';';
 
 // 
-String SDHeader = "Time (ms), #PWR, Power Status, PULS, Heater Setting, VOLT, VLKM (V)," 
+String SDHeader = "Time (ms), #PWR, Power Status, PULS, Heater Setting, DATA, Baud, VOLT, VLKM (V)," 
                 " TEMP, Temp Internal (C), PRES, Pressure (Pa), MOTR, Flywheel,"
                 " Ibat, Vbat, Therm1, Therm2, Note";
 // global arrays to store telem 
