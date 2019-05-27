@@ -367,7 +367,7 @@ void loop() {
       bool tooHot = demandVal("$TEMP;", 30) > target_temp + TEMP_TOLERANCE;
       if(tooHot){
         recordVitals("Decided processor was too hot. Powering LKM off");
-        Serial1.print("PWR,OFF;");
+        Serial1.print("$PWR,OFF;");
       }
       // figure out once we have thermistors on processor, but probably something like this
       while(readThermistor(therm1) > MAX_RESTART_TEMP && millis() < timeoutTime){
@@ -377,7 +377,9 @@ void loop() {
         Serial2.print(readThermistor(therm1));
         Serial2.print(";");
         // listen to ground just in case
-        handleGroundCommand();
+        if(handleGroundCommand()){
+          break;
+        }
         // Wait a second so we're not too obnoxious to ground
         delay(1000);
       }
@@ -1027,7 +1029,7 @@ float demandVal(String command, int nTrials){
 
 
 bool powerLKMon(int baudRate){
-  if(!(baudRate == 9600 ||baudRate == 4800 || baudRate == 9600)){
+  if(!(baudRate == 9600 ||baudRate == 4800 || baudRate == 2400)){
     Serial2.println("Invalid baud rate, try again;");
     return 0;
   }
