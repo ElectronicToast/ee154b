@@ -34,7 +34,8 @@ PAYLOAD_MENU_ITEMS = [
     ('VOLT', [], 'Request instrument voltage.'),
     ('PRES', [], 'Request instrument pressure.'),
     ('STAT', [], 'Request instrument state.'),
-    ('MOTR', ['0-100'], 'Set instrument flywheel speed.')]
+    ('MOTR', ['0-100'], 'Set instrument flywheel speed.'),
+    ('TEMP', [], 'Request instrument temperature.')]
 
 BOX_MENU_ITEMS = [
     ('DOOR', [], 'Force open the side panel.'),
@@ -45,7 +46,11 @@ BOX_MENU_ITEMS = [
     ('BAUD', ['2400', '4800', '9600'], 'Set Arduino\'s data rate with LKM'),
     ('EMERG_KILL1', [], 'Initialize kill procedure.'),
     ('EMERG_KILL2', [], 'Confirm kill procedure.'),
-    ('END_KILL', [], 'End kill.')]
+    ('END_KILL', [], 'End kill.'),
+    ('LKM_POWERON', ['2400', '4800', '9600'], 'Powers on LKM.'),
+    ('ARDUINO_BAUD', ['2400', '4800', '9600'], 'Configures Arduino\'s baud rate with LKM.'),
+    ('SYSTEM_BAUD', ['2400', '4800', '9600'], 'Changes system\'s baud rate.'),
+    ('TARG', ['target temperature'], 'Changes the target control temperature.')]
     # probably some more like battery temp
 
 ADMIN_MENU_ITEMS = [
@@ -77,7 +82,7 @@ def main(args):
     global last_sent_heartbeat
     last_sent_heartbeat = datetime.now()
     send_heartbeat()
- 
+
     # start listening
     listening_state()
 
@@ -252,14 +257,17 @@ def serial_read(disable_rec_time=False):
         logger.error('Serial port disconnected.')
 
     if corrupt_count != 0:
-        logger.error('Message has ' + corrupt_count + 'corruptions.')
+        logger.error('Message has ' + str(corrupt_count) + ' corruption(s).')
     return out
 
 # sends a heartbeat and waits to hear back
 def send_heartbeat():
+    # logger.debug('Heartbeat disabled.')
+    # return
     global last_rec
     # BELOW COMMENTED FOR TESTING
     serial_send(HEARTBEAT_MSG)
+
     logger.warning('\t TX (Heartbeat): ' + HEARTBEAT_MSG)
 
     # wait for heartbeat response to come in
@@ -273,9 +281,8 @@ def send_heartbeat():
                 else:
                     last = last_rec.strftime('%H-%M-%S.%f')[:-3]
                     diff = '{:.2f}'.format((datetime.now() - last_rec).seconds / 60.0)
-                    logger.error('Did not receive data from payload within ' + str(HEARTBEAT_TIMEOUT) + 's. Last heard: ' + last + ', ' + diff + ' minutes ago.')
+                    logger.error('Did not receive data from payload within ' + str(HEARTBEAT_TIMEOUT) + 's. Last heard: ' + diff + ' minutes ago.')
                 break
-            pass
 
         if ser.in_waiting > 0:
             logger.warning('\t RX (Heartbeat): ' + serial_read())
@@ -323,7 +330,7 @@ def print_menu():
 
         # print all commands in submenus
         for j in range(len(menus[i][1])):
-            print('\t    {:4} | {:15} | {}'.format(menus[i][1][j][0], ','.join(str(e) for e in menus[i][1][j][1]),menus[i][1][j][2]))
+            print('\t    {:12} | {:18} | {}'.format(menus[i][1][j][0], ','.join(str(e) for e in menus[i][1][j][1]),menus[i][1][j][2]))
 
     print('--------------------------------------------------------')
 
