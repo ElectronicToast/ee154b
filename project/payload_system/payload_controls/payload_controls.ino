@@ -83,6 +83,7 @@ bool launched = 0;
 bool doorDeployed = 0;
 bool emergencyKill = 0;
 bool emergencyKillFirstSignal = 0;
+bool constantFixMode = 0;
 float PID_kP = .5;
 float PID_kI = .1;
 float PID_kD = 0;
@@ -343,7 +344,12 @@ void loop() {
   burnIfNeeded(doorTimeout);
   controlTemps(target_temp, TEMP_TOLERANCE);
   handleGroundCommand();
-  monitorVals();
+  if(! constantFixMode){
+    monitorVals();
+  }
+  if(constantFixMode){
+    constantFix();
+  }
   if(millis() - lastGroundComm > groundCommPeriod){
     autonomousMode = true;
     Serial2.print("Yo talk to us;");
@@ -354,7 +360,9 @@ void loop() {
     pacemakerIfNeeded(pacemakerPeriod);
     burnIfNeeded(doorTimeout);
     controlTemps(target_temp, TEMP_TOLERANCE);
-    monitorVals();
+    // I'm deciding to change monitorVals to constantFix in the hopes that it might respond faster and reduce spinning, which is likely to be an issue if we're entering autonomous mode    
+//    monitorVals();
+    constantFix();
     Serial2.print("Pls I'm lonely;");
     Serial2.print("Entered autonomous mode ");
     Serial2.print((millis() - timeEnteredAutonomous) / 1000);
@@ -923,6 +931,19 @@ bool handleGroundCommand(){
     Serial2.print(lowerBaudRate(arg.toFloat()));
     Serial2.print(";");
    }
+   else if(command.equals("$CONST_FIX")){
+    Serial2.print("$CONST_FIX called: ");
+    if(arg.toFloat() == 1){
+      constantFixMode = true;
+      Serial2.print("Setting constantFixMode true");
+    } else if(arg.toFloat() == 0){
+      constantFixMode = false;
+      Serial2.print("Setting constantFixMode false");
+    } else {
+      Serial2.print("Invalid argument");
+    }
+    Serial2.print(";");
+   }
    else{
       // Complain to ground
       Serial2.write("Whatcha say?;");
@@ -1097,4 +1118,16 @@ double findCurrent(int batPin, int currentPin) {
   double R = 2.0;
   double current = (Vbat - Vin) * divV/R;
   return current * 1000; // in mA
+}
+
+void constantFix(){
+  Serial1.flush();
+  Serial1.print("$MOTR,");
+  Serial1.print(expected_val[MOTR_INDEX]);
+  Serial1.print(";");
+  Serial1.print("$PULS,");
+  Serial1.print(expected_val[PULS_INDEX]);
+  Serial1.print(";");
+  delay(50);
+  Serial1.flush();
 }
