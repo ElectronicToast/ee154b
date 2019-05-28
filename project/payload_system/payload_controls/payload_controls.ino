@@ -444,7 +444,7 @@ void recordVitals(String event){
     dataFile.close();
   }
   Serial2.print("Event: ");
-  Serial2.println(event);
+  Serial2.print(event);
   Serial2.print(";");
 }
 
@@ -464,7 +464,7 @@ boolean burnIfNeeded(int timeout){
   if(! doorDeployed && launched){
     if(findAltitude() > DOOR_ALTITUDE ||(millis() - launchTime > timeout)){
       Serial2.print("Burn wire activated, altitude ");
-      Serial2.println(findAltitude());
+      Serial2.print(findAltitude());
       Serial2.print(";");
       Serial.print("time ");
       Serial.print(millis() - launchTime);
@@ -1080,7 +1080,7 @@ float demandVal(String command, int nTrials){
 
 bool powerLKMon(int baudRate){
   if(!(baudRate == 9600 ||baudRate == 4800 || baudRate == 2400)){
-    Serial2.println("Invalid baud rate, try again;");
+    Serial2.print("Invalid baud rate, try again;");
     return 0;
   }
   // Assumes the LKM is not on
