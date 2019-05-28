@@ -93,10 +93,10 @@ float target_temp = 30;
 int pacemakerPeriod = 60000;
 int groundCommPeriod = 300000;
 int burnTime = 60000;
-int doorTimeout = 6000;
+int doorTimeout = 15000;
 int LKMsetupTimeout = 100000;
 int killSignalInterval = 60000;
-int autoFreakAndTurnOffInterval = 600000;
+int autoFreakAndTurnOffInterval = 400000;
 char delim = ',';
 char terminator = ';';
 
@@ -841,28 +841,34 @@ bool handleGroundCommand(){
   Serial2.print("Recieved command " + command);
   Serial2.print(";");
   if(command.equals("$PWR")){
+      Serial.print("PWR heard from ground");
       sendToLKM = 1;
       dataIndex = PWR_INDEX;
   }
   else if(command.equals("$PULS")){
+      Serial.print("PULS heard from ground");
       sendToLKM = 1;
       dataIndex = PULS_INDEX;
       expected_val[PULS_INDEX] = arg.toFloat();
   }
   else if(command.equals("$DATA")){
+      Serial.print("DATA heard from ground");
       sendToLKM = 1;
       dataIndex = DATA_INDEX;
       expected_val[DATA_INDEX] = arg.toFloat();
   }
   else if(command.equals("$VOLT")){
+      Serial.print("VOLT heard from ground");
       Serial1.print("$VOLT;");
       dataIndex = VOLT_INDEX;
   }
   else if(command.equals("$TEMP")){
+      Serial.print("TEMP heard from ground");
       Serial1.print("$TEMP;");
       dataIndex = TEMP_INDEX;
   }
   else if(command.equals("$PRES")){
+      Serial.print("PRES heard from ground");
       Serial1.print("$PRES;");
       dataIndex = PRES_INDEX;
   }
@@ -872,11 +878,13 @@ bool handleGroundCommand(){
       delay(STAT_BUFFER_TIME);
   }
   else if(command.equals("$MOTR")){
+      Serial.print("MOTR heard from ground");
       sendToLKM = 1;
       dataIndex = MOTR_INDEX;
       expected_val[MOTR_INDEX] = arg.toFloat();
   }
   else if(command.equals("$KP")){
+      Serial.print("KP heard from ground");
     // how to do error checking here?
     // TODO
       PID_kP = arg.toFloat();
@@ -885,18 +893,21 @@ bool handleGroundCommand(){
       Serial2.print(";");
    }
    else if(command.equals("$KI")){
+      Serial.print("KI heard from ground");
       PID_kI = arg.toFloat();
       Serial2.print("Changed KI to ");
       Serial2.print(PID_kI);
       Serial2.print(";");
    }
    else if(command.equals("$KD")){
+      Serial.print("KD heard from ground");
       PID_kD = arg.toFloat();
       Serial2.print("Changed KD to ");
       Serial2.print(PID_kD);
       Serial2.print(";");
    }
    else if(command.equals("$TARG")){
+      Serial.print("TARG heard from ground");
       target_temp = arg.toFloat();
       Serial2.print("Changed target temp to ");
       Serial2.print(target_temp);
@@ -926,6 +937,7 @@ bool handleGroundCommand(){
     Serial2.print(";");
    }
    else if(command.equals("$ARDUINO_BAUD")){
+    Serial.print("ARDUINO_BAUD heard from ground");
     // changes payload arduino baud rate. Shouldn't be necessary to use with LKM_POWERON
     Serial1.begin(arg.toFloat());
     Serial1.setTimeout(SERIAL_TIMEOUT);
@@ -947,7 +959,8 @@ bool handleGroundCommand(){
       Serial2.print("Invalid argument");
     }
     Serial2.print(";");
-   } else if(command.equals("$AUTO_FREAK")){
+   } 
+   else if(command.equals("$AUTO_FREAK")){
     Serial2.print("$AUTO_FREAK called: ");
     if(arg.toFloat() == 1){
       autoFreakAndTurnOffIntervalEnabled = true;
@@ -1144,6 +1157,6 @@ void constantFix(){
   Serial1.print("$PULS,");
   Serial1.print(expected_val[PULS_INDEX]);
   Serial1.print(";");
-  delay(50);
+  delay(100);
   Serial1.flush();
 }
