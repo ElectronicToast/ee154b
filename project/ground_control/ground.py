@@ -50,7 +50,9 @@ BOX_MENU_ITEMS = [
     ('LKM_POWERON', ['2400', '4800', '9600'], 'Powers on LKM.'),
     ('ARDUINO_BAUD', ['2400', '4800', '9600'], 'Configures Arduino\'s baud rate with LKM.'),
     ('SYSTEM_BAUD', ['2400', '4800', '9600'], 'Changes system\'s baud rate.'),
-    ('TARG', ['target temperature'], 'Changes the target control temperature.')]
+    ('TARG', ['target temperature'], 'Changes the target control temperature.'),
+    ('CONST_FIX', ['0','1'], 'Enable/Disable Constant fix mode.'),
+    ('AUTO_FREAK', ['0','1'], 'Enable/Disable Autofreak mode.')]
     # probably some more like battery temp
 
 ADMIN_MENU_ITEMS = [
