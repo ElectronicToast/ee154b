@@ -376,22 +376,26 @@ void loop() {
       if(tooHot){
         recordVitals("Decided processor was too hot. Powering LKM off");
         Serial1.print("$PWR,OFF;");
-      }
-      // figure out once we have thermistors on processor, but probably something like this
-      while(readThermistor(therm1) > MAX_RESTART_TEMP && millis() < timeoutTime){
-        // Communicate with ground
-        Serial2.print("Communication with ground lost. Processor temp too hot. Suspected spinning. Waiting for processor to cool.;");
-        Serial2.print("Current temp (thermistor reading): ");
-        Serial2.print(readThermistor(therm1));
-        Serial2.print(";");
-        // listen to ground just in case
-        if(handleGroundCommand()){
-          break;
+        
+        // figure out once we have thermistors on processor, but probably something like this
+        while(readThermistor(therm1) > MAX_RESTART_TEMP && millis() < timeoutTime){
+          // Communicate with ground
+          Serial2.print("Communication with ground lost. Processor temp too hot. Suspected spinning. Waiting for processor to cool.;");
+          Serial2.print("Current temp (thermistor reading): ");
+          Serial2.print(readThermistor(therm1));
+          Serial2.print(";");
+          // listen to ground just in case
+          if(handleGroundCommand()){
+            autonomousMode = false;
+            break;
+          }
+          // Wait a second so we're not too obnoxious to ground
+          delay(1000);
         }
-        // Wait a second so we're not too obnoxious to ground
-        delay(1000);
+        powerLKMon(2400);
+        // Reset automonous mode timer
+        timeEnteredAutonomous = millis();
       }
-      powerLKMon(2400);
     }
     if(handleGroundCommand()){
       autonomousMode = false;
