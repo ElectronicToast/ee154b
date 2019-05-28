@@ -943,6 +943,18 @@ bool handleGroundCommand(){
       Serial2.print("Invalid argument");
     }
     Serial2.print(";");
+   } else if(command.equals("$AUTO_FREAK")){
+    Serial2.print("$AUTO_FREAK called: ");
+    if(arg.toFloat() == 1){
+      autoFreakAndTurnOffIntervalEnabled = true;
+      Serial2.print("Turning autoFreakOutMode on");
+    } else if(arg.toFloat() == 0){
+      autoFreakAndTurnOffIntervalEnabled = false;
+      Serial2.print("Turning autoFreakOutMode off");
+    } else {
+      Serial2.print("Invalid argument");
+    }
+    Serial2.print(";");
    }
    else{
       // Complain to ground
