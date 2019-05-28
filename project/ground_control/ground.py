@@ -50,7 +50,9 @@ BOX_MENU_ITEMS = [
     ('LKM_POWERON', ['2400', '4800', '9600'], 'Powers on LKM.'),
     ('ARDUINO_BAUD', ['2400', '4800', '9600'], 'Configures Arduino\'s baud rate with LKM.'),
     ('SYSTEM_BAUD', ['2400', '4800', '9600'], 'Changes system\'s baud rate.'),
-    ('TARG', ['target temperature'], 'Changes the target control temperature.')]
+    ('TARG', ['target temperature'], 'Changes the target control temperature.'),
+    ('CONST_FIX', ['0','1'], 'Enable/Disable Constant fix mode.'),
+    ('AUTO_FREAK', ['0','1'], 'Enable/Disable Autofreak mode.')]
     # probably some more like battery temp
 
 ADMIN_MENU_ITEMS = [
@@ -67,9 +69,6 @@ def main(args):
 
     # setup serial port
     setup_serial(args)
-
-    # configure radio
-    # config_radio()
 
     # print menu once
     print_menu()
@@ -289,30 +288,6 @@ def send_heartbeat():
             last_rec = datetime.now()
     except serial.serialutil.SerialException:
         logger.error('Serial port disconnected.')  
-
-# configures xTend radio to operate at 10kb/s 
-def config_radio():
-    logging.debug('Attepmting to enter radio command mode.')
-    serial_send('+++')
-    while ser.in_waiting == 0:
-        pass
-    while ser.in_waiting > 0:
-        logging.debug(ser.read(1).decode('utf-8'))
-        sleep(0.01)
-    # radio_wait()
-    # ok = serial_read(disable_rec_time=True)
-    # logging.error(ok)
-    # if ok != 'OK':
-    #     logging.error('Failed to enter radio command mode.')
-    # else:
-    #     logging.debug('success')
-
-def radio_wait():
-    start = datetime.now()
-    while ser.in_waiting == 0: 
-        if (datetime.now() - start).seconds > RADIO_COMMAND_TIMEOUT:
-            logging.error('Radio did not respond to command in ' + str(RADIO_COMMAND_TIMEOUT) + ' seconds.')
-            break
 
 # $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ MENU HELPERS $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 # prints all menu items (printed only to stdout, not to log file)
