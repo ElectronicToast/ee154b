@@ -92,7 +92,7 @@ float target_temp = 30;
 // Other global variables
 int pacemakerPeriod = 60000;
 int groundCommPeriod = 300000;
-int burnTime = 60000;
+int burnTime = 20000;
 int doorTimeout = 15000;
 int LKMsetupTimeout = 100000;
 int killSignalInterval = 60000;
