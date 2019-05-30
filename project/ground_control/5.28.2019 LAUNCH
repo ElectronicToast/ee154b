@@ -1,0 +1,1049 @@
+    INFO 	 2019-05-28 08:30:08,000 The following ports are available: 
+    INFO 	 2019-05-28 08:30:08,172 ['Intel(R) Active Management Technology - SOL (COM3)', 'Arduino Uno (COM15)']
+    INFO 	 2019-05-28 08:30:11,844 Serial port COM15 opened successfully.
+ WARNING 	 2019-05-28 08:30:11,969 	 TX (Heartbeat): $STAT,;
+   ERROR 	 2019-05-28 08:30:15,000 Did not receive heartbeat data from payload within 2s. Last heard: never
+    INFO 	 2019-05-28 08:30:15,000 Listening...  press <c> to enter COMMAND MODE or <q> to quit program
+ WARNING 	 2019-05-28 08:31:12,980 	 TX (Heartbeat): $STAT,;
+   ERROR 	 2019-05-28 08:31:15,996 Did not receive heartbeat data from payload within 2s. Last heard: never
+ WARNING 	 2019-05-28 08:31:54,477 	 RX: Startup
+ WARNING 	 2019-05-28 08:31:56,852 	 RX: Helloinitializing SD card...
+ WARNING 	 2019-05-28 08:32:13,992 	 TX (Heartbeat): $STAT,;
+   ERROR 	 2019-05-28 08:32:17,179 Did not receive data from payload within 2s. Last heard: 0.33 minutes ago.
+ WARNING 	 2019-05-28 08:32:32,443 	 RX: Initializing..............................done
+ WARNING 	 2019-05-28 08:32:32,834 	 RX: Lowering LKM baud rate...
+ WARNING 	 2019-05-28 08:32:33,381 	 RX: Checking communications with LKM...
+ WARNING 	 2019-05-28 08:32:33,475 	 RX: failed
+ WARNING 	 2019-05-28 08:32:34,021 	 RX: Checking communications with LKM...
+ WARNING 	 2019-05-28 08:32:34,178 	 RX: Successful
+ WARNING 	 2019-05-28 08:32:34,725 	 RX: Checking communications with LKM...
+ WARNING 	 2019-05-28 08:32:34,881 	 RX: Successful
+ WARNING 	 2019-05-28 08:32:35,240 	 RX: Calibrating altitude...
+ WARNING 	 2019-05-28 08:32:36,271 	 RX: Success
+ WARNING 	 2019-05-28 08:32:36,756 	 RX: Checking thermistor readings...
+ WARNING 	 2019-05-28 08:32:36,865 	 RX: Success
+ WARNING 	 2019-05-28 08:32:37,349 	 RX: Checking thermistor readings...
+ WARNING 	 2019-05-28 08:32:37,459 	 RX: Success
+ WARNING 	 2019-05-28 08:32:37,849 	 RX: Turning off LKM heater...
+ WARNING 	 2019-05-28 08:32:38,256 	 RX: Checking systems status...
+ WARNING 	 2019-05-28 08:32:38,318 	 RX: 	GO	
+ WARNING 	 2019-05-28 08:32:38,709 	 RX: Finished startup function
+ WARNING 	 2019-05-28 08:32:39,052 	 RX: Recieved command $STAT
+ WARNING 	 2019-05-28 08:32:40,115 	 RX: 
+#PWR,ON,PULS,0,DATA,2400,VOLT,5.0,TEMP,22.70,PRES,92128.00,MOTR,30
+ WARNING 	 2019-05-28 08:32:40,615 	 RX: 
+
+Event: Ground command: $STAT,
+ WARNING 	 2019-05-28 08:32:40,615 	 RX: 
+ WARNING 	 2019-05-28 08:32:41,052 	 RX: Event: WARNING: temp too low
+ WARNING 	 2019-05-28 08:32:41,490 	 RX: Event: WARNING: temp too low
+ WARNING 	 2019-05-28 08:32:41,927 	 RX: Event: WARNING: temp too low
+ WARNING 	 2019-05-28 08:32:42,740 	 RX: Event: WARNING: temp too low
+ WARNING 	 2019-05-28 08:32:43,661 	 RX: Event: WARNING: temp too low
+ WARNING 	 2019-05-28 08:32:44,583 	 RX: Event: WARNING: temp too low
+ WARNING 	 2019-05-28 08:32:45,849 	 RX: Event: WARNING: temp too low
+ WARNING 	 2019-05-28 08:32:46,755 	 RX: Event: WARNING: temp too low
+ WARNING 	 2019-05-28 08:32:47,630 	 RX: Event: WARNING: temp too low
+ WARNING 	 2019-05-28 08:32:48,552 	 RX: Event: WARNING: temp too low
+ WARNING 	 2019-05-28 08:32:49,489 	 RX: Event: WARNING: temp too low
+ WARNING 	 2019-05-28 08:32:50,395 	 RX: Event: WARNING: temp too low
+ WARNING 	 2019-05-28 08:32:51,302 	 RX: Event: WARNING: temp too low
+ WARNING 	 2019-05-28 08:32:52,536 	 RX: Event: WARNING: temp too low
+ WARNING 	 2019-05-28 08:32:54,786 	 RX: Event: WARNING: temp too low
+ WARNING 	 2019-05-28 08:32:55,411 	 RX: Event: Pacemaker
+ WARNING 	 2019-05-28 08:32:57,395 	 RX: Event: WARNING: temp too low
+ WARNING 	 2019-05-28 08:32:58,317 	 RX: Event: WARNING: temp too low
+ WARNING 	 2019-05-28 08:32:59,551 	 RX: Event: WARNING: temp too low
+ WARNING 	 2019-05-28 08:33:02,129 	 RX: Event: WARNING: temp too low
+ WARNING 	 2019-05-28 08:33:03,035 	 RX: Event: WARNING: temp too low
+ WARNING 	 2019-05-28 08:33:12,488 	 RX: Event: WARNING: temp too low
+ WARNING 	 2019-05-28 08:33:13,362 	 RX: Event: WARNING: temp too low
+ WARNING 	 2019-05-28 08:33:14,269 	 RX: Event: WARNING: temp too low
+ WARNING 	 2019-05-28 08:33:15,003 	 TX (Heartbeat): $STAT,;
+ WARNING 	 2019-05-28 08:33:15,565 	 RX (Heartbeat): E
+ WARNING 	 2019-05-28 08:33:15,987 	 RX: vent: WARNING: temp too low
+ WARNING 	 2019-05-28 08:33:16,331 	 RX: Recieved command $STAT
+ WARNING 	 2019-05-28 08:33:17,393 	 RX: 
+#PWR,ON,PULS,0,DATA,2400,VOLT,5.0,TEMP,28.43,PRES,92137.00,MOTR,30
+ WARNING 	 2019-05-28 08:33:17,893 	 RX: 
+
+Event: Ground command: $STAT,
+ WARNING 	 2019-05-28 08:33:17,893 	 RX: 
+ WARNING 	 2019-05-28 08:33:19,065 	 RX: Event: WARNING: temp too low
+ WARNING 	 2019-05-28 08:33:19,971 	 RX: Event: WARNING: temp too low
+ WARNING 	 2019-05-28 08:33:55,735 	 RX: Event: Pacemaker
+ WARNING 	 2019-05-28 08:34:16,014 	 TX (Heartbeat): $STAT,;
+ WARNING 	 2019-05-28 08:34:16,889 	 RX (Heartbeat): Recieved command $STAT
+ WARNING 	 2019-05-28 08:34:17,264 	 RX: 
+#TEMP,36.63
+ WARNING 	 2019-05-28 08:34:18,327 	 RX: 
+#PWR,ON,PULS,0,DATA,2400,VOLT,5.0,TEMP,38.27,PRES,92119.00,MOTR,38
+ WARNING 	 2019-05-28 08:34:18,827 	 RX: 
+
+Event: Ground command: $STAT,
+ WARNING 	 2019-05-28 08:34:18,827 	 RX: 
+ WARNING 	 2019-05-28 08:34:19,280 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:34:22,420 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:34:24,326 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:34:24,795 	 RX: E
+ WARNING 	 2019-05-28 08:34:25,232 	 RX: vent: WARNING: temp too high
+ WARNING 	 2019-05-28 08:34:27,264 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:34:28,170 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:34:29,076 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:34:29,982 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:34:30,888 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:34:31,794 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:34:32,701 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:34:33,607 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:34:35,529 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:34:37,435 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:34:38,341 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:34:39,575 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:34:40,044 	 RX: E
+ WARNING 	 2019-05-28 08:34:40,481 	 RX: vent: WARNING: temp too high
+ WARNING 	 2019-05-28 08:34:42,512 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:34:43,747 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:34:44,653 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:34:45,903 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:34:47,137 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:34:48,043 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:34:48,512 	 RX: E
+ WARNING 	 2019-05-28 08:34:48,950 	 RX: vent: WARNING: temp too high
+ WARNING 	 2019-05-28 08:34:49,871 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:34:51,449 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:34:51,902 	 RX: E
+ WARNING 	 2019-05-28 08:34:52,340 	 RX: vent: WARNING: temp too high
+ WARNING 	 2019-05-28 08:34:54,262 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:34:55,840 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:34:56,777 	 RX: Event: Pacemaker
+ WARNING 	 2019-05-28 08:34:57,105 	 RX: E
+ WARNING 	 2019-05-28 08:34:57,543 	 RX: vent: WARNING: temp too high
+ WARNING 	 2019-05-28 08:34:58,449 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:34:59,371 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:35:00,605 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:35:03,511 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:35:04,417 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:35:05,667 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:35:07,573 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:35:09,261 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:35:16,604 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:35:17,026 	 TX (Heartbeat): $STAT,;
+ WARNING 	 2019-05-28 08:35:17,526 	 RX (Heartbeat): Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:35:18,807 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:35:19,151 	 RX: Recieved command $STAT
+   ERROR 	 2019-05-28 08:35:20,197 Message has 1 corruption(s).
+ WARNING 	 2019-05-28 08:35:20,197 	 RX: 
+#PWR?ON,PULS,0,DATA,2400,VOLT,5.0,TEMP,39.91,PRES,92129.00,MOTR,30
+ WARNING 	 2019-05-28 08:35:20,697 	 RX: 
+
+Event: Ground command: $STAT,
+ WARNING 	 2019-05-28 08:35:20,916 	 RX: 
+ WARNING 	 2019-05-28 08:35:21,369 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:35:21,822 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:35:22,728 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:35:23,635 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:35:25,213 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:35:26,119 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:35:27,025 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:35:28,275 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:35:29,181 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:35:30,087 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:35:31,665 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:35:32,900 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:35:34,150 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:35:35,274 	 RX: E
+ WARNING 	 2019-05-28 08:35:35,712 	 RX: vent: WARNING: temp too high
+ WARNING 	 2019-05-28 08:35:43,743 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:35:44,649 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:35:45,555 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:35:46,461 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:35:46,930 	 RX: E
+ WARNING 	 2019-05-28 08:35:47,367 	 RX: vent: WARNING: temp too high
+ WARNING 	 2019-05-28 08:35:48,289 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:35:49,523 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:35:50,773 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:35:51,679 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:35:52,586 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:35:53,492 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:35:54,398 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:35:55,304 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:35:56,554 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:35:57,460 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:35:58,741 	 RX: Event: Pacemaker
+ WARNING 	 2019-05-28 08:35:59,507 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:36:00,413 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:36:01,663 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:36:04,007 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:36:05,585 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:36:06,710 	 RX: E
+ WARNING 	 2019-05-28 08:36:07,147 	 RX: vent: WARNING: temp too high
+ WARNING 	 2019-05-28 08:36:08,397 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:36:09,975 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:36:12,225 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:36:13,490 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:36:15,397 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:36:16,975 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:36:18,224 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:36:18,224 	 TX (Heartbeat): $STAT,;
+ WARNING 	 2019-05-28 08:36:19,162 	 RX (Heartbeat): Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:36:19,506 	 RX: Recieved command $STAT
+ WARNING 	 2019-05-28 08:36:20,568 	 RX: 
+#PWR,ON,PULS,0,DATA,2400,VOLT,5.0,TEMP,39.09,PRES,92122.00,MOTR,30
+ WARNING 	 2019-05-28 08:36:21,068 	 RX: 
+
+Event: Ground command: $STAT,
+ WARNING 	 2019-05-28 08:36:21,334 	 RX: 
+ WARNING 	 2019-05-28 08:36:21,787 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:36:22,584 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:36:23,490 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:36:24,740 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:36:25,990 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:36:27,224 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:36:28,130 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:36:29,036 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:36:30,286 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:36:31,192 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:36:32,427 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:36:34,005 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:36:34,911 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:36:35,833 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:36:37,739 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:36:38,645 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:36:39,879 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:36:41,129 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:36:42,035 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:36:42,942 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:36:44,191 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:36:46,207 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:36:53,878 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:36:54,691 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:36:59,175 	 RX: Event: Pacemaker
+ WARNING 	 2019-05-28 08:37:19,236 	 TX (Heartbeat): $STAT,;
+ WARNING 	 2019-05-28 08:37:19,517 	 RX (Heartbeat): R
+ WARNING 	 2019-05-28 08:37:19,955 	 RX: ecieved command $STAT
+ WARNING 	 2019-05-28 08:37:20,033 	 RX: 
+ WARNING 	 2019-05-28 08:37:20,220 	 RX: 
+#TEMP,34.17
+   ERROR 	 2019-05-28 08:37:21,689 Message has 1 corruption(s).
+ WARNING 	 2019-05-28 08:37:21,689 	 RX: 
+#PWR,ON,PULS,0,DATA,240?,VOLT,5.0,TEMP,35.81,PRES,92122.00,MOTR,30
+ WARNING 	 2019-05-28 08:37:22,189 	 RX: 
+
+Event: Ground command: $STAT,
+ WARNING 	 2019-05-28 08:37:22,689 	 RX: 
+ WARNING 	 2019-05-28 08:37:23,157 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:37:23,611 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:37:24,095 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:37:25,439 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:37:26,360 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:37:26,813 	 RX: E
+ WARNING 	 2019-05-28 08:37:27,251 	 RX: vent: WARNING: temp too high
+ WARNING 	 2019-05-28 08:37:28,173 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:37:29,079 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:37:29,985 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:37:30,891 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:37:31,797 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:37:32,704 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:37:33,625 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:37:34,860 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:37:35,766 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:37:36,672 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:37:38,594 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:37:41,156 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:37:41,625 	 RX: E
+ WARNING 	 2019-05-28 08:37:42,062 	 RX: vent: WARNING: temp too high
+ WARNING 	 2019-05-28 08:37:42,984 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:37:44,218 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:37:45,125 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:37:46,375 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:37:49,046 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:37:49,999 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:37:51,280 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:37:52,218 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:37:53,452 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:37:54,358 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:37:55,608 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:37:58,186 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:37:59,092 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:38:00,030 	 RX: Event: Pacemaker
+ WARNING 	 2019-05-28 08:38:00,811 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:38:02,373 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:38:03,295 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:38:03,748 	 RX: E
+ WARNING 	 2019-05-28 08:38:04,217 	 RX: vent: WARNING: temp too high
+ WARNING 	 2019-05-28 08:38:05,108 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:38:06,342 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:38:07,592 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:38:10,263 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:38:11,185 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:38:12,092 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:38:14,091 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:38:15,013 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:38:16,247 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:38:17,154 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:38:18,075 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:38:19,638 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:38:20,247 	 TX (Heartbeat): $STAT,;
+ WARNING 	 2019-05-28 08:38:20,919 	 RX (Heartbeat): Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:38:21,388 	 RX: E
+ WARNING 	 2019-05-28 08:38:21,888 	 RX: vent: WARNING: temp too high
+ WARNING 	 2019-05-28 08:38:22,231 	 RX: Recieved command $STAT
+ WARNING 	 2019-05-28 08:38:23,325 	 RX: 
+#PWR,ON,PULS,0,DATA,2400,VOLT,5.0,TEMP,34.17,PRES,92108.00,MOTR,30
+ WARNING 	 2019-05-28 08:38:24,028 	 RX: 
+
+Event: Ground command: $STAT,
+ WARNING 	 2019-05-28 08:38:24,028 	 RX: 
+ WARNING 	 2019-05-28 08:38:24,481 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:38:25,247 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:38:26,169 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:38:27,403 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:38:28,637 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:38:29,559 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:38:30,465 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:38:32,699 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:38:33,621 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:38:34,856 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:38:35,777 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:38:37,371 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:38:38,621 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:38:39,527 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:38:40,433 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:38:41,339 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:38:42,246 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:38:43,824 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:38:44,745 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:38:45,636 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:38:47,214 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:38:48,120 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:38:49,370 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:38:50,948 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:38:51,854 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:38:53,760 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:38:55,338 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:38:56,916 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:38:58,151 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:38:59,401 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:39:00,307 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:39:01,260 	 RX: Event: Pacemaker
+ WARNING 	 2019-05-28 08:39:02,010 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:39:02,885 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:39:03,807 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:39:04,931 	 RX: E
+ WARNING 	 2019-05-28 08:39:05,463 	 RX: vent: WARNING: temp too high
+ WARNING 	 2019-05-28 08:39:06,619 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:39:07,525 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:39:08,869 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:39:10,790 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:39:12,681 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:39:13,603 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:39:14,509 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:39:15,415 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:39:16,993 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:39:17,899 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:39:19,243 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:39:20,493 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:39:21,258 	 TX (Heartbeat): $STAT,;
+ WARNING 	 2019-05-28 08:39:21,727 	 RX (Heartbeat): Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:39:22,680 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:39:23,024 	 RX: Recieved command $STAT
+ WARNING 	 2019-05-28 08:39:24,086 	 RX: 
+#PWR,ON,PULS,0,DATA,2400,VOLT,5.0,TEMP,34.17,PRES,92127.00,MOTR,30
+ WARNING 	 2019-05-28 08:39:24,586 	 RX: 
+
+Event: Ground command: $STAT,
+ WARNING 	 2019-05-28 08:39:24,711 	 RX: 
+ WARNING 	 2019-05-28 08:39:25,180 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:39:25,680 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:39:28,274 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:39:30,852 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:39:32,414 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:39:33,351 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:39:34,242 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:39:35,148 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:39:36,382 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:39:37,304 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:39:38,539 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:39:39,445 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:39:40,367 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:39:42,273 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:39:43,179 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:39:44,085 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:39:45,991 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:39:47,241 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:39:48,475 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:39:56,490 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:39:57,397 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:39:58,647 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:40:07,365 	 RX: Event: Pacemaker
+ WARNING 	 2019-05-28 08:40:08,615 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:40:09,521 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:40:10,427 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:40:11,333 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:40:14,583 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:40:15,036 	 RX: E
+ WARNING 	 2019-05-28 08:40:15,473 	 RX: vent: WARNING: temp too high
+ WARNING 	 2019-05-28 08:40:17,395 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:40:18,645 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:40:19,098 	 RX: E
+ WARNING 	 2019-05-28 08:40:19,536 	 RX: vent: WARNING: temp too high
+ WARNING 	 2019-05-28 08:40:20,442 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:40:22,692 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:40:22,692 	 TX (Heartbeat): $STAT,;
+ WARNING 	 2019-05-28 08:40:23,332 	 RX (Heartbeat): Recieved command $STAT
+ WARNING 	 2019-05-28 08:40:24,535 	 RX: 
+#PWR,ON,PULS,0,DATA,2400,VOLT,5.0,TEMP,33.35,PRES,92111.00,MOTR,30
+ WARNING 	 2019-05-28 08:40:25,035 	 RX: 
+
+Event: Ground command: $STAT,
+ WARNING 	 2019-05-28 08:40:25,035 	 RX: 
+ WARNING 	 2019-05-28 08:40:26,848 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:40:29,082 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:40:30,332 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:40:34,785 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:40:38,331 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:40:39,237 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:40:42,034 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:40:43,378 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:40:44,612 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:40:45,081 	 RX: E
+ WARNING 	 2019-05-28 08:40:45,518 	 RX: vent: WARNING: temp too high
+ WARNING 	 2019-05-28 08:40:47,877 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:40:50,330 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:40:51,237 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:40:55,455 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:40:56,361 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:40:59,252 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:41:01,267 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:41:03,173 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:41:05,517 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:41:13,344 	 RX: Event: Pacemaker
+ WARNING 	 2019-05-28 08:41:14,126 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:41:16,672 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:41:22,203 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:41:23,703 	 TX (Heartbeat): $STAT,;
+ WARNING 	 2019-05-28 08:41:25,031 	 RX (Heartbeat): Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:41:25,375 	 RX: Recieved command $STAT
+ WARNING 	 2019-05-28 08:41:26,437 	 RX: 
+#PWR,ON,PULS,0,DATA,2400,VLT,5.0,TEMP,31.71,PRES,92111.00,MOTR,30
+ WARNING 	 2019-05-28 08:41:26,937 	 RX: 
+
+Event: Ground command: $STAT,
+ WARNING 	 2019-05-28 08:41:26,937 	 RX: 
+ WARNING 	 2019-05-28 08:41:28,750 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:41:38,030 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:42:13,934 	 RX: Event: Pacemaker
+ WARNING 	 2019-05-28 08:42:14,715 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:42:24,714 	 TX (Heartbeat): $STAT,;
+ WARNING 	 2019-05-28 08:42:25,292 	 RX (Heartbeat): Recieved command $STAT
+ WARNING 	 2019-05-28 08:42:26,496 	 RX: 
+#PWR,ON,PULS,0,DATA,2400,VOLT"5.0,TEMP,32.53,PRES,92108.00,MOTR,30
+ WARNING 	 2019-05-28 08:42:26,995 	 RX: 
+
+Event: Ground command: $STAT,
+ WARNING 	 2019-05-28 08:42:26,995 	 RX: 
+ WARNING 	 2019-05-28 08:43:14,586 	 RX: Event: Pacemaker
+ WARNING 	 2019-05-28 08:43:25,726 	 TX (Heartbeat): $STAT,;
+ WARNING 	 2019-05-28 08:43:26,507 	 RX (Heartbeat): Recieved command $STAT
+ WARNING 	 2019-05-28 08:43:26,882 	 RX: 
+#TEMP,30.89
+ WARNING 	 2019-05-28 08:43:27,944 	 RX: 
+#PWR,ON,PULS,0,DATA,2400,VOLT,5.0,TEMP,31.71,PRES,92113.00,MOTR,30
+ WARNING 	 2019-05-28 08:43:28,444 	 RX: 
+
+Event: Ground command: $STAT,
+ WARNING 	 2019-05-28 08:43:28,444 	 RX: 
+ WARNING 	 2019-05-28 08:44:19,597 	 RX: Event: Pacemaker
+ WARNING 	 2019-05-28 08:44:20,363 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:44:26,737 	 TX (Heartbeat): $STAT,;
+ WARNING 	 2019-05-28 08:44:28,721 	 RX (Heartbeat): Recieved command $STAT
+   ERROR 	 2019-05-28 08:44:29,909 Message has 1 corruption(s).
+ WARNING 	 2019-05-28 08:44:29,909 	 RX: 
+#PWR,ON,PULS,0,DATA,240?,VOLT,5.0,TEMP,31.71,PRES,92107.00,MOTR,30
+ WARNING 	 2019-05-28 08:44:30,409 	 RX: 
+
+Event: Ground command: $STAT,
+ WARNING 	 2019-05-28 08:44:30,409 	 RX: 
+ WARNING 	 2019-05-28 08:45:20,811 	 RX: Event: Pacemaker
+ WARNING 	 2019-05-28 08:45:21,577 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:45:27,748 	 TX (Heartbeat): $STAT,;
+   ERROR 	 2019-05-28 08:45:30,764 Did not receive data from payload within 2s. Last heard: 0.15 minutes ago.
+ WARNING 	 2019-05-28 08:45:34,607 	 RX: Recieved command $STAT
+ WARNING 	 2019-05-28 08:45:35,779 	 RX: #PWR,ON,PULS,0,DATA,2400,VOLT,5.0,TEMP,32.53,PRES,92107.00,MOTR,30
+ WARNING 	 2019-05-28 08:45:36,279 	 RX: 
+
+Event: Ground command: $STAT,
+ WARNING 	 2019-05-28 08:45:36,279 	 RX: 
+ WARNING 	 2019-05-28 08:46:21,774 	 RX: Event: Pacemaker
+ WARNING 	 2019-05-28 08:46:22,539 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:46:28,758 	 TX (Heartbeat): $STAT,;
+ WARNING 	 2019-05-28 08:46:28,992 	 RX (Heartbeat): R
+ WARNING 	 2019-05-28 08:46:29,320 	 RX: ecieved command $STAT
+ WARNING 	 2019-05-28 08:46:30,539 	 RX: 
+#PWR,ON,PULS,0,DATA,2400,VOLT,5.0,TEMP,31.71,PRES,92109.00,MOTR,30
+ WARNING 	 2019-05-28 08:46:31,039 	 RX: 
+
+Event: Ground command: $STAT,
+ WARNING 	 2019-05-28 08:46:31,039 	 RX: 
+ WARNING 	 2019-05-28 08:47:22,332 	 RX: Event: Pacemaker
+ WARNING 	 2019-05-28 08:47:23,098 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:47:29,769 	 TX (Heartbeat): $STAT,;
+ WARNING 	 2019-05-28 08:47:30,535 	 RX (Heartbeat): Recieved command $STAT
+ WARNING 	 2019-05-28 08:47:30,910 	 RX: 
+#TEMP,30.89
+ WARNING 	 2019-05-28 08:47:31,972 	 RX: 
+#PWR,ON,PULS,0,DATA,2400,V\LT,5.0,TEMP,31.71,PRES,92107.00,MOTR,30
+ WARNING 	 2019-05-28 08:47:32,472 	 RX: 
+
+Event: Ground command: $STAT,
+ WARNING 	 2019-05-28 08:47:32,472 	 RX: 
+ WARNING 	 2019-05-28 08:47:45,393 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:48:10,016 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:48:23,015 	 RX: Event: Pacemaker
+ WARNING 	 2019-05-28 08:48:23,781 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:48:30,780 	 TX (Heartbeat): $STAT,;
+ WARNING 	 2019-05-28 08:48:31,671 	 RX (Heartbeat): Recieved command $STAT
+ WARNING 	 2019-05-28 08:48:32,874 	 RX: 
+#PWR,ON,PULS,0,DZTA,2400,VOLT,5.0,TEMP,31.71,PRESq92114.00,MOTR,30
+ WARNING 	 2019-05-28 08:48:33,374 	 RX: 
+
+Event: Ground command: $STAT,
+ WARNING 	 2019-05-28 08:48:33,374 	 RX: 
+ WARNING 	 2019-05-28 08:49:24,105 	 RX: Event: Pacemaker
+ WARNING 	 2019-05-28 08:49:24,433 	 RX: E
+ WARNING 	 2019-05-28 08:49:24,870 	 RX: vent: WARNING: temp too high
+ WARNING 	 2019-05-28 08:49:31,792 	 TX (Heartbeat): $STAT,;
+ WARNING 	 2019-05-28 08:49:32,776 	 RX (Heartbeat): Recieved command $STAT
+ WARNING 	 2019-05-28 08:49:33,995 	 RX: 
+#PWR,ON,PULS,0,DATA,2400,VOLT,5.0,TEMP,30.89,PRES,92106.00,MOTR,30
+ WARNING 	 2019-05-28 08:49:34,495 	 RX: 
+
+Event: Ground command: $STAT,
+ WARNING 	 2019-05-28 08:49:34,745 	 RX: 
+ WARNING 	 2019-05-28 08:50:22,773 	 RX: Automated LKM monitor: Changed PULS from -200.00 to 0.00
+ WARNING 	 2019-05-28 08:50:23,788 	 RX: Event: Automated LKM monitor: Changed PULS from -200.00 to 0.00
+ WARNING 	 2019-05-28 08:50:24,788 	 RX: Event: Pacemaker
+ WARNING 	 2019-05-28 08:50:25,960 	 RX: Automated LKM monitor: Changed MOTR from -200.00 to 30.00
+ WARNING 	 2019-05-28 08:50:26,960 	 RX: Event: Automated LKM monitor: Changed MOTR from -200.00 to 30.00
+ WARNING 	 2019-05-28 08:50:32,803 	 TX (Heartbeat): $STAT,;
+ WARNING 	 2019-05-28 08:50:33,756 	 RX (Heartbeat): Recieved command $STAT
+   ERROR 	 2019-05-28 08:50:35,006 Message has 1 corruption(s).
+ WARNING 	 2019-05-28 08:50:35,006 	 RX: 
+#PWR,ON,PULS,0,DATA,2400,VOLT,5.0,TEMP,30.89,PRES,92104.00,MOT?,30
+ WARNING 	 2019-05-28 08:50:35,209 	 RX: 
+#TEMP,30.89
+ WARNING 	 2019-05-28 08:50:36,522 	 RX: 
+#PWR,ON,PULS,0,DATA,2
+Event: Ground command: $STAT,
+ WARNING 	 2019-05-28 08:50:36,709 	 RX: 
+ WARNING 	 2019-05-28 08:51:25,206 	 RX: Event: Pacemaker
+ WARNING 	 2019-05-28 08:51:33,814 	 TX (Heartbeat): $STAT,;
+ WARNING 	 2019-05-28 08:51:34,533 	 RX (Heartbeat): Recieved command $STAT
+ WARNING 	 2019-05-28 08:51:34,908 	 RX: 
+#TEMP,30.89
+ WARNING 	 2019-05-28 08:51:35,971 	 RX: 
+#PWR,ON,PULS,0,DATA,2400,VOLT,5.0,TEMP,32.53,PRES,92105.00,MOTR,30
+ WARNING 	 2019-05-28 08:51:36,471 	 RX: 
+
+Event: Ground command: $STAT,
+ WARNING 	 2019-05-28 08:51:36,658 	 RX: 
+ WARNING 	 2019-05-28 08:51:42,251 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:51:51,704 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:52:25,983 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:52:26,936 	 RX: Event: Pacemaker
+ WARNING 	 2019-05-28 08:52:27,701 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:52:30,154 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:52:31,498 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:52:34,826 	 TX (Heartbeat): $STAT,;
+ WARNING 	 2019-05-28 08:52:38,138 	 RX (Heartbeat): Recieved command $STAT
+ WARNING 	 2019-05-28 08:52:39,310 	 RX: #PWR,ON,PULS,0,DATA,2400,VOLT,5.0,TEMP,33.35,PRES,92108.00,MOTR,30
+ WARNING 	 2019-05-28 08:52:39,810 	 RX: 
+
+Event: Ground command: $STAT,
+ WARNING 	 2019-05-28 08:52:40,232 	 RX: 
+ WARNING 	 2019-05-28 08:52:44,388 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:52:47,184 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:52:50,325 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:52:57,855 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:53:00,746 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:53:04,089 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:53:06,964 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:53:08,980 	 RX: Event: WARNING: temp too high
+    INFO 	 2019-05-28 08:53:12,464 Entered COMMAND MODE.
+   DEBUG 	 2019-05-28 08:53:13,761 Command: STAT
+ WARNING 	 2019-05-28 08:53:13,761 	 TX: $STAT,;
+    INFO 	 2019-05-28 08:53:13,761 Listening...  press <c> to enter COMMAND MODE or <q> to quit program
+ WARNING 	 2019-05-28 08:53:15,292 	 RX: Recieved command $STAT
+   ERROR 	 2019-05-28 08:53:16,448 Message has 1 corruption(s).
+ WARNING 	 2019-05-28 08:53:16,448 	 RX: #PWR,ON,PULS,0,DATA,2400,VO?T,5.0,TEMP,32.53,PRES,92101.00,MOTR,30
+ WARNING 	 2019-05-28 08:53:16,948 	 RX: 
+
+Event: Ground command: $STAT,
+ WARNING 	 2019-05-28 08:53:16,948 	 RX: 
+ WARNING 	 2019-05-28 08:53:17,401 	 RX: Event: WARNING: temp too high
+    INFO 	 2019-05-28 08:53:18,026 Entered COMMAND MODE.
+   DEBUG 	 2019-05-28 08:53:19,323 Command: VOLT
+ WARNING 	 2019-05-28 08:53:19,323 	 TX: $VOLT,;
+    INFO 	 2019-05-28 08:53:19,323 Listening...  press <c> to enter COMMAND MODE or <q> to quit program
+ WARNING 	 2019-05-28 08:53:19,776 	 RX (delayed): Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:53:20,557 	 RX: Recieved command $VOLT
+ WARNING 	 2019-05-28 08:53:20,729 	 RX: 
+#VOLT,5.0
+ WARNING 	 2019-05-28 08:53:21,213 	 RX: 
+Event: Ground command: $VOLT,
+ WARNING 	 2019-05-28 08:53:21,213 	 RX: 
+ WARNING 	 2019-05-28 08:53:22,104 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:53:23,682 	 RX: E
+ WARNING 	 2019-05-28 08:53:24,119 	 RX: vent: WARNING: temp too high
+ WARNING 	 2019-05-28 08:53:26,135 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:53:27,369 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:53:27,994 	 RX: Event: Pacemaker
+ WARNING 	 2019-05-28 08:53:28,760 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:53:30,666 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:53:31,572 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:53:35,665 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:53:35,837 	 TX (Heartbeat): $STAT,;
+ WARNING 	 2019-05-28 08:53:36,509 	 RX (Heartbeat): E
+ WARNING 	 2019-05-28 08:53:36,946 	 RX: vent: WARNING: temp too high
+ WARNING 	 2019-05-28 08:53:37,290 	 RX: Recieved command $STAT
+ WARNING 	 2019-05-28 08:53:38,353 	 RX: 
+#PWR,ON,PULS,0,DATA,2400,VOLT,5.0,TEMP,31.71,PRES,92105.00,MOTR,30
+ WARNING 	 2019-05-28 08:53:38,853 	 RX: 
+
+Event: Ground command: $STAT,
+ WARNING 	 2019-05-28 08:53:38,853 	 RX: 
+ WARNING 	 2019-05-28 08:53:39,899 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:53:42,024 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:53:43,259 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:53:48,258 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:54:28,662 	 RX: Event: Pacemaker
+ WARNING 	 2019-05-28 08:54:36,848 	 TX (Heartbeat): $STAT,;
+ WARNING 	 2019-05-28 08:54:37,645 	 RX (Heartbeat): Recieved command $STAT
+ WARNING 	 2019-05-28 08:54:38,020 	 RX: 
+#TEMP,31.71
+ WARNING 	 2019-05-28 08:54:39,083 	 RX: 
+#PWR,ON,PULS,0,DA+A,2400,VOLT,5.0,TEMP,32.53,PRES,92102.00,MOTR,30
+ WARNING 	 2019-05-28 08:54:39,583 	 RX: 
+
+Event: Ground command: $STAT,
+ WARNING 	 2019-05-28 08:54:39,583 	 RX: 
+ WARNING 	 2019-05-28 08:54:40,036 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:54:41,520 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:54:43,098 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:54:44,332 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:54:45,239 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:54:46,160 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:54:47,723 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:54:50,254 	 RX: Automated LKM monitor: Changed MOTR from 0.00 to 30.00
+ WARNING 	 2019-05-28 08:54:51,207 	 RX: Event: Automated LKM monitor: Changed MOTR from 0.00 to 30.00
+ WARNING 	 2019-05-28 08:54:51,660 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:54:52,113 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:54:52,738 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:54:54,300 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:54:56,207 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:54:57,566 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:55:01,112 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:55:02,690 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:55:04,706 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:55:05,612 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:55:06,846 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:55:08,096 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:55:09,346 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:55:10,252 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:55:11,487 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:55:14,065 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:55:15,299 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:55:18,861 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:55:19,767 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:55:21,783 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:55:23,361 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:55:24,595 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:55:25,501 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:55:26,423 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:55:28,001 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:55:29,235 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:55:29,845 	 RX: Event: Pacemaker
+ WARNING 	 2019-05-28 08:55:30,610 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:55:31,517 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:55:33,766 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:55:34,673 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:55:35,579 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:55:37,157 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:55:38,063 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:55:38,063 	 TX (Heartbeat): $STAT,;
+ WARNING 	 2019-05-28 08:55:39,016 	 RX (Heartbeat): Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:55:39,360 	 RX: Recieved command $STAT
+ WARNING 	 2019-05-28 08:55:40,422 	 RX: 
+#PWR,/N,PULS,0,DATA,2400,VOLT,5.0,TEMP,33.35,PRES,92115.00,MOTR,30
+ WARNING 	 2019-05-28 08:55:40,922 	 RX: 
+
+Event: Ground command: $STAT,
+ WARNING 	 2019-05-28 08:55:40,922 	 RX: 
+ WARNING 	 2019-05-28 08:55:41,375 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:55:42,766 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:55:43,672 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:55:44,578 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:55:45,828 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:55:48,172 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:55:49,093 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:55:51,093 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:55:52,671 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:55:53,578 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:56:00,936 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:56:02,499 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:56:03,749 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:56:04,655 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:56:05,561 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:56:06,467 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:56:08,826 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:56:09,733 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:56:11,311 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:56:12,545 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:56:14,123 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:56:15,701 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:56:23,044 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:56:23,966 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:56:25,872 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:56:26,778 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:56:28,356 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:56:29,262 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:56:30,169 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:56:32,778 	 RX: Event: Pacemaker
+ WARNING 	 2019-05-28 08:56:33,543 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:56:34,012 	 RX: E
+ WARNING 	 2019-05-28 08:56:34,450 	 RX: vent: WARNING: temp too high
+ WARNING 	 2019-05-28 08:56:35,700 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:56:36,981 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:56:38,246 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:56:39,168 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:56:39,168 	 TX (Heartbeat): $STAT,;
+ WARNING 	 2019-05-28 08:56:40,105 	 RX (Heartbeat): Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:56:40,449 	 RX: Recieved command $STAT
+   ERROR 	 2019-05-28 08:56:41,496 Message has 1 corruption(s).
+ WARNING 	 2019-05-28 08:56:41,496 	 RX: 
+#PWR,O?,PULS,0,DATA,2400,VOLT,5.0,TEMP,33.35,PRES,92109.00,MOTR,30
+ WARNING 	 2019-05-28 08:56:41,996 	 RX: 
+
+Event: Ground command: $STAT,
+ WARNING 	 2019-05-28 08:56:41,996 	 RX: 
+ WARNING 	 2019-05-28 08:56:42,449 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:56:43,433 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:56:43,886 	 RX: E
+ WARNING 	 2019-05-28 08:56:44,324 	 RX: vent: WARNING: temp too high
+ WARNING 	 2019-05-28 08:56:46,574 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:56:47,480 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:56:48,386 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:56:49,292 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:56:50,980 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:56:51,886 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:56:52,792 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:56:54,042 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:56:55,276 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:56:56,182 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:56:57,760 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:56:58,682 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:56:59,620 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:57:00,526 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:57:01,432 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:57:02,682 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:57:04,244 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:57:05,494 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:57:06,401 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:57:06,869 	 RX: E
+ WARNING 	 2019-05-28 08:57:07,307 	 RX: vent: WARNING: temp too high
+ WARNING 	 2019-05-28 08:57:08,213 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:57:08,682 	 RX: E
+ WARNING 	 2019-05-28 08:57:09,119 	 RX: vent: WARNING: temp too high
+ WARNING 	 2019-05-28 08:57:10,041 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:57:11,244 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:57:12,150 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:57:13,400 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:57:14,962 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:57:15,884 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:57:16,790 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:57:17,697 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:57:18,603 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:57:21,181 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:57:22,087 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:57:23,993 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:57:24,790 	 RX: E
+ WARNING 	 2019-05-28 08:57:25,227 	 RX: vent: WARNING: temp too high
+ WARNING 	 2019-05-28 08:57:26,805 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:57:27,727 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:57:28,633 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:57:29,868 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:57:30,774 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:57:31,696 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:57:32,930 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:57:34,539 	 RX: Event: Pacemaker
+ WARNING 	 2019-05-28 08:57:35,305 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:57:36,227 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:57:37,789 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:57:39,367 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:57:40,273 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:57:40,273 	 TX (Heartbeat): $STAT,;
+ WARNING 	 2019-05-28 08:57:41,523 	 RX (Heartbeat): Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:57:42,429 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:57:44,007 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:57:45,132 	 RX: E
+ WARNING 	 2019-05-28 08:57:45,570 	 RX: vent: WARNING: temp too high
+ WARNING 	 2019-05-28 08:57:46,820 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:57:49,069 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:57:50,304 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:57:52,210 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:57:53,132 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:57:53,585 	 RX: E
+ WARNING 	 2019-05-28 08:57:54,022 	 RX: vent: WARNING: temp too high
+ WARNING 	 2019-05-28 08:57:54,944 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:57:55,866 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:57:56,788 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:57:57,694 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:57:59,381 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:58:00,287 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:58:01,084 	 RX: E
+ WARNING 	 2019-05-28 08:58:01,522 	 RX: vent: WARNING: temp too high
+ WARNING 	 2019-05-28 08:58:03,443 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:58:04,350 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:58:05,256 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:58:06,162 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:58:06,631 	 RX: E
+ WARNING 	 2019-05-28 08:58:07,068 	 RX: vent: WARNING: temp too high
+ WARNING 	 2019-05-28 08:58:07,974 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:58:08,880 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:58:11,568 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:58:12,474 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:58:13,380 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:58:14,630 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:58:15,536 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:58:16,786 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:58:18,349 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:58:19,598 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:58:20,505 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:58:21,755 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:58:22,208 	 RX: E
+ WARNING 	 2019-05-28 08:58:22,645 	 RX: vent: WARNING: temp too high
+ WARNING 	 2019-05-28 08:58:23,567 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:58:25,145 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:58:26,379 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:58:27,614 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:58:28,535 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:58:29,770 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:58:31,129 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:58:32,020 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:58:33,269 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:58:34,176 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:58:35,129 	 RX: Event: Pacemaker
+ WARNING 	 2019-05-28 08:58:35,894 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:58:36,800 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:58:37,707 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:58:38,613 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:58:40,191 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:58:41,284 	 TX (Heartbeat): $STAT,;
+ WARNING 	 2019-05-28 08:58:41,769 	 RX (Heartbeat): Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:58:43,269 	 RX: E
+ WARNING 	 2019-05-28 08:58:43,737 	 RX: vent: WARNING: temp too high
+ WARNING 	 2019-05-28 08:58:44,081 	 RX: Recieved command $STAT
+   ERROR 	 2019-05-28 08:58:45,159 Message has 1 corruption(s).
+ WARNING 	 2019-05-28 08:58:45,159 	 RX: 
+#PWR,ON,PULS,0,DATA,2400,VOLT,5.0,TEMP,33.35,PRES,9210?.00,MOTR,30
+ WARNING 	 2019-05-28 08:58:45,894 	 RX: 
+
+Event: Ground command: $STAT,
+ WARNING 	 2019-05-28 08:58:45,894 	 RX: 
+ WARNING 	 2019-05-28 08:58:46,347 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:58:47,690 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:58:48,940 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:58:49,846 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:58:50,753 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:58:51,659 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:58:52,581 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:58:54,143 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:58:55,065 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:58:55,971 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:58:56,877 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:58:57,783 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:58:58,689 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:58:59,596 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:59:00,517 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:59:01,752 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:59:04,002 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:59:04,455 	 RX: E
+ WARNING 	 2019-05-28 08:59:04,892 	 RX: vent: WARNING: temp too high
+ WARNING 	 2019-05-28 08:59:05,814 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:59:06,720 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:59:07,626 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:59:08,533 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:59:09,439 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:59:10,345 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:59:11,595 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:59:12,938 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:59:14,188 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:59:15,095 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:59:16,329 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:59:17,907 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:59:18,704 	 RX: E
+ WARNING 	 2019-05-28 08:59:19,172 	 RX: vent: WARNING: temp too high
+ WARNING 	 2019-05-28 08:59:20,829 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:59:22,078 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:59:35,578 	 RX: Event: Pacemaker
+ WARNING 	 2019-05-28 08:59:42,296 	 TX (Heartbeat): $STAT,;
+ WARNING 	 2019-05-28 08:59:42,952 	 RX (Heartbeat): Recieved command $STAT
+ WARNING 	 2019-05-28 08:59:43,327 	 RX: 
+#TEMP,31.71
+   ERROR 	 2019-05-28 08:59:44,749 Message has 1 corruption(s).
+ WARNING 	 2019-05-28 08:59:44,749 	 RX: 
+#PWR,ON,PULS,0,DATA,2400,VOLT,5.0,TEMP,33.3?,PRES,92113.00,MOTR,30
+ WARNING 	 2019-05-28 08:59:45,296 	 RX: 
+
+Event: Ground command: $STAT,
+ WARNING 	 2019-05-28 08:59:45,296 	 RX: 
+ WARNING 	 2019-05-28 08:59:45,749 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:59:46,389 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:59:47,624 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:59:48,530 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:59:50,108 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:59:51,014 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:59:52,936 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:59:54,529 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:59:56,107 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:59:57,014 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:59:58,592 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 08:59:59,498 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:00:00,420 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:00:09,091 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:00:10,341 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:00:11,575 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:00:12,825 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:00:14,403 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:00:15,637 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:00:16,887 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:00:17,793 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:00:18,699 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:00:19,934 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:00:20,856 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:00:22,762 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:00:24,668 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:00:25,902 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:00:27,261 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:00:28,168 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:00:29,074 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:00:29,980 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:00:31,230 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:00:32,136 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:00:33,042 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:00:34,714 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:00:35,964 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:00:36,589 	 RX: Event: Pacemaker
+ WARNING 	 2019-05-28 09:00:37,386 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:00:37,839 	 RX: E
+ WARNING 	 2019-05-28 09:00:38,276 	 RX: vent: WARNING: temp too high
+ WARNING 	 2019-05-28 09:00:39,011 	 RX: Event: Event: launched
+ WARNING 	 2019-05-28 09:00:39,870 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:00:40,948 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:00:42,042 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:00:43,292 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:00:43,307 	 TX (Heartbeat): $STAT,;
+ WARNING 	 2019-05-28 09:00:44,416 	 RX (Heartbeat): Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:00:44,760 	 RX: Recieved command $STAT
+ WARNING 	 2019-05-28 09:00:45,854 	 RX: 
+#PWR,ON,PULS,0,DATA,2400,VOLT,5.0,TEMP,33.35,PRES,92097.00,MOTR,30
+ WARNING 	 2019-05-28 09:00:46,354 	 RX: 
+
+Event: Ground command: $STAT,
+ WARNING 	 2019-05-28 09:00:46,776 	 RX: 
+ WARNING 	 2019-05-28 09:00:47,479 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:00:48,572 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:00:49,650 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:00:50,729 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:00:51,807 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:00:52,900 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:00:53,822 	 RX: Burn wire activated, altitude 2.69
+ WARNING 	 2019-05-28 09:00:54,384 	 RX: Event: Door: burn started
+ WARNING 	 2019-05-28 09:01:14,742 	 RX: Event: Door: deployed
+ WARNING 	 2019-05-28 09:01:14,961 	 RX: Door: deployed
+ WARNING 	 2019-05-28 09:01:15,446 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:01:16,305 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:01:18,227 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:01:18,680 	 RX: E
+ WARNING 	 2019-05-28 09:01:19,117 	 RX: vent: WARNING: temp too high
+ WARNING 	 2019-05-28 09:01:20,039 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:01:21,273 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:01:22,195 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:01:24,086 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:01:26,007 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:01:27,242 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:01:28,163 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:01:30,398 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:01:32,304 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:01:33,538 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:01:34,460 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:01:36,803 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:01:37,741 	 RX: Event: Pacemaker
+ WARNING 	 2019-05-28 09:01:38,506 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:01:39,428 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:01:40,334 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:01:41,569 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:01:42,475 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:01:43,397 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:01:44,303 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:01:44,318 	 TX (Heartbeat): $STAT,;
+ WARNING 	 2019-05-28 09:01:45,582 	 RX (Heartbeat): Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:01:45,926 	 RX: Recieved command $STAT
+ WARNING 	 2019-05-28 09:01:46,988 	 RX: 
+#PWR,ON,PULS,0,DATA,2400,VOLT,5.0,TEMP,34.17,PRES,92107.00,MOTR,30
+ WARNING 	 2019-05-28 09:01:47,488 	 RX: 
+
+Event: Ground command: $STAT,
+ WARNING 	 2019-05-28 09:01:47,738 	 RX: 
+ WARNING 	 2019-05-28 09:01:48,191 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:01:48,676 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:01:49,582 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:01:50,488 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:01:51,394 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:01:52,644 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:01:54,206 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:01:55,785 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:01:56,691 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:01:57,613 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:01:58,519 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:01:59,425 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:02:00,659 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:02:01,909 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:02:04,471 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:02:05,721 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:02:06,971 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:02:08,315 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:02:09,221 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:02:10,127 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:02:11,705 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:02:12,611 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:02:13,533 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:02:13,986 	 RX: E
+ WARNING 	 2019-05-28 09:02:14,424 	 RX: vent: WARNING: temp too high
+ WARNING 	 2019-05-28 09:02:15,330 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:02:16,252 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:02:18,158 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:02:20,173 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:02:21,408 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:02:22,986 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:02:24,454 	 RX: E
+ WARNING 	 2019-05-28 09:02:24,923 	 RX: vent: WARNING: temp too high
+ WARNING 	 2019-05-28 09:02:25,798 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:02:27,720 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:02:28,954 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:02:30,204 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:02:31,110 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:02:32,016 	 RX: Event: WARNING: temp too high
+ WARNING 	 2019-05-28 09:02:33,251 	 RX: Event: WARNING: temp too high
+   ERROR 	 2019-05-28 09:02:34,422 Serial port disconnected.
+ WARNING 	 2019-05-28 09:02:34,454 	 RX: Eve
+    INFO 	 2019-05-28 09:04:54,785 The following ports are available: 
+    INFO 	 2019-05-28 09:04:54,941 ['Intel(R) Active Management Technology - SOL (COM3)']
+    INFO 	 2019-05-28 09:12:23,853 Program terminated.
+    INFO 	 2019-05-28 09:12:25,275 The following ports are available: 
+    INFO 	 2019-05-28 09:12:25,431 ['Intel(R) Active Management Technology - SOL (COM3)', 'Arduino Uno (COM15)']
+    INFO 	 2019-05-28 09:12:31,650 Serial port COM15 opened successfully.
+ WARNING 	 2019-05-28 09:12:31,775 	 TX (Heartbeat): $STAT,;
+ WARNING 	 2019-05-28 09:12:31,868 	 RX (Heartbeat):  
+    INFO 	 2019-05-28 09:12:31,868 Listening...  press <c> to enter COMMAND MODE or <q> to quit program
+    INFO 	 2019-05-28 09:12:44,352 Program terminated.
